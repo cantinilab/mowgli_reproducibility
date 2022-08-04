@@ -3,6 +3,7 @@ import torch
 from torchnmf.nmf import NMF
 import os
 from rich.console import Console
+import numpy as np
 
 
 console = Console()
@@ -12,7 +13,7 @@ with console.status("[bold green]Loading data...") as status:
     data_path = os.path.join(
         "/users/csb/huizing/Documents/PhD/Code/",
         "mowgli_reproducibility/data/10X_PBMC_10k/",
-        "pbmc_preprocessed.h5mu.gz"
+        "pbmc_preprocessed.h5mu.gz",
     )
 
     # Load the data.
@@ -29,5 +30,14 @@ with console.status("[bold green]Performing NMF...") as status:
 
     # Write the embedding as an obsm.
     mdata.obsm["X_nmf"] = model.H.detach().numpy()
+
+    # Save to disk.
+    np.save(
+        os.path.join(
+            "/users/csb/huizing/Documents/PhD/Code/",
+            "mowgli_reproducibility/data/10X_PBMC_10k/pbmc_nmf.npy",
+        ),
+        mdata.obsm["X_nmf"],
+    )
 
     console.log("NMF performed.")
