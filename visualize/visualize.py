@@ -1,8 +1,6 @@
 ######################################## IMPORTS #########################################
 
 # Load libraries.
-import numpy as np
-import pandas as pd
 import scanpy as sc
 import muon as mu
 from rich.console import Console
@@ -26,13 +24,12 @@ with console.status("[bold green]Loading data...") as status:
 
 #################################### PLOT UMAPS ##########################################
 
-console = Console()
 with console.status("[bold green]Plotting UMAPs...") as status:
 
     # Define figure path.
     sc.settings.figdir = os.path.join(
         "/users/csb/huizing/Documents/PhD/Code/",
-        "mowgli_reproducibility/img/pbmc_",
+        "mowgli_reproducibility/img/pbmc/",
     )
 
     # Iterate over modalities.
@@ -43,7 +40,7 @@ with console.status("[bold green]Plotting UMAPs...") as status:
 
         # Compute the UMAP embedding.
         sc.tl.umap(mdata[mod])
-            
+
         # Define the figure name.
         figure_name = f"_{mod}.pdf"
 

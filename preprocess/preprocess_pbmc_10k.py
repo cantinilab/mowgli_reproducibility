@@ -49,7 +49,6 @@ with console.status("[bold green]Loading data...") as status:
 
     console.log("Metadata loaded.")
 
-console = Console()
 with console.status("[bold green]Preprocessing data...") as status:
 
     ################################## RNA PREPROCESSING #################################
@@ -119,7 +118,6 @@ with console.status("[bold green]Preprocessing data...") as status:
 
     console.log("ATAC preprocessed.")
 
-console = Console()
 with console.status("[bold green]Saving data...") as status:
 
     ################################ SAVE PREPROCESSED DATA ##############################
