@@ -1,42 +1,42 @@
+# Imports.
 library(MOFA2)
 library(MuDataSeurat)
 
-file_path -> "/users/csb/huizing/Documents/PhD/Code/mowgli_reproducibility/data/10X_PBMC_10k/pbmc_preprocessed.h5mu.gz"
-outfile -> "/users/csb/huizing/Documents/PhD/Code/mowgli_reproducibility/data/10X_PBMC_10k/pbmc_mofa.hdf5"
-
-# Create Seurat object from h5mu file.
-seurat_object <- MuDataSeurat::ReadH5MU(file_path)
-
-# Create MOFA object from Seurat object.
-mofa_object <- MOFA2::create_mofa_from_matrix(
-    data = list(
-        seurat_object@assays$rna@counts,
-        seurat_object@assays$atac@counts
-    )
-)
-
-# Define hyperparameters.
+# Define the hyperparameters.
 num_factors <- 30
 my_seed <- 42
 
-# Define data options.
-data_opts <- MOFA2::get_default_data_options(mofa_object)
+# Define the input and output paths.
+file_path <- "Phd/mowgli_reproducibility/data/10X_PBMC_10k/pbmc_preprocessed.h5mu.gz"
+out_path <- paste0("Phd/mowgli_reproducibility/data/10X_PBMC_10k/pbmc_mofa_", num_factors, ".hdf5")
 
-# Define model options.
+# Read the MuData file as a Seurat object.
+seurat_object <- MuDataSeurat::ReadH5MU(file_path)
+
+# Center the preprocessed RNA data.
+Seurat::DefaultAssay(seurat_object) <- "rna"
+seurat_object <- Seurat::ScaleData(seurat_object, do.center = TRUE, do.scale = FALSE)
+
+# Create the mofa object from the seurat object.
+mofa_object <- MOFA2::create_mofa(seurat_object, assays = c('rna', 'atac'))
+
+# We don't need the Seurat object in memory anymore.
+remove(seurat_object)
+
+# Define the model options.
 model_opts <- MOFA2::get_default_model_options(mofa_object)
 model_opts$num_factors <- num_factors
 
-# Define training options.
+# Define the training options.
 train_opts <- MOFA2::get_default_training_options(mofa_object)
 train_opts$seed <- my_seed
 
-# Perform dimensionality reduction.
+# Prepare the dimensionality reduction.
 mofa_object <- MOFA2::prepare_mofa(
     object = mofa_object,
-    data_options = data_opts,
     model_options = model_opts,
     training_options = train_opts
 )
 
-# Save the MOFA object.
-trained_mofa_object <- MOFA2::run_mofa(mofa_object, out_file)
+# Perform the dimensionality reduction.
+trained_mofa_object <- MOFA2::run_mofa(mofa_object, out_path)
