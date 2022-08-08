@@ -39,4 +39,4 @@ mofa_object <- MOFA2::prepare_mofa(
 )
 
 # Perform the dimensionality reduction.
-trained_mofa_object <- MOFA2::run_mofa(mofa_object, out_path)
+trained_mofa_object <- MOFA2::run_mofa(mofa_object, out_path, use_basilisk = TRUE)
