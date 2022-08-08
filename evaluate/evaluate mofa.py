@@ -84,6 +84,8 @@ with console.status("[bold green]Evaluating MOFA...") as status:
         )
         mofa_object = mofax.model_blabla(mofa_path)
 
+        console.log("Loaded the model [bold green]")
+
         # TODO: put in obsm
         mdata.obsm["X_mofa"] = mofa_object.blablabla
         mdata.uns = {}
@@ -94,26 +96,42 @@ with console.status("[bold green]Evaluating MOFA...") as status:
             mdata.obs["rna:celltype"],
         )
 
-        # Compute the purity score.
-        # TODO: faire varier k
-        knn = score.embedding_to_knn(mdata.obsm["X_mofa"])
-        scores_dict[xp_name]['Purity score'] = score.knn_purity_score(knn, mdata.obs["rna:celltype"])
+        console.log("Computed the silhouette score [bold green]")
 
-        # Compute the kNN graph.
+        # Compute the purity score for varying k nearest neighbors.
+        purity_scores = []
+        for k in k_range:
+            knn = score.embedding_to_knn(mdata.obsm["X_mofa"], k=k)
+            purity_scores.append(score.knn_purity_score(knn, mdata.obs["rna:celltype"]))
+        scores_dict[xp_name]['Purity scores'] = purity_scores
+        scores_dict[xp_name]['k range'] = k_range
+
+        console.log("Computed the purity scores. Phew! [bold green]")
+
+        # Let Scanpy compute the kNN graph.
         sc.pp.neighbors(mdata, use_rep="X_mofa")
 
-        # Compute the Leiden clustering.
-        # TODO: faire varier resolution
-        sc.tl.leiden(mdata)
+        # Compute the Leiden clustering and ARI for varying resolution.
+        aris = []
+        for res in res_range:
+            sc.tl.leiden(mdata, res=res)
+            aris.append(score.ARI(mdata.obs["rna:celltype"], mdata.obs["leiden"]))
+        scores_dict[xp_name]['ARIs'] = aris
+        scores_dict[xp_name]['res_range'] = res_range
 
-        # Compute the adjusted rand index.
-        scores_dict[xp_name]['ARI'] = score.ARI(mdata.obs["rna:celltype"], mdata.obs["leiden"])
+        console.log("Computed the ARIs. Phew! [bold green]")
 
         # Try jaccard smoothing.
         jaccard_denoising(mdata)
-        # TODO: faire varier resolution
+
         sc.tl.leiden(mdata)
-        scores_dict[xp_name]['ARI after denoising'] = score.ARI(mdata.obs["rna:celltype"], mdata.obs["leiden"])
+        jaccard_aris = []
+        for res in res_range:
+            sc.tl.leiden(mdata, res=res)
+            jaccard_aris.append(score.ARI(mdata.obs["rna:celltype"], mdata.obs["leiden"]))
+        scores_dict[xp_name]['ARIs after denoising'] = jaccard_aris
+
+        console.log("Computed the ARIs after denoising. Phew! [bold green]")
 
     # Define the path where to save the results.
     res_path = os.path.join(
@@ -124,3 +142,5 @@ with console.status("[bold green]Evaluating MOFA...") as status:
     # Save the results.
     with open(res_path, 'wb') as f:
         pickle.dump(scores_dict, f)
+
+    console.log("Saved all of this! [bold green]")
