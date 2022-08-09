@@ -35,7 +35,7 @@ with console.status("[bold green]Performing NMF...") as status:
     np.save(
         os.path.join(
             "/users/csb/huizing/Documents/PhD/Code/",
-            "mowgli_reproducibility/data/10X_PBMC_10k/pbmc_nmf.npy",
+            "mowgli_reproducibility/data/10X_PBMC_10k/pbmc_nmf_30.npy",
         ),
         mdata.obsm["X_nmf"],
     )
