@@ -8,6 +8,7 @@ import os
 import numpy as np
 from mowgli import score
 import mofax
+import pickle
 
 ##################################### LOAD DATA ##########################################
 
@@ -56,6 +57,7 @@ def jaccard_denoising(adata):
             adata.obsp["connectivities"][i, j] = d
             adata.obsp["connectivities"][j, i] = d
 
+
 ################################# EVALUATING MOFA ########################################
 
 with console.status("[bold green]Evaluating MOFA...") as status:
@@ -67,9 +69,9 @@ with console.status("[bold green]Evaluating MOFA...") as status:
     k_range = list(range(1, 30))
 
     # Set the range of resulotions.
-    res_range = list(range(.1, 2, .1))
+    res_range = list(np.arange(0.1, 2, 0.1))
 
-    for xp_name in ['pbmc_mofa_15', 'pbmc_mofa_30', 'pbmc_mofa_50']:
+    for xp_name in ["pbmc_mofa_15", "pbmc_mofa_30", "pbmc_mofa_50"]:
 
         # Initialise scores for this experiment.
         scores_dict[xp_name] = {}
@@ -77,34 +79,41 @@ with console.status("[bold green]Evaluating MOFA...") as status:
         # Log the experiment name.
         console.log(f"Starting to compute scores for {xp_name} [bold green]")
 
-        # Load the mofa embedding. TODO: mofax
+        # Load the mofa embedding.
         mofa_path = os.path.join(
             "/users/csb/huizing/Documents/PhD/Code/",
-            f"mowgli_reproducibility/data/10X_PBMC_10k/{xp_name}.hdf5"
+            f"mowgli_reproducibility/data/10X_PBMC_10k/{xp_name}.hdf5",
         )
-        mofa_object = mofax.model_blabla(mofa_path)
+        mofa_object = mofax.mofa_model(mofa_path)
+        mdata.obsm["X_mofa"] = mofa_object.get_factors()
+        mdata.uns = {}
 
         console.log("Loaded the model [bold green]")
 
-        # TODO: put in obsm
-        mdata.obsm["X_mofa"] = mofa_object.blablabla
-        mdata.uns = {}
-
         # Compute the silhouette score.
-        scores_dict[xp_name]['Silhouette score'] = score.embedding_silhouette_score(
+        scores_dict[xp_name]["Silhouette score"] = score.embedding_silhouette_score(
             mdata.obsm["X_mofa"],
             mdata.obs["rna:celltype"],
         )
 
         console.log("Computed the silhouette score [bold green]")
 
+        # Compute the kNN from the embedding.
+        knn = score.embedding_to_knn(mdata.obsm["X_mofa"], k=k_range[-1])
+
         # Compute the purity score for varying k nearest neighbors.
         purity_scores = []
         for k in k_range:
-            knn = score.embedding_to_knn(mdata.obsm["X_mofa"], k=k)
-            purity_scores.append(score.knn_purity_score(knn, mdata.obs["rna:celltype"]))
-        scores_dict[xp_name]['Purity scores'] = purity_scores
-        scores_dict[xp_name]['k range'] = k_range
+
+            # Log the value of k.
+            console.log(f"Computing purity score for k={k} [bold green]")
+
+            # Compute the purity score.
+            s = score.knn_purity_score(knn[:, :k], mdata.obs["rna:celltype"])
+            purity_scores.append(s)
+
+        scores_dict[xp_name]["Purity scores"] = purity_scores
+        scores_dict[xp_name]["k range"] = k_range
 
         console.log("Computed the purity scores. Phew! [bold green]")
 
@@ -114,10 +123,16 @@ with console.status("[bold green]Evaluating MOFA...") as status:
         # Compute the Leiden clustering and ARI for varying resolution.
         aris = []
         for res in res_range:
-            sc.tl.leiden(mdata, res=res)
+
+            # Log the value of resolution.
+            console.log(f"Computing ARI for resolution={res} [bold green]")
+
+            # Compute the ARI.
+            sc.tl.leiden(mdata, resolution=res)
             aris.append(score.ARI(mdata.obs["rna:celltype"], mdata.obs["leiden"]))
-        scores_dict[xp_name]['ARIs'] = aris
-        scores_dict[xp_name]['res_range'] = res_range
+
+        scores_dict[xp_name]["ARIs"] = aris
+        scores_dict[xp_name]["res_range"] = res_range
 
         console.log("Computed the ARIs. Phew! [bold green]")
 
@@ -127,20 +142,27 @@ with console.status("[bold green]Evaluating MOFA...") as status:
         sc.tl.leiden(mdata)
         jaccard_aris = []
         for res in res_range:
-            sc.tl.leiden(mdata, res=res)
-            jaccard_aris.append(score.ARI(mdata.obs["rna:celltype"], mdata.obs["leiden"]))
-        scores_dict[xp_name]['ARIs after denoising'] = jaccard_aris
+
+            # Log the value of resolution.
+            console.log(f"Computing ARI for resolution={res} [bold green]")
+
+            # Compute the ARI.
+            sc.tl.leiden(mdata, resolution=res)
+            s = score.ARI(mdata.obs["rna:celltype"], mdata.obs["leiden"])
+            jaccard_aris.append(s)
+
+        scores_dict[xp_name]["ARIs after denoising"] = jaccard_aris
 
         console.log("Computed the ARIs after denoising. Phew! [bold green]")
 
     # Define the path where to save the results.
     res_path = os.path.join(
         "/users/csb/huizing/Documents/PhD/Code/",
-        "mowgli_reproducibility/data/10X_PBMC_10k/scores_mofa.pkl"
+        "mowgli_reproducibility/data/10X_PBMC_10k/scores_mofa.pkl",
     )
 
     # Save the results.
-    with open(res_path, 'wb') as f:
+    with open(res_path, "wb") as f:
         pickle.dump(scores_dict, f)
 
     console.log("Saved all of this! [bold green]")
