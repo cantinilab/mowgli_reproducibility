@@ -7,7 +7,8 @@ from rich.console import Console
 import os
 import numpy as np
 from mowgli import score
-import mofax
+import pickle
+import pandas as pd
 
 ##################################### LOAD DATA ##########################################
 
@@ -56,103 +57,103 @@ def jaccard_denoising(adata):
             adata.obsp["connectivities"][i, j] = d
             adata.obsp["connectivities"][j, i] = d
 
-# TODO: different files for each method.
 
-################################# EVALUATING MOFA ########################################
+################################# EVALUATING SEURAT ########################################
 
-with console.status("[bold green]Evaluating MOFA...") as status:
+with console.status("[bold green]Evaluating Seurat...") as status:
 
-    # TODO: init score dict.
+    # Intialize a dictionary for the scores.
     scores_dict = {}
-    
-    # TODO: faire varier les XP
-    # Load the mofa embedding.
-    mofa_path = os.path.join(
+
+    # Set the range of nearest neighbors.
+    k_range = list(range(1, 30))
+
+    # Set the range of resulotions.
+    res_range = list(np.arange(0.1, 2, 0.1))
+
+    for xp_name in ["pbmc_seurat"]:
+
+        # Initialise scores for this experiment.
+        scores_dict[xp_name] = {}
+
+        # Log the experiment name.
+        console.log(f"Starting to compute scores for {xp_name} [bold green]")
+
+        # Load the seurat knn.
+        seurat_path = os.path.join(
+            "/users/csb/huizing/Documents/PhD/Code/",
+            f"mowgli_reproducibility/data/10X_PBMC_10k/{xp_name}_2022Apr14_nn_idx.csv",
+        )
+        knn = pd.read_csv(seurat_path, index_col=0).to_numpy() - 1
+        mdata.uns = {}
+
+        console.log("Loaded the knn [bold green]")
+
+        # Compute the purity score for varying k nearest neighbors.
+        purity_scores = []
+        for k in k_range:
+
+            # Log the value of k.
+            console.log(f"Computing purity score for k={k} [bold green]")
+
+            # Compute the purity score.
+            s = score.knn_purity_score(knn[:, :k], mdata.obs["rna:celltype"])
+            purity_scores.append(s)
+
+        scores_dict[xp_name]["Purity scores"] = purity_scores
+        scores_dict[xp_name]["k range"] = k_range
+
+        console.log("Computed the purity scores. Phew! [bold green]")
+
+        paths = [
+            "/users/csb/huizing/Documents/PhD/Code/mowgli_reproducibility/data/10X_PBMC_10k/pbmc_seurat_2022Apr14_clustering_0.1.csv",
+            "/users/csb/huizing/Documents/PhD/Code/mowgli_reproducibility/data/10X_PBMC_10k/pbmc_seurat_2022Apr14_clustering_0.2.csv",
+            "/users/csb/huizing/Documents/PhD/Code/mowgli_reproducibility/data/10X_PBMC_10k/pbmc_seurat_2022Apr14_clustering_0.3.csv",
+            "/users/csb/huizing/Documents/PhD/Code/mowgli_reproducibility/data/10X_PBMC_10k/pbmc_seurat_2022Apr14_clustering_0.4.csv",
+            "/users/csb/huizing/Documents/PhD/Code/mowgli_reproducibility/data/10X_PBMC_10k/pbmc_seurat_2022Apr14_clustering_0.5.csv",
+            "/users/csb/huizing/Documents/PhD/Code/mowgli_reproducibility/data/10X_PBMC_10k/pbmc_seurat_2022Apr14_clustering_0.6.csv",
+            "/users/csb/huizing/Documents/PhD/Code/mowgli_reproducibility/data/10X_PBMC_10k/pbmc_seurat_2022Apr14_clustering_0.7.csv",
+            "/users/csb/huizing/Documents/PhD/Code/mowgli_reproducibility/data/10X_PBMC_10k/pbmc_seurat_2022Apr14_clustering_0.8.csv",
+            "/users/csb/huizing/Documents/PhD/Code/mowgli_reproducibility/data/10X_PBMC_10k/pbmc_seurat_2022Apr14_clustering_0.9.csv",
+            "/users/csb/huizing/Documents/PhD/Code/mowgli_reproducibility/data/10X_PBMC_10k/pbmc_seurat_2022Apr14_clustering_1.csv",
+            "/users/csb/huizing/Documents/PhD/Code/mowgli_reproducibility/data/10X_PBMC_10k/pbmc_seurat_2022Apr14_clustering_1.1.csv",
+            "/users/csb/huizing/Documents/PhD/Code/mowgli_reproducibility/data/10X_PBMC_10k/pbmc_seurat_2022Apr14_clustering_1.2.csv",
+            "/users/csb/huizing/Documents/PhD/Code/mowgli_reproducibility/data/10X_PBMC_10k/pbmc_seurat_2022Apr14_clustering_1.3.csv",
+            "/users/csb/huizing/Documents/PhD/Code/mowgli_reproducibility/data/10X_PBMC_10k/pbmc_seurat_2022Apr14_clustering_1.4.csv",
+            "/users/csb/huizing/Documents/PhD/Code/mowgli_reproducibility/data/10X_PBMC_10k/pbmc_seurat_2022Apr14_clustering_1.5.csv",
+            "/users/csb/huizing/Documents/PhD/Code/mowgli_reproducibility/data/10X_PBMC_10k/pbmc_seurat_2022Apr14_clustering_1.6.csv",
+            "/users/csb/huizing/Documents/PhD/Code/mowgli_reproducibility/data/10X_PBMC_10k/pbmc_seurat_2022Apr14_clustering_1.7.csv",
+            "/users/csb/huizing/Documents/PhD/Code/mowgli_reproducibility/data/10X_PBMC_10k/pbmc_seurat_2022Apr14_clustering_1.8.csv",
+            "/users/csb/huizing/Documents/PhD/Code/mowgli_reproducibility/data/10X_PBMC_10k/pbmc_seurat_2022Apr14_clustering_1.9.csv",
+            "/users/csb/huizing/Documents/PhD/Code/mowgli_reproducibility/data/10X_PBMC_10k/pbmc_seurat_2022Apr14_clustering_2.csv",
+        ]
+
+        # Compute the ARI for varying resolutions of Leiden clustering.
+        aris = []
+        for i, res in enumerate(res_range):
+
+            # Log the value of resolution.
+            console.log(f"Computing ARI for resolution={res} [bold green]")
+
+            # Load the clustering.
+            leiden = pd.read_csv(paths[i], index_col=0).to_numpy()[:, 0]
+
+            # Compute the ARI.
+            aris.append(score.ARI(mdata.obs["rna:celltype"], leiden))
+
+        scores_dict[xp_name]["ARIs"] = aris
+        scores_dict[xp_name]["res_range"] = res_range
+
+        console.log("Computed the ARIs. Phew! [bold green]")
+
+    # Define the path where to save the results.
+    res_path = os.path.join(
         "/users/csb/huizing/Documents/PhD/Code/",
-        "mowgli_reproducibility/data/10X_PBMC_10k/pbmc_mofa_30.hdf5",
+        "mowgli_reproducibility/data/10X_PBMC_10k/scores_seurat.pkl",
     )
 
-    # TODO: mofax
-    mofa_object = mofax.model_blabla
+    # Save the results.
+    with open(res_path, "wb") as f:
+        pickle.dump(scores_dict, f)
 
-    # TODO: put in obsm
-    mdata.obsm["X_mofa"] = np.load(nmf_path)
-    mdata.uns = {}
-
-    # Compute the silhouette score.
-    sil = score.embedding_silhouette_score(
-        mdata.obsm["X_mofa"],
-        mdata.obs["rna:celltype"],
-    )
-    console.log("Silhouette score: [bold green]{:.2f}".format(sil))
-
-    # Compute the purity score.
-    knn = score.embedding_to_knn(mdata.obsm["X_mofa"])
-
-    # TODO: faire varier k
-    pur = score.knn_purity_score(knn, mdata.obs["rna:celltype"])
-    console.log("Purity score: [bold green]{:.2f}".format(pur))
-
-    # Compute the kNN graph.
-    sc.pp.neighbors(mdata, use_rep="X_mofa")
-
-    # Compute the Leiden clustering.
-    # TODO: faire varier resolution
-    sc.tl.leiden(mdata)
-
-    # Compute the adjusted rand index.
-    ari = score.ARI(mdata.obs["rna:celltype"], mdata.obs["leiden"])
-    console.log("ARI: [bold green]{:.2f}".format(ari))
-
-    # Try jaccard smoothing.
-    jaccard_denoising(mdata)
-    # TODO: faire varier resolution
-    sc.tl.leiden(mdata)
-    ari = score.ARI(mdata.obs["rna:celltype"], mdata.obs["leiden"])
-    console.log("ARI after denoising: [bold green]{:.2f}".format(ari))
-
-    # TODO: save somewhere. as mofa_results.pkl
-    with open('saved_dictionary.pkl', 'wb') as f:
-    pickle.dump(dictionary, f)        
-    with open('saved_dictionary.pkl', 'rb') as f:
-        loaded_dict = pickle.load(f)
-
-################################## EVALUATING NMF ########################################
-
-with console.status("[bold green]Evaluating NMF...") as status:
-
-    # Load the NMF embedding.
-    nmf_path = os.path.join(
-        "/users/csb/huizing/Documents/PhD/Code/",
-        "mowgli_reproducibility/data/10X_PBMC_10k/pbmc_nmf.npy",
-    )
-    mdata.obsm["X_nmf"] = np.load(nmf_path)
-    mdata.uns = {}
-
-    # Compute the silhouette score.
-    sil = score.embedding_silhouette_score(
-        mdata.obsm["X_nmf"],
-        mdata.obs["rna:celltype"],
-    )
-    console.log("Silhouette score: [bold green]{:.2f}".format(sil))
-
-    # Compute the purity score.
-    knn = score.embedding_to_knn(mdata.obsm["X_nmf"])
-    pur = score.knn_purity_score(knn, mdata.obs["rna:celltype"])
-    console.log("Purity score: [bold green]{:.2f}".format(pur))
-
-    # Compute the kNN graph.
-    sc.pp.neighbors(mdata, use_rep="X_nmf")
-
-    # Compute the Leiden clustering.
-    sc.tl.leiden(mdata)
-
-    # Compute the adjusted rand index.
-    ari = score.ARI(mdata.obs["rna:celltype"], mdata.obs["leiden"])
-    console.log("ARI: [bold green]{:.2f}".format(ari))
-
-    # Try jaccard smoothing.
-    jaccard_denoising(mdata)
-    sc.tl.leiden(mdata)
-    ari = score.ARI(mdata.obs["rna:celltype"], mdata.obs["leiden"])
-    console.log("ARI after denoising: [bold green]{:.2f}".format(ari))
+    console.log("Saved all of this! [bold green]")
