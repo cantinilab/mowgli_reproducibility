@@ -23,7 +23,7 @@ console = Console()
 with console.status("[bold green]Performing NMF...") as status:
 
     # Define the NMF model.
-    model = NMF(mdata.shape, rank=30)
+    model = NMF(mdata.shape, rank=50)
 
     # Fit the NMF model.
     model.fit(torch.hstack([torch.Tensor(mdata[mod].X) for mod in mdata.mod]), beta=2)
@@ -35,7 +35,7 @@ with console.status("[bold green]Performing NMF...") as status:
     np.save(
         os.path.join(
             "/users/csb/huizing/Documents/PhD/Code/",
-            "mowgli_reproducibility/data/10X_PBMC_10k/pbmc_nmf_30.npy",
+            "mowgli_reproducibility/data/10X_PBMC_10k/pbmc_nmf_50.npy",
         ),
         mdata.obsm["X_nmf"],
     )
