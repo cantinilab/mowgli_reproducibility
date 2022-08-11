@@ -1,0 +1,6 @@
+python3 preprocess_bmcite.py
+python3 preprocess_liu.py
+python3 preprocess_opcite.py
+python3 preprocess_opmultiome.py
+python3 preprocess_pbmc.py
+python3 preprocess_tea.py
