@@ -8,22 +8,41 @@ import os
 import numpy as np
 from mowgli import score
 import pickle
+import sys
 
-##################################### LOAD DATA ##########################################
+# Define the data and figure folder.
+data_folder = "/users/csb/huizing/Documents/PhD/Code/mowgli_reproducibility/data/"
+
+# Define data paths for different datasets.
+data_path = {
+    "bmcite_nmf_50": data_folder + "BMCITE/bmcite_preprocessed.h5mu.gz",
+    "liu_nmf_50": data_folder + "Liu/liu_preprocessed.h5mu.gz",
+    "sim1_nmf_50": data_folder + "Liu/liu_simulated_1.h5mu.gz",
+    "sim2_nmf_50": data_folder + "Liu/liu_simulated_2.h5mu.gz",
+    "sim3_nmf_50": data_folder + "Liu/liu_simulated_3.h5mu.gz",
+    "sim4_nmf_50": data_folder + "Liu/liu_simulated_4.h5mu.gz",
+    "sim5_nmf_50": data_folder + "Liu/liu_simulated_5.h5mu.gz",
+    "opcite_nmf_50": data_folder + "OPCITE/opcite_preprocessed.h5mu.gz",
+    "opmultiome_nmf_50": data_folder + "OP_multiome/opmultiome_preprocessed.h5mu.gz",
+    "pbmc_nmf_50": data_folder + "10X_PBMC_10k/pbmc_preprocessed.h5mu.gz",
+    # "tea_nmf_50": data_folder + "TEA/tea_preprocessed.h5mu.gz",
+}
+
+nmf_path = {
+    "bmcite_nmf_50": data_folder + "BMCITE/bmcite_nmf_50.npy",
+    "liu_nmf_50": data_folder + "Liu/liu_nmf_50.npy",
+    "sim1_nmf_50": data_folder + "Liu/liu_simulated_1_nmf_50.npy",
+    "sim2_nmf_50": data_folder + "Liu/liu_simulated_2_nmf_50.npy",
+    "sim3_nmf_50": data_folder + "Liu/liu_simulated_3_nmf_50.npy",
+    "sim4_nmf_50": data_folder + "Liu/liu_simulated_4_nmf_50.npy",
+    "sim5_nmf_50": data_folder + "Liu/liu_simulated_5_nmf_50.npy",
+    "opcite_nmf_50": data_folder + "OPCITE/opcite_nmf_50.npy",
+    "opmultiome_nmf_50": data_folder + "OP_multiome/opmultiome_nmf_50.npy",
+    "pbmc_nmf_50": data_folder + "10X_PBMC_10k/pbmc_nmf_50.npy",
+    # "tea_nmf_50": data_folder + "TEA/tea_nmf_50.npy",
+}
 
 console = Console()
-with console.status("[bold green]Loading data...") as status:
-
-    # Define the data path.
-    data_path = os.path.join(
-        "/users/csb/huizing/Documents/PhD/Code/",
-        "mowgli_reproducibility/data/10X_PBMC_10k/",
-        "pbmc_preprocessed.h5mu.gz",
-    )
-
-    # Load the original data.
-    mdata = mu.read_h5mu(data_path)
-    console.log("Data loaded.")
 
 ###################################### JACCARD THING #####################################
 
@@ -70,7 +89,16 @@ with console.status("[bold green]Evaluating NMF...") as status:
     # Set the range of resulotions.
     res_range = list(np.arange(0.1, 2, 0.1))
 
-    for xp_name in ["pbmc_nmf_15", "pbmc_nmf_30", "pbmc_nmf_50"]:
+    previous_path = ""
+
+    for xp_name in data_path:
+
+        # Load the original data.
+        console.log(f"Loading data for {xp_name} [bold green]")
+        if previous_path != data_path[xp_name]:
+            mdata = mu.read_h5mu(data_path[xp_name])
+            previous_path = data_path[xp_name]
+        console.log("Data loaded.")
 
         # Initialise scores for this experiment.
         scores_dict[xp_name] = {}
@@ -79,11 +107,7 @@ with console.status("[bold green]Evaluating NMF...") as status:
         console.log(f"Starting to compute scores for {xp_name} [bold green]")
 
         # Load the nmf embedding.
-        nmf_path = os.path.join(
-            "/users/csb/huizing/Documents/PhD/Code/",
-            f"mowgli_reproducibility/data/10X_PBMC_10k/{xp_name}.npy",
-        )
-        mdata.obsm["X_nmf"] = np.load(nmf_path)
+        mdata.obsm["X_nmf"] = np.load(nmf_path[xp_name])
         mdata.uns = {}
 
         console.log("Loaded the embedding [bold green]")
@@ -154,10 +178,7 @@ with console.status("[bold green]Evaluating NMF...") as status:
         console.log("Computed the ARIs after denoising. Phew! [bold green]")
 
     # Define the path where to save the results.
-    res_path = os.path.join(
-        "/users/csb/huizing/Documents/PhD/Code/",
-        "mowgli_reproducibility/data/10X_PBMC_10k/scores_nmf.pkl",
-    )
+    res_path = "/users/csb/huizing/Documents/PhD/Code/mowgli_reproducibility/evaluate/scores_nmf.pkl"
 
     # Save the results.
     with open(res_path, "wb") as f:
