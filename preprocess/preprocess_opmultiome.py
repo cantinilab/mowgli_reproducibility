@@ -141,4 +141,10 @@ with console.status("[bold green]Saving data...") as status:
         compression="gzip",
     )
 
+    # Write the preprocessed RNA data.
+    mdata["rna"].write_h5ad(os.path.join(data_path, "opmultiome_preprocessed_rna.h5ad"))
+
+    # Write the preprocessed ATAC data.
+    mdata["atac"].write_h5ad(os.path.join(data_path, "opmultiome_preprocessed_atac.h5ad"))
+
     console.log("Preprocessed data saved!")

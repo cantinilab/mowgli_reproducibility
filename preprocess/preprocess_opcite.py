@@ -107,6 +107,9 @@ with console.status("[bold green]Saving data...") as status:
     except:
         pass
 
+    # Make variable names unique.
+    mdata.var_names_make_unique()
+
     mu.pp.intersect_obs(mdata)
 
     # Write the preprocessed data.
@@ -115,5 +118,11 @@ with console.status("[bold green]Saving data...") as status:
         mdata,
         compression="gzip",
     )
+
+    # Write the preprocessed RNA data.
+    mdata["rna"].write_h5ad(os.path.join(data_path, "opcite_preprocessed_rna.h5ad"))
+
+    # Write the preprocessed ADT data.
+    mdata["adt"].write_h5ad(os.path.join(data_path, "opcite_preprocessed_adt.h5ad"))
 
     console.log("Preprocessed data saved!")

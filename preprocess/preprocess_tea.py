@@ -182,6 +182,9 @@ with console.status("[bold green]Preprocessing data...") as status:
     mdata["atac"].obs["celltype"] = "none"
     mdata["adt"].obs["celltype"] = "none"
 
+    # Make variable names unique.
+    mdata.var_names_make_unique()
+
     # Remove this because it prevents from saving.
     del mdata["atac"].uns["atac"]["peak_annotation"]
 
