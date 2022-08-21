@@ -10,21 +10,84 @@ from mowgli import score
 import mofax
 import pickle
 
-##################################### LOAD DATA ##########################################
-
 console = Console()
-with console.status("[bold green]Loading data...") as status:
 
-    # Define the data path.
-    data_path = os.path.join(
-        "/users/csb/huizing/Documents/PhD/Code/",
-        "mowgli_reproducibility/data/10X_PBMC_10k/",
-        "pbmc_preprocessed.h5mu.gz",
-    )
 
-    # Load the original data.
-    mdata = mu.read_h5mu(data_path)
-    console.log("Data loaded.")
+# Define the data and figure folder.
+data_folder = "/users/csb/huizing/Documents/PhD/Code/mowgli_reproducibility/data/"
+
+# Define data paths for different datasets.
+data_path = {
+    "bmcite_mofa_15": data_folder + "BMCITE/bmcite_preprocessed.h5mu.gz",
+    "bmcite_mofa_30": data_folder + "BMCITE/bmcite_preprocessed.h5mu.gz",
+    "bmcite_mofa_50": data_folder + "BMCITE/bmcite_preprocessed.h5mu.gz",
+    "liu_mofa_15": data_folder + "Liu/liu_preprocessed.h5mu.gz",
+    "liu_mofa_30": data_folder + "Liu/liu_preprocessed.h5mu.gz",
+    "liu_mofa_50": data_folder + "Liu/liu_preprocessed.h5mu.gz",
+    # "sim1_mofa_15": data_folder + "Liu/liu_simulated_1.h5mu.gz",
+    # "sim1_mofa_30": data_folder + "Liu/liu_simulated_1.h5mu.gz",
+    # "sim1_mofa_50": data_folder + "Liu/liu_simulated_1.h5mu.gz",
+    # "sim2_mofa_15": data_folder + "Liu/liu_simulated_2.h5mu.gz",
+    # "sim2_mofa_30": data_folder + "Liu/liu_simulated_2.h5mu.gz",
+    # "sim2_mofa_50": data_folder + "Liu/liu_simulated_2.h5mu.gz",
+    # "sim3_mofa_15": data_folder + "Liu/liu_simulated_3.h5mu.gz",
+    # "sim3_mofa_30": data_folder + "Liu/liu_simulated_3.h5mu.gz",
+    # "sim3_mofa_50": data_folder + "Liu/liu_simulated_3.h5mu.gz",
+    # "sim4_mofa_15": data_folder + "Liu/liu_simulated_4.h5mu.gz",
+    # "sim4_mofa_30": data_folder + "Liu/liu_simulated_4.h5mu.gz",
+    # "sim4_mofa_50": data_folder + "Liu/liu_simulated_4.h5mu.gz",
+    # "sim5_mofa_15": data_folder + "Liu/liu_simulated_5.h5mu.gz",
+    # "sim5_mofa_30": data_folder + "Liu/liu_simulated_5.h5mu.gz",
+    # "sim5_mofa_50": data_folder + "Liu/liu_simulated_5.h5mu.gz",
+    "opcite_mofa_15": data_folder + "OPCITE/opcite_preprocessed.h5mu.gz",
+    "opcite_mofa_30": data_folder + "OPCITE/opcite_preprocessed.h5mu.gz",
+    "opcite_mofa_50": data_folder + "OPCITE/opcite_preprocessed.h5mu.gz",
+    "opmultiome_mofa_15": data_folder + "OP_multiome/opmultiome_preprocessed.h5mu.gz",
+    "opmultiome_mofa_30": data_folder + "OP_multiome/opmultiome_preprocessed.h5mu.gz",
+    "opmultiome_mofa_50": data_folder + "OP_multiome/opmultiome_preprocessed.h5mu.gz",
+    "pbmc_mofa_15": data_folder + "10X_PBMC_10k/pbmc_preprocessed.h5mu.gz",
+    "pbmc_mofa_30": data_folder + "10X_PBMC_10k/pbmc_preprocessed.h5mu.gz",
+    "pbmc_mofa_50": data_folder + "10X_PBMC_10k/pbmc_preprocessed.h5mu.gz",
+    # "tea_mofa_15": data_folder + "TEA/tea_preprocessed.h5mu.gz",
+    # "tea_mofa_30": data_folder + "TEA/tea_preprocessed.h5mu.gz",
+    # "tea_mofa_50": data_folder + "TEA/tea_preprocessed.h5mu.gz",
+}
+
+mofa_path = {
+    "bmcite_mofa_15": data_folder + "BMCITE/bmcite_mofa_15.hdf5",
+    "bmcite_mofa_30": data_folder + "BMCITE/bmcite_mofa_30.hdf5",
+    "bmcite_mofa_50": data_folder + "BMCITE/bmcite_mofa_50.hdf5",
+    "liu_mofa_15": data_folder + "Liu/liu_mofa_15.hdf5",
+    "liu_mofa_30": data_folder + "Liu/liu_mofa_30.hdf5",
+    "liu_mofa_50": data_folder + "Liu/liu_mofa_50.hdf5",
+    # "sim1_mofa_15": data_folder + "Liu/liu_simulated_1_mofa_15.hdf5",
+    # "sim1_mofa_30": data_folder + "Liu/liu_simulated_1_mofa_30.hdf5",
+    # "sim1_mofa_50": data_folder + "Liu/liu_simulated_1_mofa_50.hdf5",
+    # "sim2_mofa_15": data_folder + "Liu/liu_simulated_2_mofa_15.hdf5",
+    # "sim2_mofa_30": data_folder + "Liu/liu_simulated_2_mofa_30.hdf5",
+    # "sim2_mofa_50": data_folder + "Liu/liu_simulated_2_mofa_50.hdf5",
+    # "sim3_mofa_15": data_folder + "Liu/liu_simulated_3_mofa_15.hdf5",
+    # "sim3_mofa_30": data_folder + "Liu/liu_simulated_3_mofa_30.hdf5",
+    # "sim3_mofa_50": data_folder + "Liu/liu_simulated_3_mofa_50.hdf5",
+    # "sim4_mofa_15": data_folder + "Liu/liu_simulated_4_mofa_15.hdf5",
+    # "sim4_mofa_30": data_folder + "Liu/liu_simulated_4_mofa_30.hdf5",
+    # "sim4_mofa_50": data_folder + "Liu/liu_simulated_4_mofa_50.hdf5",
+    # "sim5_mofa_15": data_folder + "Liu/liu_simulated_5_mofa_15.hdf5",
+    # "sim5_mofa_30": data_folder + "Liu/liu_simulated_5_mofa_30.hdf5",
+    # "sim5_mofa_50": data_folder + "Liu/liu_simulated_5_mofa_50.hdf5",
+    "opcite_mofa_15": data_folder + "OPCITE/opcite_mofa_15.hdf5",
+    "opcite_mofa_30": data_folder + "OPCITE/opcite_mofa_30.hdf5",
+    "opcite_mofa_50": data_folder + "OPCITE/opcite_mofa_50.hdf5",
+    "opmultiome_mofa_15": data_folder + "OP_multiome/opmultiome_mofa_15.hdf5",
+    "opmultiome_mofa_30": data_folder + "OP_multiome/opmultiome_mofa_30.hdf5",
+    "opmultiome_mofa_50": data_folder + "OP_multiome/opmultiome_mofa_50.hdf5",
+    "pbmc_mofa_15": data_folder + "10X_PBMC_10k/pbmc_mofa_15.hdf5",
+    "pbmc_mofa_30": data_folder + "10X_PBMC_10k/pbmc_mofa_30.hdf5",
+    "pbmc_mofa_50": data_folder + "10X_PBMC_10k/pbmc_mofa_50.hdf5",
+    # "tea_mofa_15": data_folder + "TEA/tea_mofa_15.hdf5",
+    # "tea_mofa_30": data_folder + "TEA/tea_mofa_30.hdf5",
+    # "tea_mofa_50": data_folder + "TEA/tea_mofa_50.hdf5",
+}
 
 ###################################### JACCARD THING #####################################
 
@@ -71,7 +134,16 @@ with console.status("[bold green]Evaluating MOFA...") as status:
     # Set the range of resulotions.
     res_range = list(np.arange(0.1, 2, 0.1))
 
-    for xp_name in ["pbmc_mofa_15", "pbmc_mofa_30", "pbmc_mofa_50"]:
+    previous_path = ""
+
+    for xp_name in data_path:
+
+        # Load the data.
+        console.log(f"Loading data for {xp_name} [bold green]")
+        if previous_path != data_path[xp_name]:
+            mdata = mu.read_h5mu(data_path[xp_name])
+            previous_path = data_path[xp_name]
+        console.log("Data loaded.")
 
         # Initialise scores for this experiment.
         scores_dict[xp_name] = {}
@@ -80,11 +152,7 @@ with console.status("[bold green]Evaluating MOFA...") as status:
         console.log(f"Starting to compute scores for {xp_name} [bold green]")
 
         # Load the mofa embedding.
-        mofa_path = os.path.join(
-            "/users/csb/huizing/Documents/PhD/Code/",
-            f"mowgli_reproducibility/data/10X_PBMC_10k/{xp_name}.hdf5",
-        )
-        mofa_object = mofax.mofa_model(mofa_path)
+        mofa_object = mofax.mofa_model(mofa_path[xp_name])
         mdata.obsm["X_mofa"] = mofa_object.get_factors()
         mdata.uns = {}
 
@@ -158,7 +226,7 @@ with console.status("[bold green]Evaluating MOFA...") as status:
     # Define the path where to save the results.
     res_path = os.path.join(
         "/users/csb/huizing/Documents/PhD/Code/",
-        "mowgli_reproducibility/data/10X_PBMC_10k/scores_mofa.pkl",
+        "mowgli_reproducibility/evaluate/scores_mofa.pkl",
     )
 
     # Save the results.

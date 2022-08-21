@@ -8,22 +8,62 @@ import os
 import numpy as np
 from mowgli import score
 import pickle
+import sys
 
-##################################### LOAD DATA ##########################################
+# Define the data and figure folder.
+data_folder = "/users/csb/huizing/Documents/PhD/Code/mowgli_reproducibility/data/"
+res_folder = "/users/csb/huizing/Documents/PhD/Code/Mowgli/local_analysis/from_jz/w/"
+
+# Define data paths for different datasets.
+data_path = {
+    "bmcite_mowgli_correlation_50_0_05_0_01_0_001": data_folder
+    + "BMCITE/bmcite_preprocessed.h5mu.gz",
+    "liu_mowgli_correlation_5_0_1_0_1_0_001": data_folder
+    + "Liu/liu_preprocessed.h5mu.gz",
+    "sim1_mowgli_correlation_5_0_1_0_1_0_001": data_folder
+    + "Liu/liu_simulated_1.h5mu.gz",
+    "sim2_mowgli_correlation_5_0_1_0_1_0_001": data_folder
+    + "Liu/liu_simulated_2.h5mu.gz",
+    "sim3_mowgli_correlation_5_0_1_0_1_0_001": data_folder
+    + "Liu/liu_simulated_3.h5mu.gz",
+    "sim4_mowgli_correlation_5_0_1_0_1_0_001": data_folder
+    + "Liu/liu_simulated_4.h5mu.gz",
+    "sim5_mowgli_correlation_5_0_1_0_1_0_001": data_folder
+    + "Liu/liu_simulated_5.h5mu.gz",
+    "opcite_mowgli_correlation_50_0_05_0_01_0_001": data_folder
+    + "OPCITE/opcite_preprocessed.h5mu.gz",
+    "opmultiome_mowgli_correlation_50_0_05_0_01_0_001": data_folder
+    + "OP_multiome/opmultiome_preprocessed.h5mu.gz",
+    "pbmc_mowgli_correlation_50_0_05_0_01_0_001": data_folder
+    + "10X_PBMC_10k/pbmc_preprocessed.h5mu.gz",
+    # "tea_mowgli_correlation_50_0_05_0_01_0_001": data_folder + "TEA/tea_preprocessed.h5mu.gz",
+}
+
+mowgli_path = {
+    "bmcite_mowgli_correlation_50_0_05_0_01_0_001": res_folder
+    + "bmcite_mowgli_correlation_50_0_05_0_01_0_001.npy",
+    "liu_mowgli_correlation_5_0_1_0_1_0_001": res_folder
+    + "liu_mowgli_correlation_5_0_1_0_1_0_001.npy",
+    "sim1_mowgli_correlation_5_0_1_0_1_0_001": res_folder
+    + "liu_simulated_1_mowgli_correlation_5_0_1_0_1_0_001.npy",
+    "sim2_mowgli_correlation_5_0_1_0_1_0_001": res_folder
+    + "liu_simulated_2_mowgli_correlation_5_0_1_0_1_0_001.npy",
+    "sim3_mowgli_correlation_5_0_1_0_1_0_001": res_folder
+    + "liu_simulated_3_mowgli_correlation_5_0_1_0_1_0_001.npy",
+    "sim4_mowgli_correlation_5_0_1_0_1_0_001": res_folder
+    + "liu_simulated_4_mowgli_correlation_5_0_1_0_1_0_001.npy",
+    "sim5_mowgli_correlation_5_0_1_0_1_0_001": res_folder
+    + "liu_simulated_5_mowgli_correlation_5_0_1_0_1_0_001.npy",
+    "opcite_mowgli_correlation_50_0_05_0_01_0_001": res_folder
+    + "opcite_mowgli_correlation_50_0_05_0_01_0_001.npy",
+    "opmultiome_mowgli_correlation_50_0_05_0_01_0_001": res_folder
+    + "opmultiome_mowgli_correlation_50_0_05_0_01_0_001.npy",
+    "pbmc_mowgli_correlation_50_0_05_0_01_0_001": res_folder
+    + "pbmc_mowgli_correlation_50_0_05_0_01_0_001.npy",
+    # "tea_mowgli_correlation_50_0_05_0_01_0_001": res_folder + "tea_mowgli_correlation_50_0_05_0_01_0_001.npy",
+}
 
 console = Console()
-with console.status("[bold green]Loading data...") as status:
-
-    # Define the data path.
-    data_path = os.path.join(
-        "/users/csb/huizing/Documents/PhD/Code/",
-        "mowgli_reproducibility/data/10X_PBMC_10k/",
-        "pbmc_preprocessed.h5mu.gz",
-    )
-
-    # Load the original data.
-    mdata = mu.read_h5mu(data_path)
-    console.log("Data loaded.")
 
 ###################################### JACCARD THING #####################################
 
@@ -57,9 +97,9 @@ def jaccard_denoising(adata):
             adata.obsp["connectivities"][j, i] = d
 
 
-################################# EVALUATING MOWGLI ########################################
+################################# EVALUATING mowgli ########################################
 
-with console.status("[bold green]Evaluating Mowgli...") as status:
+with console.status("[bold green]Evaluating mowgli...") as status:
 
     # Intialize a dictionary for the scores.
     scores_dict = {}
@@ -70,7 +110,16 @@ with console.status("[bold green]Evaluating Mowgli...") as status:
     # Set the range of resulotions.
     res_range = list(np.arange(0.1, 2, 0.1))
 
-    for xp_name in ["pbmc_mowgli_50"]:
+    previous_path = ""
+
+    for xp_name in data_path:
+
+        # Load the original data.
+        console.log(f"Loading data for {xp_name} [bold green]")
+        if previous_path != data_path[xp_name]:
+            mdata = mu.read_h5mu(data_path[xp_name])
+            previous_path = data_path[xp_name]
+        console.log("Data loaded.")
 
         # Initialise scores for this experiment.
         scores_dict[xp_name] = {}
@@ -79,11 +128,9 @@ with console.status("[bold green]Evaluating Mowgli...") as status:
         console.log(f"Starting to compute scores for {xp_name} [bold green]")
 
         # Load the mowgli embedding.
-        mowgli_path = os.path.join(
-            "/users/csb/huizing/Documents/PhD/Code/",
-            f"mowgli_reproducibility/data/10X_PBMC_10k/{xp_name}.npy",
-        )
-        mdata.obsm["X_mowgli"] = np.load(mowgli_path)
+        mdata.obsm["X_mowgli"] = np.load(
+            mowgli_path[xp_name], allow_pickle=True
+        ).item()["W"]
         mdata.uns = {}
 
         console.log("Loaded the embedding [bold green]")
@@ -154,10 +201,7 @@ with console.status("[bold green]Evaluating Mowgli...") as status:
         console.log("Computed the ARIs after denoising. Phew! [bold green]")
 
     # Define the path where to save the results.
-    res_path = os.path.join(
-        "/users/csb/huizing/Documents/PhD/Code/",
-        "mowgli_reproducibility/data/10X_PBMC_10k/scores_mowgli.pkl",
-    )
+    res_path = "/users/csb/huizing/Documents/PhD/Code/mowgli_reproducibility/evaluate/scores_mowgli.pkl"
 
     # Save the results.
     with open(res_path, "wb") as f:

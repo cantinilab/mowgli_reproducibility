@@ -1,7 +1,6 @@
 ######################################## IMPORTS #########################################
 
 # Load libraries.
-import scanpy as sc
 import muon as mu
 from rich.console import Console
 import os
@@ -10,21 +9,39 @@ from mowgli import score
 import pickle
 import pandas as pd
 
-##################################### LOAD DATA ##########################################
-
 console = Console()
-with console.status("[bold green]Loading data...") as status:
 
-    # Define the data path.
-    data_path = os.path.join(
-        "/users/csb/huizing/Documents/PhD/Code/",
-        "mowgli_reproducibility/data/10X_PBMC_10k/",
-        "pbmc_preprocessed.h5mu.gz",
-    )
+# Define the data and figure folder.
+data_folder = "/users/csb/huizing/Documents/PhD/Code/mowgli_reproducibility/data/"
 
-    # Load the original data.
-    mdata = mu.read_h5mu(data_path)
-    console.log("Data loaded.")
+# Define data paths for different datasets.
+data_path = {
+    "bmcite_seurat": data_folder + "BMCITE/bmcite_preprocessed.h5mu.gz",
+    "liu_seurat": data_folder + "Liu/liu_preprocessed.h5mu.gz",
+    "sim1_seurat": data_folder + "Liu/liu_simulated_1.h5mu.gz",
+    "sim2_seurat": data_folder + "Liu/liu_simulated_2.h5mu.gz",
+    "sim3_seurat": data_folder + "Liu/liu_simulated_3.h5mu.gz",
+    "sim4_seurat": data_folder + "Liu/liu_simulated_4.h5mu.gz",
+    "sim5_seurat": data_folder + "Liu/liu_simulated_5.h5mu.gz",
+    "opcite_seurat": data_folder + "OPCITE/opcite_preprocessed.h5mu.gz",
+    "opmultiome_seurat": data_folder + "OP_multiome/opmultiome_preprocessed.h5mu.gz",
+    "pbmc_seurat": data_folder + "10X_PBMC_10k/pbmc_preprocessed.h5mu.gz",
+    # "tea_seurat": data_folder + "TEA/tea_preprocessed.h5mu.gz",
+}
+
+seurat_path = {
+    "bmcite_seurat": data_folder + "BMCITE/bmcite_seurat",
+    "liu_seurat": data_folder + "Liu/liu_seurat",
+    "sim1_seurat": data_folder + "Liu/liu_simulated_1_seurat",
+    "sim2_seurat": data_folder + "Liu/liu_simulated_2_seurat",
+    "sim3_seurat": data_folder + "Liu/liu_simulated_3_seurat",
+    "sim4_seurat": data_folder + "Liu/liu_simulated_4_seurat",
+    "sim5_seurat": data_folder + "Liu/liu_simulated_5_seurat",
+    "opcite_seurat": data_folder + "OPCITE/opcite_seurat",
+    "opmultiome_seurat": data_folder + "OP_multiome/opmultiome_seurat",
+    "pbmc_seurat": data_folder + "10X_PBMC_10k/pbmc_seurat",
+    # "tea_seurat": data_folder + "TEA/tea_seurat",
+}
 
 ###################################### JACCARD THING #####################################
 
@@ -69,9 +86,18 @@ with console.status("[bold green]Evaluating Seurat...") as status:
     k_range = list(range(1, 30))
 
     # Set the range of resulotions.
-    res_range = list(np.arange(0.1, 2, 0.1))
+    res_range = list(np.arange(0.1, 2.1, 0.1))
 
-    for xp_name in ["pbmc_seurat"]:
+    previous_path = ""
+
+    for xp_name in data_path:
+
+        # Load the data.
+        console.log(f"Loading data for {xp_name} [bold green]")
+        if previous_path != data_path[xp_name]:
+            mdata = mu.read_h5mu(data_path[xp_name])
+            previous_path = data_path[xp_name]
+        console.log("Data loaded.")
 
         # Initialise scores for this experiment.
         scores_dict[xp_name] = {}
@@ -80,11 +106,7 @@ with console.status("[bold green]Evaluating Seurat...") as status:
         console.log(f"Starting to compute scores for {xp_name} [bold green]")
 
         # Load the seurat knn.
-        seurat_path = os.path.join(
-            "/users/csb/huizing/Documents/PhD/Code/",
-            f"mowgli_reproducibility/data/10X_PBMC_10k/{xp_name}_2022Apr14_nn_idx.csv",
-        )
-        knn = pd.read_csv(seurat_path, index_col=0).to_numpy() - 1
+        knn = pd.read_csv(seurat_path[xp_name] + "_knn.csv", index_col=0).to_numpy() - 1
         mdata.uns = {}
 
         console.log("Loaded the knn [bold green]")
@@ -105,28 +127,8 @@ with console.status("[bold green]Evaluating Seurat...") as status:
 
         console.log("Computed the purity scores. Phew! [bold green]")
 
-        paths = [
-            "/users/csb/huizing/Documents/PhD/Code/mowgli_reproducibility/data/10X_PBMC_10k/pbmc_seurat_2022Apr14_clustering_0.1.csv",
-            "/users/csb/huizing/Documents/PhD/Code/mowgli_reproducibility/data/10X_PBMC_10k/pbmc_seurat_2022Apr14_clustering_0.2.csv",
-            "/users/csb/huizing/Documents/PhD/Code/mowgli_reproducibility/data/10X_PBMC_10k/pbmc_seurat_2022Apr14_clustering_0.3.csv",
-            "/users/csb/huizing/Documents/PhD/Code/mowgli_reproducibility/data/10X_PBMC_10k/pbmc_seurat_2022Apr14_clustering_0.4.csv",
-            "/users/csb/huizing/Documents/PhD/Code/mowgli_reproducibility/data/10X_PBMC_10k/pbmc_seurat_2022Apr14_clustering_0.5.csv",
-            "/users/csb/huizing/Documents/PhD/Code/mowgli_reproducibility/data/10X_PBMC_10k/pbmc_seurat_2022Apr14_clustering_0.6.csv",
-            "/users/csb/huizing/Documents/PhD/Code/mowgli_reproducibility/data/10X_PBMC_10k/pbmc_seurat_2022Apr14_clustering_0.7.csv",
-            "/users/csb/huizing/Documents/PhD/Code/mowgli_reproducibility/data/10X_PBMC_10k/pbmc_seurat_2022Apr14_clustering_0.8.csv",
-            "/users/csb/huizing/Documents/PhD/Code/mowgli_reproducibility/data/10X_PBMC_10k/pbmc_seurat_2022Apr14_clustering_0.9.csv",
-            "/users/csb/huizing/Documents/PhD/Code/mowgli_reproducibility/data/10X_PBMC_10k/pbmc_seurat_2022Apr14_clustering_1.csv",
-            "/users/csb/huizing/Documents/PhD/Code/mowgli_reproducibility/data/10X_PBMC_10k/pbmc_seurat_2022Apr14_clustering_1.1.csv",
-            "/users/csb/huizing/Documents/PhD/Code/mowgli_reproducibility/data/10X_PBMC_10k/pbmc_seurat_2022Apr14_clustering_1.2.csv",
-            "/users/csb/huizing/Documents/PhD/Code/mowgli_reproducibility/data/10X_PBMC_10k/pbmc_seurat_2022Apr14_clustering_1.3.csv",
-            "/users/csb/huizing/Documents/PhD/Code/mowgli_reproducibility/data/10X_PBMC_10k/pbmc_seurat_2022Apr14_clustering_1.4.csv",
-            "/users/csb/huizing/Documents/PhD/Code/mowgli_reproducibility/data/10X_PBMC_10k/pbmc_seurat_2022Apr14_clustering_1.5.csv",
-            "/users/csb/huizing/Documents/PhD/Code/mowgli_reproducibility/data/10X_PBMC_10k/pbmc_seurat_2022Apr14_clustering_1.6.csv",
-            "/users/csb/huizing/Documents/PhD/Code/mowgli_reproducibility/data/10X_PBMC_10k/pbmc_seurat_2022Apr14_clustering_1.7.csv",
-            "/users/csb/huizing/Documents/PhD/Code/mowgli_reproducibility/data/10X_PBMC_10k/pbmc_seurat_2022Apr14_clustering_1.8.csv",
-            "/users/csb/huizing/Documents/PhD/Code/mowgli_reproducibility/data/10X_PBMC_10k/pbmc_seurat_2022Apr14_clustering_1.9.csv",
-            "/users/csb/huizing/Documents/PhD/Code/mowgli_reproducibility/data/10X_PBMC_10k/pbmc_seurat_2022Apr14_clustering_2.csv",
-        ]
+        # Load the clustering.
+        leiden = pd.read_csv(seurat_path[xp_name] + "_clustering.csv", index_col=0).to_numpy()
 
         # Compute the ARI for varying resolutions of Leiden clustering.
         aris = []
@@ -135,11 +137,8 @@ with console.status("[bold green]Evaluating Seurat...") as status:
             # Log the value of resolution.
             console.log(f"Computing ARI for resolution={res} [bold green]")
 
-            # Load the clustering.
-            leiden = pd.read_csv(paths[i], index_col=0).to_numpy()[:, 0]
-
             # Compute the ARI.
-            aris.append(score.ARI(mdata.obs["rna:celltype"], leiden))
+            aris.append(score.ARI(mdata.obs["rna:celltype"], leiden[:, i]))
 
         scores_dict[xp_name]["ARIs"] = aris
         scores_dict[xp_name]["res_range"] = res_range
@@ -149,7 +148,7 @@ with console.status("[bold green]Evaluating Seurat...") as status:
     # Define the path where to save the results.
     res_path = os.path.join(
         "/users/csb/huizing/Documents/PhD/Code/",
-        "mowgli_reproducibility/data/10X_PBMC_10k/scores_seurat.pkl",
+        "mowgli_reproducibility/evaluate/scores_seurat.pkl",
     )
 
     # Save the results.
