@@ -16,74 +16,92 @@ console = Console()
 # Define the data and figure folder.
 data_folder = "/users/csb/huizing/Documents/PhD/Code/mowgli_reproducibility/data/"
 
+# Define the path where to save the results.
+res_path = os.path.join(
+    "/users/csb/huizing/Documents/PhD/Code/",
+    "mowgli_reproducibility/evaluate/scores_mofa.pkl",
+)
+
 # Define data paths for different datasets.
 data_path = {
-    "bmcite_mofa_15": data_folder + "BMCITE/bmcite_preprocessed.h5mu.gz",
-    "bmcite_mofa_30": data_folder + "BMCITE/bmcite_preprocessed.h5mu.gz",
-    "bmcite_mofa_50": data_folder + "BMCITE/bmcite_preprocessed.h5mu.gz",
-    "liu_mofa_15": data_folder + "Liu/liu_preprocessed.h5mu.gz",
-    "liu_mofa_30": data_folder + "Liu/liu_preprocessed.h5mu.gz",
-    "liu_mofa_50": data_folder + "Liu/liu_preprocessed.h5mu.gz",
+    # "bmcite_mofa_15": data_folder + "BMCITE/bmcite_preprocessed.h5mu.gz",
+    # "bmcite_mofa_30": data_folder + "BMCITE/bmcite_preprocessed.h5mu.gz",
+    # "bmcite_mofa_50": data_folder + "BMCITE/bmcite_preprocessed.h5mu.gz",
+    "liu_mofa_5": data_folder + "Liu/liu_preprocessed.h5mu.gz",
+    # "liu_mofa_15": data_folder + "Liu/liu_preprocessed.h5mu.gz",
+    # "liu_mofa_30": data_folder + "Liu/liu_preprocessed.h5mu.gz",
+    # "liu_mofa_50": data_folder + "Liu/liu_preprocessed.h5mu.gz",
+    "sim1_mofa_5": data_folder + "Liu/liu_simulated_1.h5mu.gz",
     # "sim1_mofa_15": data_folder + "Liu/liu_simulated_1.h5mu.gz",
     # "sim1_mofa_30": data_folder + "Liu/liu_simulated_1.h5mu.gz",
     # "sim1_mofa_50": data_folder + "Liu/liu_simulated_1.h5mu.gz",
+    "sim2_mofa_5": data_folder + "Liu/liu_simulated_2.h5mu.gz",
     # "sim2_mofa_15": data_folder + "Liu/liu_simulated_2.h5mu.gz",
     # "sim2_mofa_30": data_folder + "Liu/liu_simulated_2.h5mu.gz",
     # "sim2_mofa_50": data_folder + "Liu/liu_simulated_2.h5mu.gz",
+    "sim3_mofa_5": data_folder + "Liu/liu_simulated_3.h5mu.gz",
     # "sim3_mofa_15": data_folder + "Liu/liu_simulated_3.h5mu.gz",
     # "sim3_mofa_30": data_folder + "Liu/liu_simulated_3.h5mu.gz",
     # "sim3_mofa_50": data_folder + "Liu/liu_simulated_3.h5mu.gz",
+    "sim4_mofa_5": data_folder + "Liu/liu_simulated_4.h5mu.gz",
     # "sim4_mofa_15": data_folder + "Liu/liu_simulated_4.h5mu.gz",
     # "sim4_mofa_30": data_folder + "Liu/liu_simulated_4.h5mu.gz",
     # "sim4_mofa_50": data_folder + "Liu/liu_simulated_4.h5mu.gz",
+    "sim5_mofa_5": data_folder + "Liu/liu_simulated_5.h5mu.gz",
     # "sim5_mofa_15": data_folder + "Liu/liu_simulated_5.h5mu.gz",
     # "sim5_mofa_30": data_folder + "Liu/liu_simulated_5.h5mu.gz",
     # "sim5_mofa_50": data_folder + "Liu/liu_simulated_5.h5mu.gz",
-    "opcite_mofa_15": data_folder + "OPCITE/opcite_preprocessed.h5mu.gz",
-    "opcite_mofa_30": data_folder + "OPCITE/opcite_preprocessed.h5mu.gz",
-    "opcite_mofa_50": data_folder + "OPCITE/opcite_preprocessed.h5mu.gz",
-    "opmultiome_mofa_15": data_folder + "OP_multiome/opmultiome_preprocessed.h5mu.gz",
-    "opmultiome_mofa_30": data_folder + "OP_multiome/opmultiome_preprocessed.h5mu.gz",
-    "opmultiome_mofa_50": data_folder + "OP_multiome/opmultiome_preprocessed.h5mu.gz",
-    "pbmc_mofa_15": data_folder + "10X_PBMC_10k/pbmc_preprocessed.h5mu.gz",
-    "pbmc_mofa_30": data_folder + "10X_PBMC_10k/pbmc_preprocessed.h5mu.gz",
-    "pbmc_mofa_50": data_folder + "10X_PBMC_10k/pbmc_preprocessed.h5mu.gz",
+    # "opcite_mofa_15": data_folder + "OPCITE/opcite_preprocessed.h5mu.gz",
+    # "opcite_mofa_30": data_folder + "OPCITE/opcite_preprocessed.h5mu.gz",
+    # "opcite_mofa_50": data_folder + "OPCITE/opcite_preprocessed.h5mu.gz",
+    # "opmultiome_mofa_15": data_folder + "OP_multiome/opmultiome_preprocessed.h5mu.gz",
+    # "opmultiome_mofa_30": data_folder + "OP_multiome/opmultiome_preprocessed.h5mu.gz",
+    # "opmultiome_mofa_50": data_folder + "OP_multiome/opmultiome_preprocessed.h5mu.gz",
+    # "pbmc_mofa_15": data_folder + "10X_PBMC_10k/pbmc_preprocessed.h5mu.gz",
+    # "pbmc_mofa_30": data_folder + "10X_PBMC_10k/pbmc_preprocessed.h5mu.gz",
+    # "pbmc_mofa_50": data_folder + "10X_PBMC_10k/pbmc_preprocessed.h5mu.gz",
     # "tea_mofa_15": data_folder + "TEA/tea_preprocessed.h5mu.gz",
     # "tea_mofa_30": data_folder + "TEA/tea_preprocessed.h5mu.gz",
     # "tea_mofa_50": data_folder + "TEA/tea_preprocessed.h5mu.gz",
 }
 
 mofa_path = {
-    "bmcite_mofa_15": data_folder + "BMCITE/bmcite_mofa_15.hdf5",
-    "bmcite_mofa_30": data_folder + "BMCITE/bmcite_mofa_30.hdf5",
-    "bmcite_mofa_50": data_folder + "BMCITE/bmcite_mofa_50.hdf5",
-    "liu_mofa_15": data_folder + "Liu/liu_mofa_15.hdf5",
-    "liu_mofa_30": data_folder + "Liu/liu_mofa_30.hdf5",
-    "liu_mofa_50": data_folder + "Liu/liu_mofa_50.hdf5",
+    # "bmcite_mofa_15": data_folder + "BMCITE/bmcite_mofa_15.hdf5",
+    # "bmcite_mofa_30": data_folder + "BMCITE/bmcite_mofa_30.hdf5",
+    # "bmcite_mofa_50": data_folder + "BMCITE/bmcite_mofa_50.hdf5",
+    "liu_mofa_5": data_folder + "Liu/liu_mofa_5.hdf5",
+    # "liu_mofa_15": data_folder + "Liu/liu_mofa_15.hdf5",
+    # "liu_mofa_30": data_folder + "Liu/liu_mofa_30.hdf5",
+    # "liu_mofa_50": data_folder + "Liu/liu_mofa_50.hdf5",
+    "sim1_mofa_5": data_folder + "Liu/liu_simulated_1_mofa_5.hdf5",
     # "sim1_mofa_15": data_folder + "Liu/liu_simulated_1_mofa_15.hdf5",
     # "sim1_mofa_30": data_folder + "Liu/liu_simulated_1_mofa_30.hdf5",
     # "sim1_mofa_50": data_folder + "Liu/liu_simulated_1_mofa_50.hdf5",
+    "sim2_mofa_5": data_folder + "Liu/liu_simulated_2_mofa_5.hdf5",
     # "sim2_mofa_15": data_folder + "Liu/liu_simulated_2_mofa_15.hdf5",
     # "sim2_mofa_30": data_folder + "Liu/liu_simulated_2_mofa_30.hdf5",
     # "sim2_mofa_50": data_folder + "Liu/liu_simulated_2_mofa_50.hdf5",
+    "sim3_mofa_5": data_folder + "Liu/liu_simulated_3_mofa_5.hdf5",
     # "sim3_mofa_15": data_folder + "Liu/liu_simulated_3_mofa_15.hdf5",
     # "sim3_mofa_30": data_folder + "Liu/liu_simulated_3_mofa_30.hdf5",
     # "sim3_mofa_50": data_folder + "Liu/liu_simulated_3_mofa_50.hdf5",
+    "sim4_mofa_5": data_folder + "Liu/liu_simulated_4_mofa_5.hdf5",
     # "sim4_mofa_15": data_folder + "Liu/liu_simulated_4_mofa_15.hdf5",
     # "sim4_mofa_30": data_folder + "Liu/liu_simulated_4_mofa_30.hdf5",
     # "sim4_mofa_50": data_folder + "Liu/liu_simulated_4_mofa_50.hdf5",
+    "sim5_mofa_5": data_folder + "Liu/liu_simulated_5_mofa_5.hdf5",
     # "sim5_mofa_15": data_folder + "Liu/liu_simulated_5_mofa_15.hdf5",
     # "sim5_mofa_30": data_folder + "Liu/liu_simulated_5_mofa_30.hdf5",
     # "sim5_mofa_50": data_folder + "Liu/liu_simulated_5_mofa_50.hdf5",
-    "opcite_mofa_15": data_folder + "OPCITE/opcite_mofa_15.hdf5",
-    "opcite_mofa_30": data_folder + "OPCITE/opcite_mofa_30.hdf5",
-    "opcite_mofa_50": data_folder + "OPCITE/opcite_mofa_50.hdf5",
-    "opmultiome_mofa_15": data_folder + "OP_multiome/opmultiome_mofa_15.hdf5",
-    "opmultiome_mofa_30": data_folder + "OP_multiome/opmultiome_mofa_30.hdf5",
-    "opmultiome_mofa_50": data_folder + "OP_multiome/opmultiome_mofa_50.hdf5",
-    "pbmc_mofa_15": data_folder + "10X_PBMC_10k/pbmc_mofa_15.hdf5",
-    "pbmc_mofa_30": data_folder + "10X_PBMC_10k/pbmc_mofa_30.hdf5",
-    "pbmc_mofa_50": data_folder + "10X_PBMC_10k/pbmc_mofa_50.hdf5",
+    # "opcite_mofa_15": data_folder + "OPCITE/opcite_mofa_15.hdf5",
+    # "opcite_mofa_30": data_folder + "OPCITE/opcite_mofa_30.hdf5",
+    # "opcite_mofa_50": data_folder + "OPCITE/opcite_mofa_50.hdf5",
+    # "opmultiome_mofa_15": data_folder + "OP_multiome/opmultiome_mofa_15.hdf5",
+    # "opmultiome_mofa_30": data_folder + "OP_multiome/opmultiome_mofa_30.hdf5",
+    # "opmultiome_mofa_50": data_folder + "OP_multiome/opmultiome_mofa_50.hdf5",
+    # "pbmc_mofa_15": data_folder + "10X_PBMC_10k/pbmc_mofa_15.hdf5",
+    # "pbmc_mofa_30": data_folder + "10X_PBMC_10k/pbmc_mofa_30.hdf5",
+    # "pbmc_mofa_50": data_folder + "10X_PBMC_10k/pbmc_mofa_50.hdf5",
     # "tea_mofa_15": data_folder + "TEA/tea_mofa_15.hdf5",
     # "tea_mofa_30": data_folder + "TEA/tea_mofa_30.hdf5",
     # "tea_mofa_50": data_folder + "TEA/tea_mofa_50.hdf5",
@@ -127,6 +145,8 @@ with console.status("[bold green]Evaluating MOFA...") as status:
 
     # Intialize a dictionary for the scores.
     scores_dict = {}
+    with open(res_path, "rb") as f:
+        scores_dict = pickle.load(f)
 
     # Set the range of nearest neighbors.
     k_range = list(range(1, 30))
@@ -186,7 +206,7 @@ with console.status("[bold green]Evaluating MOFA...") as status:
         console.log("Computed the purity scores. Phew! [bold green]")
 
         # Let Scanpy compute the kNN graph.
-        sc.pp.neighbors(mdata, use_rep="X_mofa")
+        sc.pp.neighbors(mdata, use_rep="X_mofa", n_neighbors=20)
 
         # Compute the Leiden clustering and ARI for varying resolution.
         aris = []
@@ -223,11 +243,6 @@ with console.status("[bold green]Evaluating MOFA...") as status:
 
         console.log("Computed the ARIs after denoising. Phew! [bold green]")
 
-    # Define the path where to save the results.
-    res_path = os.path.join(
-        "/users/csb/huizing/Documents/PhD/Code/",
-        "mowgli_reproducibility/evaluate/scores_mofa.pkl",
-    )
 
     # Save the results.
     with open(res_path, "wb") as f:

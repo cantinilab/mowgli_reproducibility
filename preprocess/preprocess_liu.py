@@ -119,11 +119,11 @@ with console.status("[bold green]Saving data...") as status:
     mu.pp.intersect_obs(mdata)
 
     # Write the preprocessed data.
-    mu.write_h5mu(
-        os.path.join(data_path, "liu_preprocessed.h5mu.gz"),
-        mdata,
-        compression="gzip",
-    )
+    # mu.write_h5mu(
+    #     os.path.join(data_path, "liu_preprocessed.h5mu.gz"),
+    #     mdata,
+    #     compression="gzip",
+    # )
 
     console.log("Preprocessed data saved!")
 
@@ -147,7 +147,34 @@ sc.pp.filter_genes(mdata['atac'], min_cells=1)
 # Write simulated data
 mdata.write_h5mu(data_path + 'liu_simulated_1.h5mu.gz', compression='gzip')
 
-#################### SIMULATED DATA 2 : Rare population #######################
+################### SIMULATED DATA 2 : Mix in both omics ######################
+
+# Load the preprocessed data.
+mdata = mu.read_h5mu(os.path.join(data_path, "liu_preprocessed.h5mu.gz"))
+
+# Tamper with the RNA signal.
+idx_to_replace = (mdata['rna'].obs['celltype'] == 'HCT')
+choices = np.where(mdata['rna'].obs['celltype'] == 'Hela')[0]
+size = idx_to_replace.sum()
+idx = np.random.choice(choices, size=size)
+mdata['rna'].X[idx_to_replace] = mdata['rna'].X[idx]
+
+# Tamper with the ATAC signal.
+idx_to_replace = (mdata['atac'].obs['celltype'] == 'K562')
+choices = np.where(mdata['atac'].obs['celltype'] == 'Hela')[0]
+size = idx_to_replace.sum()
+idx = np.random.choice(choices, size=size)
+mdata['atac'].X[idx_to_replace] = mdata['atac'].X[idx]
+
+# Filter variables so that none of them are empty
+mdata['atac'].X = np.array(mdata['atac'].X)
+sc.pp.filter_genes(mdata['rna'], min_cells=1)
+sc.pp.filter_genes(mdata['atac'], min_cells=1)
+
+# Write simulated data
+mdata.write_h5mu(data_path + 'liu_simulated_2.h5mu.gz', compression='gzip')
+
+#################### SIMULATED DATA 3 : Rare population #######################
 
 # Load the preprocessed data.
 mdata = mu.read_h5mu(os.path.join(data_path, "liu_preprocessed.h5mu.gz"))
@@ -168,9 +195,9 @@ sc.pp.filter_genes(mdata['rna'], min_cells=1)
 sc.pp.filter_genes(mdata['atac'], min_cells=1)
 
 # Write simulated data
-mdata.write_h5mu(data_path + 'liu_simulated_2.h5mu.gz', compression='gzip')
+mdata.write_h5mu(data_path + 'liu_simulated_3.h5mu.gz', compression='gzip')
 
-##################### SIMULATED DATA 3 : Uniform noise ########################
+##################### SIMULATED DATA 4 : Uniform noise ########################
 
 # Load the preprocessed data.
 mdata = mu.read_h5mu(os.path.join(data_path, "liu_preprocessed.h5mu.gz"))
@@ -182,33 +209,6 @@ mdata['rna'].X += magnitude*np.random.rand(*mdata['rna'].X.shape)
 # Add noise to the ATAC signal.
 magnitude = 30*mdata['atac'].X.mean()
 mdata['atac'].X += magnitude*np.random.rand(*mdata['atac'].X.shape)
-
-# Filter variables so that none of them are empty
-mdata['atac'].X = np.array(mdata['atac'].X)
-sc.pp.filter_genes(mdata['rna'], min_cells=1)
-sc.pp.filter_genes(mdata['atac'], min_cells=1)
-
-# Write simulated data
-mdata.write_h5mu(data_path + 'liu_simulated_3.h5mu.gz', compression='gzip')
-
-################### SIMULATED DATA 4 : Mix in both omics ######################
-
-# Load the preprocessed data.
-mdata = mu.read_h5mu(os.path.join(data_path, "liu_preprocessed.h5mu.gz"))
-
-# Tamper with the RNA signal.
-idx_to_replace = (mdata['rna'].obs['celltype'] == 'HCT')
-choices = np.where(mdata['rna'].obs['celltype'] == 'Hela')[0]
-size = idx_to_replace.sum()
-idx = np.random.choice(choices, size=size)
-mdata['rna'].X[idx_to_replace] = mdata['rna'].X[idx]
-
-# Tamper with the ATAC signal.
-idx_to_replace = (mdata['atac'].obs['celltype'] == 'K562')
-choices = np.where(mdata['atac'].obs['celltype'] == 'Hela')[0]
-size = idx_to_replace.sum()
-idx = np.random.choice(choices, size=size)
-mdata['atac'].X[idx_to_replace] = mdata['atac'].X[idx]
 
 # Filter variables so that none of them are empty
 mdata['atac'].X = np.array(mdata['atac'].X)

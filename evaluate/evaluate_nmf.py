@@ -13,8 +13,42 @@ import sys
 # Define the data and figure folder.
 data_folder = "/users/csb/huizing/Documents/PhD/Code/mowgli_reproducibility/data/"
 
+# Define the path where to save the results.
+res_path = "/users/csb/huizing/Documents/PhD/Code/mowgli_reproducibility/evaluate/scores_nmf.pkl"
+
 # Define data paths for different datasets.
 data_path = {
+    "liu_nmf_5": data_folder + "Liu/liu_preprocessed.h5mu.gz",
+    "sim1_nmf_5": data_folder + "Liu/liu_simulated_1.h5mu.gz",
+    "sim2_nmf_5": data_folder + "Liu/liu_simulated_2.h5mu.gz",
+    "sim3_nmf_5": data_folder + "Liu/liu_simulated_3.h5mu.gz",
+    "sim4_nmf_5": data_folder + "Liu/liu_simulated_4.h5mu.gz",
+    "sim5_nmf_5": data_folder + "Liu/liu_simulated_5.h5mu.gz",
+    
+    "bmcite_nmf_15": data_folder + "BMCITE/bmcite_preprocessed.h5mu.gz",
+    "liu_nmf_15": data_folder + "Liu/liu_preprocessed.h5mu.gz",
+    "sim1_nmf_15": data_folder + "Liu/liu_simulated_1.h5mu.gz",
+    "sim2_nmf_15": data_folder + "Liu/liu_simulated_2.h5mu.gz",
+    "sim3_nmf_15": data_folder + "Liu/liu_simulated_3.h5mu.gz",
+    "sim4_nmf_15": data_folder + "Liu/liu_simulated_4.h5mu.gz",
+    "sim5_nmf_15": data_folder + "Liu/liu_simulated_5.h5mu.gz",
+    "opcite_nmf_15": data_folder + "OPCITE/opcite_preprocessed.h5mu.gz",
+    "opmultiome_nmf_15": data_folder + "OP_multiome/opmultiome_preprocessed.h5mu.gz",
+    "pbmc_nmf_15": data_folder + "10X_PBMC_10k/pbmc_preprocessed.h5mu.gz",
+    # "tea_nmf_15": data_folder + "TEA/tea_preprocessed.h5mu.gz",
+
+    "bmcite_nmf_30": data_folder + "BMCITE/bmcite_preprocessed.h5mu.gz",
+    "liu_nmf_30": data_folder + "Liu/liu_preprocessed.h5mu.gz",
+    "sim1_nmf_30": data_folder + "Liu/liu_simulated_1.h5mu.gz",
+    "sim2_nmf_30": data_folder + "Liu/liu_simulated_2.h5mu.gz",
+    "sim3_nmf_30": data_folder + "Liu/liu_simulated_3.h5mu.gz",
+    "sim4_nmf_30": data_folder + "Liu/liu_simulated_4.h5mu.gz",
+    "sim5_nmf_30": data_folder + "Liu/liu_simulated_5.h5mu.gz",
+    "opcite_nmf_30": data_folder + "OPCITE/opcite_preprocessed.h5mu.gz",
+    "opmultiome_nmf_30": data_folder + "OP_multiome/opmultiome_preprocessed.h5mu.gz",
+    "pbmc_nmf_30": data_folder + "10X_PBMC_10k/pbmc_preprocessed.h5mu.gz",
+    # "tea_nmf_30": data_folder + "TEA/tea_preprocessed.h5mu.gz",
+
     "bmcite_nmf_50": data_folder + "BMCITE/bmcite_preprocessed.h5mu.gz",
     "liu_nmf_50": data_folder + "Liu/liu_preprocessed.h5mu.gz",
     "sim1_nmf_50": data_folder + "Liu/liu_simulated_1.h5mu.gz",
@@ -29,6 +63,37 @@ data_path = {
 }
 
 nmf_path = {
+    "liu_nmf_5": data_folder + "Liu/liu_nmf_5.npy",
+    "sim1_nmf_5": data_folder + "Liu/liu_simulated_1_nmf_5.npy",
+    "sim2_nmf_5": data_folder + "Liu/liu_simulated_2_nmf_5.npy",
+    "sim3_nmf_5": data_folder + "Liu/liu_simulated_3_nmf_5.npy",
+    "sim4_nmf_5": data_folder + "Liu/liu_simulated_4_nmf_5.npy",
+    "sim5_nmf_5": data_folder + "Liu/liu_simulated_5_nmf_5.npy",
+    
+    "bmcite_nmf_15": data_folder + "BMCITE/bmcite_nmf_15.npy",
+    "liu_nmf_15": data_folder + "Liu/liu_nmf_15.npy",
+    "sim1_nmf_15": data_folder + "Liu/liu_simulated_1_nmf_15.npy",
+    "sim2_nmf_15": data_folder + "Liu/liu_simulated_2_nmf_15.npy",
+    "sim3_nmf_15": data_folder + "Liu/liu_simulated_3_nmf_15.npy",
+    "sim4_nmf_15": data_folder + "Liu/liu_simulated_4_nmf_15.npy",
+    "sim5_nmf_15": data_folder + "Liu/liu_simulated_5_nmf_15.npy",
+    "opcite_nmf_15": data_folder + "OPCITE/opcite_nmf_15.npy",
+    "opmultiome_nmf_15": data_folder + "OP_multiome/opmultiome_nmf_15.npy",
+    "pbmc_nmf_15": data_folder + "10X_PBMC_10k/pbmc_nmf_15.npy",
+    # "tea_nmf_15": data_folder + "TEA/tea_nmf_15.npy",
+
+    "bmcite_nmf_30": data_folder + "BMCITE/bmcite_nmf_30.npy",
+    "liu_nmf_30": data_folder + "Liu/liu_nmf_30.npy",
+    "sim1_nmf_30": data_folder + "Liu/liu_simulated_1_nmf_30.npy",
+    "sim2_nmf_30": data_folder + "Liu/liu_simulated_2_nmf_30.npy",
+    "sim3_nmf_30": data_folder + "Liu/liu_simulated_3_nmf_30.npy",
+    "sim4_nmf_30": data_folder + "Liu/liu_simulated_4_nmf_30.npy",
+    "sim5_nmf_30": data_folder + "Liu/liu_simulated_5_nmf_30.npy",
+    "opcite_nmf_30": data_folder + "OPCITE/opcite_nmf_30.npy",
+    "opmultiome_nmf_30": data_folder + "OP_multiome/opmultiome_nmf_30.npy",
+    "pbmc_nmf_30": data_folder + "10X_PBMC_10k/pbmc_nmf_30.npy",
+    # "tea_nmf_30": data_folder + "TEA/tea_nmf_30.npy",
+
     "bmcite_nmf_50": data_folder + "BMCITE/bmcite_nmf_50.npy",
     "liu_nmf_50": data_folder + "Liu/liu_nmf_50.npy",
     "sim1_nmf_50": data_folder + "Liu/liu_simulated_1_nmf_50.npy",
@@ -82,6 +147,8 @@ with console.status("[bold green]Evaluating NMF...") as status:
 
     # Intialize a dictionary for the scores.
     scores_dict = {}
+    # with open(res_path, "rb") as f:
+        # scores_dict = pickle.load(f)
 
     # Set the range of nearest neighbors.
     k_range = list(range(1, 30))
@@ -140,7 +207,7 @@ with console.status("[bold green]Evaluating NMF...") as status:
         console.log("Computed the purity scores. Phew! [bold green]")
 
         # Let Scanpy compute the kNN graph.
-        sc.pp.neighbors(mdata, use_rep="X_nmf")
+        sc.pp.neighbors(mdata, use_rep="X_nmf", n_neighbors=20)
 
         # Compute the Leiden clustering and ARI for varying resolution.
         aris = []
@@ -176,9 +243,6 @@ with console.status("[bold green]Evaluating NMF...") as status:
         scores_dict[xp_name]["ARIs after denoising"] = jaccard_aris
 
         console.log("Computed the ARIs after denoising. Phew! [bold green]")
-
-    # Define the path where to save the results.
-    res_path = "/users/csb/huizing/Documents/PhD/Code/mowgli_reproducibility/evaluate/scores_nmf.pkl"
 
     # Save the results.
     with open(res_path, "wb") as f:
