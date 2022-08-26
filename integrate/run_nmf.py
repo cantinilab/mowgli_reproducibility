@@ -41,6 +41,10 @@ elif sys.argv[1] == "sim5":
     prefix = "Liu/liu_simulated_5"
     data_path = os.path.join(data_folder, prefix + ".h5mu.gz")
 
+elif sys.argv[1] == "sim6":
+    prefix = "Liu/liu_simulated_6"
+    data_path = os.path.join(data_folder, prefix + ".h5mu.gz")
+
 elif sys.argv[1] == "opcite":
     prefix = "OPCITE/opcite"
     data_path = os.path.join(data_folder, prefix + "_preprocessed.h5mu.gz")

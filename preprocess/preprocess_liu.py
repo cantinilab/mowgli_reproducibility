@@ -127,6 +127,10 @@ with console.status("[bold green]Saving data...") as status:
 
     console.log("Preprocessed data saved!")
 
+    print("rna sparsity:", np.sum(mdata['rna'].X == 0) / np.size(mdata['rna'].X))
+    print("atac sparsity:", np.sum(mdata['atac'].X == 0) / np.size(mdata['atac'].X))
+
+
 ################# SIMULATED DATA 1 : mix HCT and HeLa in RNA ##################
 
 # Load the preprocessed data.
@@ -197,18 +201,28 @@ sc.pp.filter_genes(mdata['atac'], min_cells=1)
 # Write simulated data
 mdata.write_h5mu(data_path + 'liu_simulated_3.h5mu.gz', compression='gzip')
 
-##################### SIMULATED DATA 4 : Uniform noise ########################
+################### SIMULATED DATA 4 : Dropout noise ######################
 
 # Load the preprocessed data.
 mdata = mu.read_h5mu(os.path.join(data_path, "liu_preprocessed.h5mu.gz"))
 
-# Add noise to the RNA signal
-magnitude = 13*mdata['rna'].X.mean()
-mdata['rna'].X += magnitude*np.random.rand(*mdata['rna'].X.shape)
+# Add dropout noise to the RNA signal.
+n = mdata['rna'].n_obs
+m = mdata['rna'].var.highly_variable.sum()
+p_dropout = .5
+mask = np.random.choice([0, 1], size=(n, m), p=[p_dropout, 1 - p_dropout])
+mdata['rna'].X[:,mdata['rna'].var.highly_variable] *= mask
 
-# Add noise to the ATAC signal.
-magnitude = 30*mdata['atac'].X.mean()
-mdata['atac'].X += magnitude*np.random.rand(*mdata['atac'].X.shape)
+print("rna sparsity:", np.sum(mdata['rna'].X == 0) / np.size(mdata['rna'].X))
+
+# Add dropout noise to the ATAC signal.
+n = mdata['atac'].n_obs
+m = mdata['atac'].var.highly_variable.sum()
+p_dropout = .5
+mask = np.random.choice([0, 1], size=(n, m), p=[p_dropout, 1 - p_dropout])
+mdata['atac'].X[:,mdata['atac'].var.highly_variable] *= mask
+
+print("atac sparsity:", np.sum(mdata['atac'].X == 0) / np.size(mdata['atac'].X))
 
 # Filter variables so that none of them are empty
 mdata['atac'].X = np.array(mdata['atac'].X)
@@ -230,12 +244,16 @@ p_dropout = .7
 mask = np.random.choice([0, 1], size=(n, m), p=[p_dropout, 1 - p_dropout])
 mdata['rna'].X[:,mdata['rna'].var.highly_variable] *= mask
 
+print("rna sparsity:", np.sum(mdata['rna'].X == 0) / np.size(mdata['rna'].X))
+
 # Add dropout noise to the ATAC signal.
 n = mdata['atac'].n_obs
 m = mdata['atac'].var.highly_variable.sum()
 p_dropout = .7
 mask = np.random.choice([0, 1], size=(n, m), p=[p_dropout, 1 - p_dropout])
 mdata['atac'].X[:,mdata['atac'].var.highly_variable] *= mask
+
+print("atac sparsity:", np.sum(mdata['atac'].X == 0) / np.size(mdata['atac'].X))
 
 # Filter variables so that none of them are empty
 mdata['atac'].X = np.array(mdata['atac'].X)
@@ -244,3 +262,34 @@ sc.pp.filter_genes(mdata['atac'], min_cells=1)
 
 # Write simulated data
 mdata.write_h5mu(data_path + 'liu_simulated_5.h5mu.gz', compression='gzip')
+
+################### SIMULATED DATA 6 : Dropout noise ######################
+
+# Load the preprocessed data.
+mdata = mu.read_h5mu(os.path.join(data_path, "liu_preprocessed.h5mu.gz"))
+
+# Add dropout noise to the RNA signal.
+n = mdata['rna'].n_obs
+m = mdata['rna'].var.highly_variable.sum()
+p_dropout = .9
+mask = np.random.choice([0, 1], size=(n, m), p=[p_dropout, 1 - p_dropout])
+mdata['rna'].X[:,mdata['rna'].var.highly_variable] *= mask
+
+print("rna sparsity:", np.sum(mdata['rna'].X == 0) / np.size(mdata['rna'].X))
+
+# Add dropout noise to the ATAC signal.
+n = mdata['atac'].n_obs
+m = mdata['atac'].var.highly_variable.sum()
+p_dropout = .9
+mask = np.random.choice([0, 1], size=(n, m), p=[p_dropout, 1 - p_dropout])
+mdata['atac'].X[:,mdata['atac'].var.highly_variable] *= mask
+
+print("atac sparsity:", np.sum(mdata['atac'].X == 0) / np.size(mdata['atac'].X))
+
+# Filter variables so that none of them are empty
+mdata['atac'].X = np.array(mdata['atac'].X)
+sc.pp.filter_genes(mdata['rna'], min_cells=1)
+sc.pp.filter_genes(mdata['atac'], min_cells=1)
+
+# Write simulated data
+mdata.write_h5mu(data_path + 'liu_simulated_6.h5mu.gz', compression='gzip')
