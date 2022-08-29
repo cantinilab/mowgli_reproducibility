@@ -42,7 +42,7 @@ write.csv(seurat_object@meta.data[, cols], file = "/users/csb/huizing/Documents/
 ######################################### SIM 1 ##########################################
 
 seurat_object <- readRDS("/users/csb/huizing/Documents/PhD/Code/mowgli_reproducibility/data/Liu/liu_simulated_1_seurat.RDS")
-seurat_object <- Seurat::RunUMAP(seurat_object, graph = "wknn", reduction.name = "wnn.umap", reduction.key = "wnnUMAP_", umap.method = "umap-learn", n.neighbors = 20, min.dist = 1.5)
+seurat_object <- Seurat::RunUMAP(seurat_object, graph = "wknn", reduction.name = "wnn.umap", reduction.key = "wnnUMAP_", umap.method = "umap-learn", n.neighbors = 20, min.dist = 0.1)
 write.csv(Embeddings(seurat_object, reduction = "wnn.umap"), file = "/users/csb/huizing/Documents/PhD/Code/mowgli_reproducibility/data/Liu/liu_simulated_1_seurat_umap.csv")
 write.csv(seurat_object@neighbors$weighted.nn@nn.idx, file = "/users/csb/huizing/Documents/PhD/Code/mowgli_reproducibility/data/Liu/liu_simulated_1_seurat_knn.csv")
 for (res in resolutions) {
@@ -54,7 +54,7 @@ write.csv(seurat_object@meta.data[, cols], file = "/users/csb/huizing/Documents/
 ######################################### SIM 2 ##########################################
 
 seurat_object <- readRDS("/users/csb/huizing/Documents/PhD/Code/mowgli_reproducibility/data/Liu/liu_simulated_2_seurat.RDS")
-seurat_object <- Seurat::RunUMAP(seurat_object, graph = "wknn", reduction.name = "wnn.umap", reduction.key = "wnnUMAP_", umap.method = "umap-learn", n.neighbors = 20, min.dist = 1.5)
+seurat_object <- Seurat::RunUMAP(seurat_object, graph = "wknn", reduction.name = "wnn.umap", reduction.key = "wnnUMAP_", umap.method = "umap-learn", n.neighbors = 20, min.dist = 0.1)
 write.csv(Embeddings(seurat_object, reduction = "wnn.umap"), file = "/users/csb/huizing/Documents/PhD/Code/mowgli_reproducibility/data/Liu/liu_simulated_2_seurat_umap.csv")
 write.csv(seurat_object@neighbors$weighted.nn@nn.idx, file = "/users/csb/huizing/Documents/PhD/Code/mowgli_reproducibility/data/Liu/liu_simulated_2_seurat_knn.csv")
 for (res in resolutions) {
@@ -66,7 +66,7 @@ write.csv(seurat_object@meta.data[, cols], file = "/users/csb/huizing/Documents/
 ######################################### SIM 3 ##########################################
 
 seurat_object <- readRDS("/users/csb/huizing/Documents/PhD/Code/mowgli_reproducibility/data/Liu/liu_simulated_3_seurat.RDS")
-seurat_object <- Seurat::RunUMAP(seurat_object, graph = "wknn", reduction.name = "wnn.umap", reduction.key = "wnnUMAP_", umap.method = "umap-learn", n.neighbors = 20, min.dist = 1.5)
+seurat_object <- Seurat::RunUMAP(seurat_object, graph = "wknn", reduction.name = "wnn.umap", reduction.key = "wnnUMAP_", umap.method = "umap-learn", n.neighbors = 20, min.dist = 0.1)
 write.csv(Embeddings(seurat_object, reduction = "wnn.umap"), file = "/users/csb/huizing/Documents/PhD/Code/mowgli_reproducibility/data/Liu/liu_simulated_3_seurat_umap.csv")
 write.csv(seurat_object@neighbors$weighted.nn@nn.idx, file = "/users/csb/huizing/Documents/PhD/Code/mowgli_reproducibility/data/Liu/liu_simulated_3_seurat_knn.csv")
 for (res in resolutions) {
@@ -78,7 +78,7 @@ write.csv(seurat_object@meta.data[, cols], file = "/users/csb/huizing/Documents/
 ######################################### SIM 4 ##########################################
 
 seurat_object <- readRDS("/users/csb/huizing/Documents/PhD/Code/mowgli_reproducibility/data/Liu/liu_simulated_4_seurat.RDS")
-seurat_object <- Seurat::RunUMAP(seurat_object, graph = "wknn", reduction.name = "wnn.umap", reduction.key = "wnnUMAP_", umap.method = "umap-learn", n.neighbors = 20, min.dist = 1.5)
+seurat_object <- Seurat::RunUMAP(seurat_object, graph = "wknn", reduction.name = "wnn.umap", reduction.key = "wnnUMAP_", umap.method = "umap-learn", n.neighbors = 20, min.dist = 0.1)
 write.csv(Embeddings(seurat_object, reduction = "wnn.umap"), file = "/users/csb/huizing/Documents/PhD/Code/mowgli_reproducibility/data/Liu/liu_simulated_4_seurat_umap.csv")
 write.csv(seurat_object@neighbors$weighted.nn@nn.idx, file = "/users/csb/huizing/Documents/PhD/Code/mowgli_reproducibility/data/Liu/liu_simulated_4_seurat_knn.csv")
 for (res in resolutions) {
@@ -90,7 +90,7 @@ write.csv(seurat_object@meta.data[, cols], file = "/users/csb/huizing/Documents/
 ######################################### SIM 5 ##########################################
 
 seurat_object <- readRDS("/users/csb/huizing/Documents/PhD/Code/mowgli_reproducibility/data/Liu/liu_simulated_5_seurat.RDS")
-seurat_object <- Seurat::RunUMAP(seurat_object, graph = "wknn", reduction.name = "wnn.umap", reduction.key = "wnnUMAP_", umap.method = "umap-learn", n.neighbors = 20, min.dist = 1.5)
+seurat_object <- Seurat::RunUMAP(seurat_object, graph = "wknn", reduction.name = "wnn.umap", reduction.key = "wnnUMAP_", umap.method = "umap-learn", n.neighbors = 20, min.dist = 0.1)
 write.csv(Embeddings(seurat_object, reduction = "wnn.umap"), file = "/users/csb/huizing/Documents/PhD/Code/mowgli_reproducibility/data/Liu/liu_simulated_5_seurat_umap.csv")
 write.csv(seurat_object@neighbors$weighted.nn@nn.idx, file = "/users/csb/huizing/Documents/PhD/Code/mowgli_reproducibility/data/Liu/liu_simulated_5_seurat_knn.csv")
 for (res in resolutions) {
@@ -98,6 +98,18 @@ for (res in resolutions) {
   seurat_object <- Seurat::FindClusters(seurat_object, graph.name = "wknn", algorithm = 4, method = "igraph", resolution = res, verbose = TRUE)
 }
 write.csv(seurat_object@meta.data[, cols], file = "/users/csb/huizing/Documents/PhD/Code/mowgli_reproducibility/data/Liu/liu_simulated_5_seurat_clustering.csv")
+
+######################################### SIM 6 ##########################################
+
+seurat_object <- readRDS("/users/csb/huizing/Documents/PhD/Code/mowgli_reproducibility/data/Liu/liu_simulated_6_seurat.RDS")
+seurat_object <- Seurat::RunUMAP(seurat_object, graph = "wknn", reduction.name = "wnn.umap", reduction.key = "wnnUMAP_", umap.method = "umap-learn", n.neighbors = 20, min.dist = 0.1)
+write.csv(Embeddings(seurat_object, reduction = "wnn.umap"), file = "/users/csb/huizing/Documents/PhD/Code/mowgli_reproducibility/data/Liu/liu_simulated_6_seurat_umap.csv")
+write.csv(seurat_object@neighbors$weighted.nn@nn.idx, file = "/users/csb/huizing/Documents/PhD/Code/mowgli_reproducibility/data/Liu/liu_simulated_6_seurat_knn.csv")
+for (res in resolutions) {
+  print(res)
+  seurat_object <- Seurat::FindClusters(seurat_object, graph.name = "wknn", algorithm = 4, method = "igraph", resolution = res, verbose = TRUE)
+}
+write.csv(seurat_object@meta.data[, cols], file = "/users/csb/huizing/Documents/PhD/Code/mowgli_reproducibility/data/Liu/liu_simulated_6_seurat_clustering.csv")
 
 ####################################### OPMULTIOME #######################################
 

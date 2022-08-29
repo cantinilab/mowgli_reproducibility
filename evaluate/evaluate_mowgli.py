@@ -16,14 +16,40 @@ res_folder = "/users/csb/huizing/Documents/PhD/Code/Mowgli/local_analysis/from_j
 
 # Define data paths for different datasets.
 data_path = {
-    # "liu_mowgli_cosine_5": data_folder + "Liu/liu_preprocessed.h5mu.gz",
+    "liu_mowgli_cosine_5": data_folder + "Liu/liu_preprocessed.h5mu.gz",
+    "liu_mowgli_cosine_15": data_folder + "Liu/liu_preprocessed.h5mu.gz",
+    "liu_mowgli_cosine_30": data_folder + "Liu/liu_preprocessed.h5mu.gz",
+    "liu_mowgli_cosine_50": data_folder + "Liu/liu_preprocessed.h5mu.gz",
     
-    # "sim1_mowgli_cosine_5": data_folder + "Liu/liu_simulated_1.h5mu.gz",
-    # "sim2_mowgli_cosine_5": data_folder + "Liu/liu_simulated_2.h5mu.gz",
-    # "sim3_mowgli_cosine_5": data_folder + "Liu/liu_simulated_3.h5mu.gz",
+    "sim1_mowgli_cosine_5": data_folder + "Liu/liu_simulated_1.h5mu.gz",
+    "sim1_mowgli_cosine_15": data_folder + "Liu/liu_simulated_1.h5mu.gz",
+    "sim1_mowgli_cosine_30": data_folder + "Liu/liu_simulated_1.h5mu.gz",
+    "sim1_mowgli_cosine_50": data_folder + "Liu/liu_simulated_1.h5mu.gz",
+
+    "sim2_mowgli_cosine_5": data_folder + "Liu/liu_simulated_2.h5mu.gz",
+    "sim2_mowgli_cosine_15": data_folder + "Liu/liu_simulated_2.h5mu.gz",
+    "sim2_mowgli_cosine_30": data_folder + "Liu/liu_simulated_2.h5mu.gz",
+    "sim2_mowgli_cosine_50": data_folder + "Liu/liu_simulated_2.h5mu.gz",
+
+    "sim3_mowgli_cosine_5": data_folder + "Liu/liu_simulated_3.h5mu.gz",
+    "sim3_mowgli_cosine_15": data_folder + "Liu/liu_simulated_3.h5mu.gz",
+    "sim3_mowgli_cosine_30": data_folder + "Liu/liu_simulated_3.h5mu.gz",
+    "sim3_mowgli_cosine_50": data_folder + "Liu/liu_simulated_3.h5mu.gz",
+
     "sim4_mowgli_cosine_5": data_folder + "Liu/liu_simulated_4.h5mu.gz",
+    "sim4_mowgli_cosine_15": data_folder + "Liu/liu_simulated_4.h5mu.gz",
+    "sim4_mowgli_cosine_30": data_folder + "Liu/liu_simulated_4.h5mu.gz",
+    "sim4_mowgli_cosine_50": data_folder + "Liu/liu_simulated_4.h5mu.gz",
+
     "sim5_mowgli_cosine_5": data_folder + "Liu/liu_simulated_5.h5mu.gz",
+    "sim5_mowgli_cosine_15": data_folder + "Liu/liu_simulated_5.h5mu.gz",
+    "sim5_mowgli_cosine_30": data_folder + "Liu/liu_simulated_5.h5mu.gz",
+    "sim5_mowgli_cosine_50": data_folder + "Liu/liu_simulated_5.h5mu.gz",
+
     "sim6_mowgli_cosine_5": data_folder + "Liu/liu_simulated_6.h5mu.gz",
+    "sim6_mowgli_cosine_15": data_folder + "Liu/liu_simulated_6.h5mu.gz",
+    "sim6_mowgli_cosine_30": data_folder + "Liu/liu_simulated_6.h5mu.gz",
+    "sim6_mowgli_cosine_50": data_folder + "Liu/liu_simulated_6.h5mu.gz",
 
     # "pbmc_mowgli_cosine_15": data_folder + "10X_PBMC_10k/pbmc_preprocessed.h5mu.gz",
     # "pbmc_mowgli_cosine_30": data_folder + "10X_PBMC_10k/pbmc_preprocessed.h5mu.gz",
@@ -43,14 +69,40 @@ data_path = {
 }
 
 mowgli_path = {
-    # "liu_mowgli_cosine_5": res_folder + "liu_mowgli_cosine_5_0_1_rna_0_01_atac_0_1_adt_0_01_0_001.npy",
+    "liu_mowgli_cosine_5": res_folder + "liu_mowgli_cosine_5_0_1_rna_0_01_atac_0_1_adt_0_01_0_001.npy",
+    "liu_mowgli_cosine_15": res_folder + "liu_mowgli_cosine_15_0_1_rna_0_01_atac_0_1_adt_0_01_0_001.npy",
+    "liu_mowgli_cosine_30": res_folder + "liu_mowgli_cosine_30_0_1_rna_0_01_atac_0_1_adt_0_01_0_001.npy",
+    "liu_mowgli_cosine_50": res_folder + "liu_mowgli_cosine_50_0_1_rna_0_01_atac_0_1_adt_0_01_0_001.npy",
     
-    # "sim1_mowgli_cosine_5": res_folder + "liu_sim_1_mowgli_cosine_5_0_1_rna_0_01_atac_0_1_adt_0_01_0_001.npy",
-    # "sim2_mowgli_cosine_5": res_folder + "liu_sim_2_mowgli_cosine_5_0_1_rna_0_01_atac_0_1_adt_0_01_0_001.npy",
-    # "sim3_mowgli_cosine_5": res_folder + "liu_sim_3_mowgli_cosine_5_0_1_rna_0_01_atac_0_1_adt_0_01_0_001.npy",
+    "sim1_mowgli_cosine_5": res_folder + "liu_sim_1_mowgli_cosine_5_0_1_rna_0_01_atac_0_1_adt_0_01_0_001.npy",
+    "sim1_mowgli_cosine_15": res_folder + "liu_sim_1_mowgli_cosine_15_0_1_rna_0_01_atac_0_1_adt_0_01_0_001.npy",
+    "sim1_mowgli_cosine_30": res_folder + "liu_sim_1_mowgli_cosine_30_0_1_rna_0_01_atac_0_1_adt_0_01_0_001.npy",
+    "sim1_mowgli_cosine_50": res_folder + "liu_sim_1_mowgli_cosine_50_0_1_rna_0_01_atac_0_1_adt_0_01_0_001.npy",
+
+    "sim2_mowgli_cosine_5": res_folder + "liu_sim_2_mowgli_cosine_5_0_1_rna_0_01_atac_0_1_adt_0_01_0_001.npy",
+    "sim2_mowgli_cosine_15": res_folder + "liu_sim_2_mowgli_cosine_15_0_1_rna_0_01_atac_0_1_adt_0_01_0_001.npy",
+    "sim2_mowgli_cosine_30": res_folder + "liu_sim_2_mowgli_cosine_30_0_1_rna_0_01_atac_0_1_adt_0_01_0_001.npy",
+    "sim2_mowgli_cosine_50": res_folder + "liu_sim_2_mowgli_cosine_50_0_1_rna_0_01_atac_0_1_adt_0_01_0_001.npy",
+
+    "sim3_mowgli_cosine_5": res_folder + "liu_sim_3_mowgli_cosine_5_0_1_rna_0_01_atac_0_1_adt_0_01_0_001.npy",
+    "sim3_mowgli_cosine_15": res_folder + "liu_sim_3_mowgli_cosine_15_0_1_rna_0_01_atac_0_1_adt_0_01_0_001.npy",
+    "sim3_mowgli_cosine_30": res_folder + "liu_sim_3_mowgli_cosine_30_0_1_rna_0_01_atac_0_1_adt_0_01_0_001.npy",
+    "sim3_mowgli_cosine_50": res_folder + "liu_sim_3_mowgli_cosine_50_0_1_rna_0_01_atac_0_1_adt_0_01_0_001.npy",
+
     "sim4_mowgli_cosine_5": res_folder + "liu_sim_4_mowgli_cosine_5_0_1_rna_0_01_atac_0_1_adt_0_01_0_001.npy",
+    "sim4_mowgli_cosine_15": res_folder + "liu_sim_4_mowgli_cosine_15_0_1_rna_0_01_atac_0_1_adt_0_01_0_001.npy",
+    "sim4_mowgli_cosine_30": res_folder + "liu_sim_4_mowgli_cosine_30_0_1_rna_0_01_atac_0_1_adt_0_01_0_001.npy",
+    "sim4_mowgli_cosine_50": res_folder + "liu_sim_4_mowgli_cosine_50_0_1_rna_0_01_atac_0_1_adt_0_01_0_001.npy",
+
     "sim5_mowgli_cosine_5": res_folder + "liu_sim_5_mowgli_cosine_5_0_1_rna_0_01_atac_0_1_adt_0_01_0_001.npy",
+    "sim5_mowgli_cosine_15": res_folder + "liu_sim_5_mowgli_cosine_15_0_1_rna_0_01_atac_0_1_adt_0_01_0_001.npy",
+    "sim5_mowgli_cosine_30": res_folder + "liu_sim_5_mowgli_cosine_30_0_1_rna_0_01_atac_0_1_adt_0_01_0_001.npy",
+    "sim5_mowgli_cosine_50": res_folder + "liu_sim_5_mowgli_cosine_50_0_1_rna_0_01_atac_0_1_adt_0_01_0_001.npy",
+
     "sim6_mowgli_cosine_5": res_folder + "liu_sim_6_mowgli_cosine_5_0_1_rna_0_01_atac_0_1_adt_0_01_0_001.npy",
+    "sim6_mowgli_cosine_15": res_folder + "liu_sim_6_mowgli_cosine_15_0_1_rna_0_01_atac_0_1_adt_0_01_0_001.npy",
+    "sim6_mowgli_cosine_30": res_folder + "liu_sim_6_mowgli_cosine_30_0_1_rna_0_01_atac_0_1_adt_0_01_0_001.npy",
+    "sim6_mowgli_cosine_50": res_folder + "liu_sim_6_mowgli_cosine_50_0_1_rna_0_01_atac_0_1_adt_0_01_0_001.npy",
 
     # "pbmc_mowgli_cosine_15": res_folder + "pbmc_mowgli_cosine_15_0_05_rna_0_01_atac_0_1_adt_0_001_0_001.npy",
     # "pbmc_mowgli_cosine_30": res_folder + "pbmc_mowgli_cosine_30_0_05_rna_0_01_atac_0_1_adt_0_001_0_001.npy",

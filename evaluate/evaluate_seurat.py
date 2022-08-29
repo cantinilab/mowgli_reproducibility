@@ -16,32 +16,40 @@ data_folder = "/users/csb/huizing/Documents/PhD/Code/mowgli_reproducibility/data
 
 # Define data paths for different datasets.
 data_path = {
-    "bmcite_seurat": data_folder + "BMCITE/bmcite_preprocessed.h5mu.gz",
-    "liu_seurat": data_folder + "Liu/liu_preprocessed.h5mu.gz",
-    "sim1_seurat": data_folder + "Liu/liu_simulated_1.h5mu.gz",
-    "sim2_seurat": data_folder + "Liu/liu_simulated_2.h5mu.gz",
-    "sim3_seurat": data_folder + "Liu/liu_simulated_3.h5mu.gz",
+    # "bmcite_seurat": data_folder + "BMCITE/bmcite_preprocessed.h5mu.gz",
+    # "liu_seurat": data_folder + "Liu/liu_preprocessed.h5mu.gz",
+    # "sim1_seurat": data_folder + "Liu/liu_simulated_1.h5mu.gz",
+    # "sim2_seurat": data_folder + "Liu/liu_simulated_2.h5mu.gz",
+    # "sim3_seurat": data_folder + "Liu/liu_simulated_3.h5mu.gz",
     "sim4_seurat": data_folder + "Liu/liu_simulated_4.h5mu.gz",
     "sim5_seurat": data_folder + "Liu/liu_simulated_5.h5mu.gz",
-    "opcite_seurat": data_folder + "OPCITE/opcite_preprocessed.h5mu.gz",
-    "opmultiome_seurat": data_folder + "OP_multiome/opmultiome_preprocessed.h5mu.gz",
-    "pbmc_seurat": data_folder + "10X_PBMC_10k/pbmc_preprocessed.h5mu.gz",
+    "sim6_seurat": data_folder + "Liu/liu_simulated_6.h5mu.gz",
+    # "opcite_seurat": data_folder + "OPCITE/opcite_preprocessed.h5mu.gz",
+    # "opmultiome_seurat": data_folder + "OP_multiome/opmultiome_preprocessed.h5mu.gz",
+    # "pbmc_seurat": data_folder + "10X_PBMC_10k/pbmc_preprocessed.h5mu.gz",
     # "tea_seurat": data_folder + "TEA/tea_preprocessed.h5mu.gz",
 }
 
 seurat_path = {
-    "bmcite_seurat": data_folder + "BMCITE/bmcite_seurat",
-    "liu_seurat": data_folder + "Liu/liu_seurat",
-    "sim1_seurat": data_folder + "Liu/liu_simulated_1_seurat",
-    "sim2_seurat": data_folder + "Liu/liu_simulated_2_seurat",
-    "sim3_seurat": data_folder + "Liu/liu_simulated_3_seurat",
+    # "bmcite_seurat": data_folder + "BMCITE/bmcite_seurat",
+    # "liu_seurat": data_folder + "Liu/liu_seurat",
+    # "sim1_seurat": data_folder + "Liu/liu_simulated_1_seurat",
+    # "sim2_seurat": data_folder + "Liu/liu_simulated_2_seurat",
+    # "sim3_seurat": data_folder + "Liu/liu_simulated_3_seurat",
     "sim4_seurat": data_folder + "Liu/liu_simulated_4_seurat",
     "sim5_seurat": data_folder + "Liu/liu_simulated_5_seurat",
-    "opcite_seurat": data_folder + "OPCITE/opcite_seurat",
-    "opmultiome_seurat": data_folder + "OP_multiome/opmultiome_seurat",
-    "pbmc_seurat": data_folder + "10X_PBMC_10k/pbmc_seurat",
+    "sim6_seurat": data_folder + "Liu/liu_simulated_6_seurat",
+    # "opcite_seurat": data_folder + "OPCITE/opcite_seurat",
+    # "opmultiome_seurat": data_folder + "OP_multiome/opmultiome_seurat",
+    # "pbmc_seurat": data_folder + "10X_PBMC_10k/pbmc_seurat",
     # "tea_seurat": data_folder + "TEA/tea_seurat",
 }
+
+# Define the path where to save the results.
+res_path = os.path.join(
+    "/users/csb/huizing/Documents/PhD/Code/",
+    "mowgli_reproducibility/evaluate/scores_seurat.pkl",
+)
 
 ###################################### JACCARD THING #####################################
 
@@ -81,6 +89,8 @@ with console.status("[bold green]Evaluating Seurat...") as status:
 
     # Intialize a dictionary for the scores.
     scores_dict = {}
+    with open(res_path, "rb") as f:
+        scores_dict = pickle.load(f)
 
     # Set the range of nearest neighbors.
     k_range = list(range(1, 30))
@@ -145,11 +155,6 @@ with console.status("[bold green]Evaluating Seurat...") as status:
 
         console.log("Computed the ARIs. Phew! [bold green]")
 
-    # Define the path where to save the results.
-    res_path = os.path.join(
-        "/users/csb/huizing/Documents/PhD/Code/",
-        "mowgli_reproducibility/evaluate/scores_seurat.pkl",
-    )
 
     # Save the results.
     with open(res_path, "wb") as f:
