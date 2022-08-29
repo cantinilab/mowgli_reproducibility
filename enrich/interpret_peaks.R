@@ -94,9 +94,10 @@ for (dim in 0:49) {
     enriched_motifs <- Signac::FindMotifs(
         object = assay,
         features = features,
-        background = rownames(assay)
+        background = background #rownames(assay)
     )
 
     # Save the enrichment.
     write.csv(enriched_motifs, paste0(out_motif, dim, ".csv"))
 }
+
