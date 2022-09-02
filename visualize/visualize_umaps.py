@@ -112,7 +112,7 @@ def plot_umaps(datasets, path):
 
     # Define the subplots.
     fig = plt.figure(constrained_layout=True, figsize=(10, 10))
-    axes = fig.subplots(6, 4)
+    axes = fig.subplots(len(datasets), 4)
 
     # Iterate over the datasets.
     for i, dataset in enumerate(datasets):
