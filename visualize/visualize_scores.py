@@ -275,9 +275,7 @@ def plot_scores_dim_real(palette, method, path):
     # Visualize the ARI as a line plot.
     ymin = ari_res["ARI"].min()
     ymax = ari_res["ARI"].max() + 0.05
-    for i, ax in enumerate(
-        [axes["B"], axes["D"], axes["F"], axes["H"], axes["J"]]
-    ):
+    for i, ax in enumerate([axes["B"], axes["D"], axes["F"], axes["H"], axes["J"]]):
         idx = ari_res["Dataset"].str.contains(datasets[i])
         idx = idx & (ari_res["Method"] == method)
         sns.lineplot(
@@ -298,9 +296,7 @@ def plot_scores_dim_real(palette, method, path):
     # Visualize the purity score as a line plot.
     ymin = purity_res["Purity score"].min()
     ymax = purity_res["Purity score"].max() + 0.05
-    for i, ax in enumerate(
-        [axes["C"], axes["E"], axes["G"], axes["I"], axes["K"]]
-    ):
+    for i, ax in enumerate([axes["C"], axes["E"], axes["G"], axes["I"], axes["K"]]):
         idx = purity_res["Dataset"].str.contains(datasets[i])
         idx = idx & (purity_res["Method"] == method)
         sns.lineplot(
@@ -324,6 +320,389 @@ def plot_scores_dim_real(palette, method, path):
 
     # Save the figure.
     fig.savefig(path)
+
+
+def plot_scores_selected_simulated(path):
+
+    # Select only certain latent dimensions
+    idx = (
+        (scores_df["Latent dimension"] == "5")
+        & (scores_df["Method"] == "MOFA+")
+        & (scores_df["Dataset"].str.contains("Liu|Simulated"))
+    )
+    idx |= (
+        (scores_df["Latent dimension"] == "15")
+        & (scores_df["Method"] == "MOFA+")
+        & (~scores_df["Dataset"].str.contains("Liu|Simulated"))
+    )
+    idx |= (
+        (scores_df["Latent dimension"] == "5")
+        & (scores_df["Method"] == "Mowgli")
+        & (scores_df["Dataset"].str.contains("Liu|Simulated"))
+    )
+    idx |= (
+        (scores_df["Latent dimension"] == "50")
+        & (scores_df["Method"] == "Mowgli")
+        & (~scores_df["Dataset"].str.contains("Liu|Simulated"))
+    )
+    idx |= (
+        (scores_df["Latent dimension"] == "5")
+        & (scores_df["Method"] == "NMF")
+        & (scores_df["Dataset"].str.contains("Liu|Simulated"))
+    )
+    idx |= (
+        (scores_df["Latent dimension"] == "30")
+        & (scores_df["Method"] == "NMF")
+        & (~scores_df["Dataset"].str.contains("Liu|Simulated"))
+    )
+    idx |= scores_df["Method"] == "Seurat"
+    scores_df_sub = scores_df.loc[idx]
+
+    idx = (
+        (ari_res["Latent dimension"] == "5")
+        & (ari_res["Method"] == "MOFA+")
+        & (ari_res["Dataset"].str.contains("Liu|Simulated"))
+    )
+    idx |= (
+        (ari_res["Latent dimension"] == "15")
+        & (ari_res["Method"] == "MOFA+")
+        & (~ari_res["Dataset"].str.contains("Liu|Simulated"))
+    )
+    idx |= (
+        (ari_res["Latent dimension"] == "5")
+        & (ari_res["Method"] == "Mowgli")
+        & (ari_res["Dataset"].str.contains("Liu|Simulated"))
+    )
+    idx |= (
+        (ari_res["Latent dimension"] == "50")
+        & (ari_res["Method"] == "Mowgli")
+        & (~ari_res["Dataset"].str.contains("Liu|Simulated"))
+    )
+    idx |= (
+        (ari_res["Latent dimension"] == "5")
+        & (ari_res["Method"] == "NMF")
+        & (ari_res["Dataset"].str.contains("Liu|Simulated"))
+    )
+    idx |= (
+        (ari_res["Latent dimension"] == "30")
+        & (ari_res["Method"] == "NMF")
+        & (~ari_res["Dataset"].str.contains("Liu|Simulated"))
+    )
+    idx |= ari_res["Method"] == "Seurat"
+    ari_res_sub = ari_res.loc[idx]
+
+    idx = (
+        (purity_res["Latent dimension"] == "5")
+        & (purity_res["Method"] == "MOFA+")
+        & (purity_res["Dataset"].str.contains("Liu|Simulated"))
+    )
+    idx |= (
+        (purity_res["Latent dimension"] == "15")
+        & (purity_res["Method"] == "MOFA+")
+        & (~purity_res["Dataset"].str.contains("Liu|Simulated"))
+    )
+    idx |= (
+        (purity_res["Latent dimension"] == "5")
+        & (purity_res["Method"] == "Mowgli")
+        & (purity_res["Dataset"].str.contains("Liu|Simulated"))
+    )
+    idx |= (
+        (purity_res["Latent dimension"] == "50")
+        & (purity_res["Method"] == "Mowgli")
+        & (~purity_res["Dataset"].str.contains("Liu|Simulated"))
+    )
+    idx |= (
+        (purity_res["Latent dimension"] == "5")
+        & (purity_res["Method"] == "NMF")
+        & (purity_res["Dataset"].str.contains("Liu|Simulated"))
+    )
+    idx |= (
+        (purity_res["Latent dimension"] == "30")
+        & (purity_res["Method"] == "NMF")
+        & (~purity_res["Dataset"].str.contains("Liu|Simulated"))
+    )
+    idx |= purity_res["Method"] == "Seurat"
+    purity_res_sub = purity_res.loc[idx]
+
+    # List the datasets.
+    datasets = [f"Simulated {i}" for i in range(1, 7)]
+
+    # Define the order of the datasets.
+    for i in range(len(datasets)):
+        idx = scores_df_sub["Dataset"].str.contains(datasets[i])
+        scores_df_sub.loc[idx, "Order"] = i
+
+    # Define the subplots.
+    fig = plt.figure(constrained_layout=True, figsize=(10, 10))
+    axes = fig.subplot_mosaic(
+        """
+        ABC
+        ADE
+        AFG
+        AHI
+        AJK
+        ALM
+        """
+    )
+
+    # Visualize the silhouette score as a bar plot.
+    idx = scores_df_sub["Dataset"].str.contains("|".join(datasets))
+    sns.barplot(
+        data=scores_df_sub.loc[idx],
+        y="Dataset",
+        x="Silhouette score",
+        hue="Method",
+        hue_order=["Mowgli", "MOFA+", "NMF", "Seurat"],
+        order=datasets,
+        ax=axes["A"],
+    )
+    axes["A"].legend(
+        title="Method",
+        bbox_to_anchor=(-0.1, 1),
+        ncol=1,
+    )
+    axes["A"].set_yticklabels(axes["A"].get_yticklabels(), rotation=90, va="center")
+
+    # Visualize the ARI as a line plot.
+    ymin = ari_res_sub["ARI"].min()
+    ymax = ari_res_sub["ARI"].max() + 0.05
+    for i, ax in enumerate(
+        [axes["B"], axes["D"], axes["F"], axes["H"], axes["J"], axes["L"]]
+    ):
+        idx = ari_res_sub["Dataset"].str.contains(datasets[i])
+        sns.barplot(
+            data=ari_res_sub.loc[idx],
+            x="Dataset",
+            y="ARI",
+            hue="Method",
+            hue_order=["Mowgli", "MOFA+", "NMF", "Seurat"],
+            estimator=max,
+            ci=None,
+            ax=ax,
+        )
+        ax.get_legend().remove()
+        ax.set(ylim=(ymin, ymax))
+        ax.set(ylabel="maximum ARI")
+        if i < len(datasets) - 1:
+            ax.set_xticklabels([])
+            ax.set(xlabel=None)
+
+    # Visualize the purity score as a line plot.
+    ymin = purity_res_sub["Purity score"].min()
+    ymax = purity_res_sub["Purity score"].max() + 0.05
+    for i, ax in enumerate(
+        [axes["C"], axes["E"], axes["G"], axes["I"], axes["K"], axes["M"]]
+    ):
+        idx = purity_res_sub["Dataset"].str.contains(datasets[i])
+        sns.lineplot(
+            data=purity_res_sub.loc[idx],
+            x="k",
+            y="Purity score",
+            hue="Method",
+            hue_order=["Mowgli", "MOFA+", "NMF", "Seurat"],
+            ax=ax,
+        )
+        ax.get_legend().remove()
+        ax.set(ylim=(0.6, ymax))
+        ax.set(xlim=(0, 20))
+        if i < len(datasets) - 1:
+            ax.set_xticklabels([])
+            ax.set(xlabel=None)
+
+    for i in axes:
+        axes[i].grid()
+
+    plt.savefig(path)
+
+
+def plot_scores_selected_real(path):
+
+    # Select only certain latent dimensions
+    idx = (
+        (scores_df["Latent dimension"] == "5")
+        & (scores_df["Method"] == "MOFA+")
+        & (scores_df["Dataset"].str.contains("Liu|Simulated"))
+    )
+    idx |= (
+        (scores_df["Latent dimension"] == "15")
+        & (scores_df["Method"] == "MOFA+")
+        & (~scores_df["Dataset"].str.contains("Liu|Simulated"))
+    )
+    idx |= (
+        (scores_df["Latent dimension"] == "5")
+        & (scores_df["Method"] == "Mowgli")
+        & (scores_df["Dataset"].str.contains("Liu|Simulated"))
+    )
+    idx |= (
+        (scores_df["Latent dimension"] == "50")
+        & (scores_df["Method"] == "Mowgli")
+        & (~scores_df["Dataset"].str.contains("Liu|Simulated"))
+    )
+    idx |= (
+        (scores_df["Latent dimension"] == "5")
+        & (scores_df["Method"] == "NMF")
+        & (scores_df["Dataset"].str.contains("Liu|Simulated"))
+    )
+    idx |= (
+        (scores_df["Latent dimension"] == "30")
+        & (scores_df["Method"] == "NMF")
+        & (~scores_df["Dataset"].str.contains("Liu|Simulated"))
+    )
+    idx |= scores_df["Method"] == "Seurat"
+    scores_df_sub = scores_df.loc[idx]
+
+    idx = (
+        (ari_res["Latent dimension"] == "5")
+        & (ari_res["Method"] == "MOFA+")
+        & (ari_res["Dataset"].str.contains("Liu|Simulated"))
+    )
+    idx |= (
+        (ari_res["Latent dimension"] == "15")
+        & (ari_res["Method"] == "MOFA+")
+        & (~ari_res["Dataset"].str.contains("Liu|Simulated"))
+    )
+    idx |= (
+        (ari_res["Latent dimension"] == "5")
+        & (ari_res["Method"] == "Mowgli")
+        & (ari_res["Dataset"].str.contains("Liu|Simulated"))
+    )
+    idx |= (
+        (ari_res["Latent dimension"] == "50")
+        & (ari_res["Method"] == "Mowgli")
+        & (~ari_res["Dataset"].str.contains("Liu|Simulated"))
+    )
+    idx |= (
+        (ari_res["Latent dimension"] == "5")
+        & (ari_res["Method"] == "NMF")
+        & (ari_res["Dataset"].str.contains("Liu|Simulated"))
+    )
+    idx |= (
+        (ari_res["Latent dimension"] == "30")
+        & (ari_res["Method"] == "NMF")
+        & (~ari_res["Dataset"].str.contains("Liu|Simulated"))
+    )
+    idx |= ari_res["Method"] == "Seurat"
+    ari_res_sub = ari_res.loc[idx]
+
+    idx = (
+        (purity_res["Latent dimension"] == "5")
+        & (purity_res["Method"] == "MOFA+")
+        & (purity_res["Dataset"].str.contains("Liu|Simulated"))
+    )
+    idx |= (
+        (purity_res["Latent dimension"] == "15")
+        & (purity_res["Method"] == "MOFA+")
+        & (~purity_res["Dataset"].str.contains("Liu|Simulated"))
+    )
+    idx |= (
+        (purity_res["Latent dimension"] == "5")
+        & (purity_res["Method"] == "Mowgli")
+        & (purity_res["Dataset"].str.contains("Liu|Simulated"))
+    )
+    idx |= (
+        (purity_res["Latent dimension"] == "50")
+        & (purity_res["Method"] == "Mowgli")
+        & (~purity_res["Dataset"].str.contains("Liu|Simulated"))
+    )
+    idx |= (
+        (purity_res["Latent dimension"] == "5")
+        & (purity_res["Method"] == "NMF")
+        & (purity_res["Dataset"].str.contains("Liu|Simulated"))
+    )
+    idx |= (
+        (purity_res["Latent dimension"] == "30")
+        & (purity_res["Method"] == "NMF")
+        & (~purity_res["Dataset"].str.contains("Liu|Simulated"))
+    )
+    idx |= purity_res["Method"] == "Seurat"
+    purity_res_sub = purity_res.loc[idx]
+
+    # List the datasets.
+    datasets = [
+        "Liu",
+        "10X PBMC",
+        "Open Problems Multiome",
+        "Open Problems CITE-seq",
+        "Bone Marrow CITE-seq",
+    ]
+
+    for i in range(len(datasets)):
+        idx = scores_df_sub["Dataset"].str.contains(datasets[i])
+        scores_df_sub.loc[idx, "Order"] = i
+
+    # Define the subplots.
+    fig = plt.figure(constrained_layout=True, figsize=(10, 10))
+    axes = fig.subplot_mosaic(
+        """
+        ABC
+        ADE
+        AFG
+        AHI
+        AJK
+        """
+    )
+
+    # Visualize the silhouette score as a bar plot.
+    idx = scores_df_sub["Dataset"].str.contains("|".join(datasets))
+    sns.barplot(
+        data=scores_df_sub.loc[idx],
+        y="Dataset",
+        x="Silhouette score",
+        hue="Method",
+        hue_order=["Mowgli", "MOFA+", "NMF", "Seurat"],
+        order=datasets,
+        ax=axes["A"],
+    )
+    axes["A"].legend(
+        title="Method",
+        bbox_to_anchor=(-0.1, 1),
+        ncol=1,
+    )
+    axes["A"].set_yticklabels(axes["A"].get_yticklabels(), rotation=90, va="center")
+
+    # Visualize the ARI as a line plot.
+    ymin = ari_res_sub["ARI"].min()
+    ymax = ari_res_sub["ARI"].max() + 0.05
+    for i, ax in enumerate([axes["B"], axes["D"], axes["F"], axes["H"], axes["J"]]):
+        idx = ari_res_sub["Dataset"].str.contains(datasets[i])
+        sns.lineplot(
+            data=ari_res_sub.loc[idx],
+            x="Resolution",
+            y="ARI",
+            hue="Method",
+            hue_order=["Mowgli", "MOFA+", "NMF", "Seurat"],
+            ax=ax,
+        )
+        ax.get_legend().remove()
+        ax.set(ylim=(ymin, ymax))
+        if i < len(datasets) - 1:
+            ax.set_xticklabels([])
+            ax.set(xlabel=None)
+
+    # Visualize the purity score as a line plot.
+    ymin = purity_res_sub["Purity score"].min()
+    ymax = purity_res_sub["Purity score"].max() + 0.05
+    for i, ax in enumerate([axes["C"], axes["E"], axes["G"], axes["I"], axes["K"]]):
+        idx = purity_res_sub["Dataset"].str.contains(datasets[i])
+        sns.lineplot(
+            data=purity_res_sub.loc[idx],
+            x="k",
+            y="Purity score",
+            hue="Method",
+            hue_order=["Mowgli", "MOFA+", "NMF", "Seurat"],
+            ax=ax,
+        )
+        ax.get_legend().remove()
+        ax.set(xlim=(0, 20))
+        ax.set(ylim=(0.7, ymax))
+        if i < len(datasets) - 1:
+            ax.set_xticklabels([])
+            ax.set(xlabel=None)
+
+    for i in axes:
+        axes[i].grid()
+
+    plt.savefig(path)
 
 
 # Plot the scores for Mowgli for simulated data, per dimension.
@@ -355,3 +734,13 @@ plot_scores_dim_real(palette, "MOFA+", path)
 path = "/users/csb/huizing/Documents/PhD/Code/mowgli_reproducibility/visualize/figures/scores_dim_real_nmf.pdf"
 palette = sns.color_palette("flare", n_colors=4)
 plot_scores_dim_real(palette, "NMF", path)
+
+# Plot the scores for all methods for simulated data.
+path = "/users/csb/huizing/Documents/PhD/Code/mowgli_reproducibility/visualize/figures/scores_simulated.pdf"
+palette = tue_cycler.cycler(color=tue_palettes.high_contrast)
+plot_scores_selected_simulated(path)
+
+# Plot the scores for all methods for real data.
+path = "/users/csb/huizing/Documents/PhD/Code/mowgli_reproducibility/visualize/figures/scores_real.pdf"
+palette = tue_cycler.cycler(color=tue_palettes.high_contrast)
+plot_scores_selected_real(path)
