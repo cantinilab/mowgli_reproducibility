@@ -5,41 +5,55 @@ library(ggplot2)
 
 # Loading a GMT file.
 pathways <- gmtPathways("/users/csb/huizing/Documents/PhD/Code/mowgli_reproducibility/enrich/gprofiler_hsapiens.name/GO_Biological_Process_2021.gmt") # nolint
-str(head(pathways))
 
-# Loading ranks.
-metagenes <- read.csv("/users/csb/huizing/Documents/PhD/Code/mowgli_reproducibility/enrich/mofa.rnk", header = TRUE) # nolint
-ranks <- setNames(as.matrix(metagenes$X3), as.matrix(metagenes$X))
+# Initializing a dataframe with the results.
+total_fgsea_res <- data.frame()
 
-# Running fgsea.
-fgsea_res <- fgsea(
-    pathways = pathways,
-    stats = ranks,
-    minSize = 15,
-    maxSize = 500,
-    nperm = 1000,
-    # scoreType = "neg"
-)
-str(head(fgsea_res))
-length(fgsea_res$leadingEdge)
+# Loading MOFA+'s ranks.
+metagenes <- read.csv("/users/csb/huizing/Documents/PhD/Code/mowgli_reproducibility/enrich/mofa.rnk", header = TRUE, row.names = 1) # nolint
 
-# Make a table plot for a bunch of selected pathways.
-top_pathways_up <- fgsea_res[ES > 0][head(order(pval), n = 20), pathway]
-top_pathways_down <- fgsea_res[ES < 0][head(order(pval), n = 20), pathway]
-top_pathways <- c(top_pathways_up, rev(top_pathways_down))
-grob <- plotGseaTable(
-    pathways[top_pathways],
-    ranks,
-    fgsea_res,
-    gseaParam = 0.5,
-    render = FALSE
-)
-plot(grob)
+for (col in colnames(metagenes)) {
+    # Get ranks for a given dimension.
+    ranks <- setNames(as.matrix(metagenes[col]), rownames(metagenes))
 
-fgsea_res[ES > 0][head(order(pval), n = 100), pathway]
+    # Run fgsea.
+    fgsea_res <- fgsea(
+        pathways = pathways,
+        stats = ranks,
+        minSize = 15,
+        maxSize = 500,
+        nperm = 1000
+    )
 
+    # Add some metadata.
+    fgsea_res$col <- col
+    fgsea_res$method <- "mofa"
 
+    # Add the results to the total.
+    total_fgsea_res <- rbind(total_fgsea_res, fgsea_res)
+}
 
+# Loading Mowgli's ranks.
+metagenes <- read.csv("/users/csb/huizing/Documents/PhD/Code/mowgli_reproducibility/enrich/mowgli.rnk", header = TRUE, row.names = 1) # nolint
 
+for (col in colnames(metagenes)) {
+    # Get ranks for a given dimension.
+    ranks <- setNames(as.matrix(metagenes[col]), rownames(metagenes))
 
+    # Running fgsea.
+    fgsea_res <- fgsea(
+        pathways = pathways,
+        stats = ranks,
+        minSize = 15,
+        maxSize = 500,
+        nperm = 1000,
+        scoreType = "pos"
+    )
+    fgsea_res$col <- col
+    fgsea_res$method <- "mowgli"
 
+    total_fgsea_res <- rbind(total_fgsea_res, fgsea_res)
+}
+
+# Saving results.
+write.csv(total_fgsea_res[, -"leadingEdge"], "/users/csb/huizing/Documents/PhD/Code/mowgli_reproducibility/enrich/fgsea.csv") # nolint
