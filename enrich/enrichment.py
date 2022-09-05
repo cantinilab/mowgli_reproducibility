@@ -1,14 +1,8 @@
 # Imports
-import matplotlib.pyplot as plt
 import numpy as np
-import pickle
-import seaborn as sns
-import os
 import pandas as pd
 import muon as mu
-import scanpy as sc
 import mofax
-import anndata as ad
 from gprofiler import GProfiler
 
 # Define the data and figure folder.
@@ -25,12 +19,14 @@ H_mowgli = np.load(
     allow_pickle=True,
 ).item()["H_rna"]
 
+
 def top_mowgli(dim, n):
     """
     Get the top n genes for a given dimension.
     """
     idx = H_mowgli[:, dim].argsort()[::-1][:n]
     return mdata["rna"].var_names[idx].str.replace("rna:", "").to_list()
+
 
 def top_mofa(dim, n):
     """
@@ -39,17 +35,49 @@ def top_mofa(dim, n):
     idx = H_mofa[:, dim].argsort()[::-1][:n]
     return mdata["rna"].var_names[idx].str.replace("rna:", "").to_list()
 
+def bottom_mofa(dim, n):
+    """
+    Get the bottom n genes for a given dimension.
+    """
+    idx = H_mofa[:, dim].argsort()[:n]
+    return mdata["rna"].var_names[idx].str.replace("rna:", "").to_list()
+
+
 gp = GProfiler(return_dataframe=True)
 
-query_mofa = {f"mofa {dim}": top_mofa(dim, 200) for dim in range(15)}
-enr_mofa = gp.profile(
+sources = [
+    "GO:MF", # Molecular function
+    "GO:CC", # Cellular component
+    "GO:BP", # Biological process
+    "KEGG", # KEGG pathways
+    "REAC", # Reactome pathways
+    # "WP", # WikiPathways
+    # "TF", # Transfac
+    # "MIRNA", # miRTarBase
+    # "HPA", # Human Protein Atlas
+    # "CORUM", # CORUM protein complexes
+    # "HP", # Human Phenotype Ontology
+]
+
+query_mofa_bottom = {f"mofa {dim}": bottom_mofa(dim, 200) for dim in range(15)}
+enr_mofa_bottom = gp.profile(
     organism="hsapiens",
-    query=query_mofa,
+    query=query_mofa_bottom,
     ordered=True,
     no_evidences=True,
-    sources=["GO:BP"],
+    sources=sources,
 )
-enr_mofa["method"] = "mofa"
+enr_mofa_bottom["method"] = "mofa"
+
+query_mofa_top = {f"mofa {dim}": top_mofa(dim, 200) for dim in range(15)}
+enr_mofa_top = gp.profile(
+    organism="hsapiens",
+    query=query_mofa_top,
+    ordered=True,
+    no_evidences=True,
+    sources=sources,
+)
+enr_mofa_top["method"] = "mofa"
 
 query_mowgli = {f"mowgli {dim}": top_mowgli(dim, 200) for dim in range(50)}
 enr_mowgli = gp.profile(
@@ -57,10 +85,12 @@ enr_mowgli = gp.profile(
     query=query_mowgli,
     ordered=True,
     no_evidences=True,
-    sources=["GO:BP"],
+    sources=sources,
 )
 enr_mowgli["method"] = "mowgli"
 
-enr = pd.concat((enr_mofa, enr_mowgli))
+enr = pd.concat((enr_mofa_bottom, enr_mofa_top, enr_mowgli))
 
-enr.to_csv("/users/csb/huizing/Documents/PhD/Code/mowgli_reproducibility/enrich/enrichment.csv")
+enr.to_csv(
+    "/users/csb/huizing/Documents/PhD/Code/mowgli_reproducibility/enrich/enrichment.csv"
+)
