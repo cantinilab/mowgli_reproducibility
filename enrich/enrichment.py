@@ -19,6 +19,7 @@ H_mowgli = np.load(
     allow_pickle=True,
 ).item()["H_rna"]
 
+ordered = False
 
 def top_mowgli(dim, n):
     """
@@ -61,31 +62,31 @@ sources = [
 
 query_mofa_bottom = {f"mofa {dim}": bottom_mofa(dim, 200) for dim in range(15)}
 enr_mofa_bottom = gp.profile(
-    organism="hsapiens",
+    organism="gp__l7EX_y0nN_FSk",
     query=query_mofa_bottom,
-    ordered=True,
+    ordered=ordered,
     no_evidences=True,
-    sources=sources,
+    # sources=sources,
 )
 enr_mofa_bottom["method"] = "mofa"
 
 query_mofa_top = {f"mofa {dim}": top_mofa(dim, 200) for dim in range(15)}
 enr_mofa_top = gp.profile(
-    organism="hsapiens",
+    organism="gp__l7EX_y0nN_FSk",
     query=query_mofa_top,
-    ordered=True,
+    ordered=ordered,
     no_evidences=True,
-    sources=sources,
+    # sources=sources,
 )
 enr_mofa_top["method"] = "mofa"
 
 query_mowgli = {f"mowgli {dim}": top_mowgli(dim, 200) for dim in range(50)}
 enr_mowgli = gp.profile(
-    organism="hsapiens",
+    organism="gp__l7EX_y0nN_FSk",
     query=query_mowgli,
-    ordered=True,
+    ordered=ordered,
     no_evidences=True,
-    sources=sources,
+    # sources=sources,
 )
 enr_mowgli["method"] = "mowgli"
 

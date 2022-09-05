@@ -5,6 +5,7 @@ library(ggplot2)
 
 # Loading a GMT file.
 pathways <- gmtPathways("/users/csb/huizing/Documents/PhD/Code/mowgli_reproducibility/enrich/gprofiler_hsapiens.name/GO_Biological_Process_2021.gmt") # nolint
+pathways <- gmtPathways("/users/csb/huizing/Documents/PhD/Code/mowgli_reproducibility/enrich/gprofiler_hsapiens.name/PanglaoDB_Augmented_2021.gmt") # nolint
 
 # Initializing a dataframe with the results.
 total_fgsea_res <- data.frame()
