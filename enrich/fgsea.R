@@ -4,8 +4,14 @@ library(fgsea)
 library(ggplot2)
 
 # Loading a GMT file.
-pathways <- gmtPathways("/users/csb/huizing/Documents/PhD/Code/mowgli_reproducibility/enrich/gprofiler_hsapiens.name/GO_Biological_Process_2021.gmt") # nolint
-pathways <- gmtPathways("/users/csb/huizing/Documents/PhD/Code/mowgli_reproducibility/enrich/gprofiler_hsapiens.name/PanglaoDB_Augmented_2021.gmt") # nolint
+pathways <- c(
+    gmtPathways("/users/csb/huizing/Documents/PhD/Code/mowgli_reproducibility/enrich/gmts/GO_Biological_Process_2021.gmt"), # nolint
+    gmtPathways("/users/csb/huizing/Documents/PhD/Code/mowgli_reproducibility/enrich/gmts/GO_Cellular_Component_2021.gmt"), # nolint
+    gmtPathways("/users/csb/huizing/Documents/PhD/Code/mowgli_reproducibility/enrich/gmts/GO_Molecular_Function_2021.gmt"), # nolint
+    gmtPathways("/users/csb/huizing/Documents/PhD/Code/mowgli_reproducibility/enrich/gmts/KEGG_2021_Human.gmt"), # nolint
+    gmtPathways("/users/csb/huizing/Documents/PhD/Code/mowgli_reproducibility/enrich/gmts/PanglaoDB_Augmented_2021.gmt"), # nolint
+    gmtPathways("/users/csb/huizing/Documents/PhD/Code/mowgli_reproducibility/enrich/gmts/Reactome_2016.gmt") # nolint
+)
 
 # Initializing a dataframe with the results.
 total_fgsea_res <- data.frame()
