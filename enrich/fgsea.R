@@ -28,7 +28,7 @@ for (source in names(pathways)) {
 
         # Run fgsea.
         fgsea_res <- fgsea(
-            pathways = pathways[source],
+            pathways = pathways[[source]],
             stats = ranks,
             minSize = 15,
             maxSize = 500,
@@ -57,7 +57,7 @@ for (source in names(pathways)) {
 
         # Running fgsea.
         fgsea_res <- fgsea(
-            pathways = pathways[source],
+            pathways = pathways[[source]],
             stats = ranks,
             minSize = 15,
             maxSize = 500,
