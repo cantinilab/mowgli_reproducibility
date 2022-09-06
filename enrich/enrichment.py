@@ -20,7 +20,9 @@ H_mowgli = np.load(
 ).item()["H_rna"]
 
 ordered = False
-significance_threshold_method = "bonferroni" # default is g_SCS
+significance_threshold_method = "bonferroni"  # default is g_SCS
+no_iea = True  # default is False
+
 
 def top_mowgli(dim, n):
     """
@@ -37,6 +39,7 @@ def top_mofa(dim, n):
     idx = H_mofa[:, dim].argsort()[::-1][:n]
     return mdata["rna"].var_names[idx].str.replace("rna:", "").to_list()
 
+
 def bottom_mofa(dim, n):
     """
     Get the bottom n genes for a given dimension.
@@ -48,11 +51,11 @@ def bottom_mofa(dim, n):
 gp = GProfiler(return_dataframe=True)
 
 sources = [
-    "GO:MF", # Molecular function
-    "GO:CC", # Cellular component
-    "GO:BP", # Biological process
-    "KEGG", # KEGG pathways
-    "REAC", # Reactome pathways
+    "GO:MF",  # Molecular function
+    "GO:CC",  # Cellular component
+    "GO:BP",  # Biological process
+    "KEGG",  # KEGG pathways
+    "REAC",  # Reactome pathways
     # "WP", # WikiPathways
     # "TF", # Transfac
     # "MIRNA", # miRTarBase
@@ -69,6 +72,7 @@ enr_mofa_bottom = gp.profile(
     ordered=ordered,
     no_evidences=True,
     significance_threshold_method=significance_threshold_method,
+    no_iea=no_iea,
 )
 enr_mofa_bottom["method"] = "mofa"
 
@@ -80,6 +84,7 @@ enr_mofa_top = gp.profile(
     ordered=ordered,
     no_evidences=True,
     significance_threshold_method=significance_threshold_method,
+    no_iea=no_iea,
 )
 enr_mofa_top["method"] = "mofa"
 
@@ -91,6 +96,7 @@ enr_mowgli = gp.profile(
     ordered=ordered,
     no_evidences=True,
     significance_threshold_method=significance_threshold_method,
+    no_iea=no_iea,
 )
 enr_mowgli["method"] = "mowgli"
 
