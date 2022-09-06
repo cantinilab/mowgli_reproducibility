@@ -20,6 +20,7 @@ H_mowgli = np.load(
 ).item()["H_rna"]
 
 ordered = False
+significance_threshold_method = "bonferroni" # default is g_SCS
 
 def top_mowgli(dim, n):
     """
@@ -62,31 +63,34 @@ sources = [
 
 query_mofa_bottom = {f"mofa {dim}": bottom_mofa(dim, 200) for dim in range(15)}
 enr_mofa_bottom = gp.profile(
-    organism="gp__l7EX_y0nN_FSk",
+    # organism="gp__l7EX_y0nN_FSk",
+    sources=sources,
     query=query_mofa_bottom,
     ordered=ordered,
     no_evidences=True,
-    # sources=sources,
+    significance_threshold_method=significance_threshold_method,
 )
 enr_mofa_bottom["method"] = "mofa"
 
 query_mofa_top = {f"mofa {dim}": top_mofa(dim, 200) for dim in range(15)}
 enr_mofa_top = gp.profile(
-    organism="gp__l7EX_y0nN_FSk",
+    # organism="gp__l7EX_y0nN_FSk",
+    sources=sources,
     query=query_mofa_top,
     ordered=ordered,
     no_evidences=True,
-    # sources=sources,
+    significance_threshold_method=significance_threshold_method,
 )
 enr_mofa_top["method"] = "mofa"
 
 query_mowgli = {f"mowgli {dim}": top_mowgli(dim, 200) for dim in range(50)}
 enr_mowgli = gp.profile(
-    organism="gp__l7EX_y0nN_FSk",
+    # organism="gp__l7EX_y0nN_FSk",
+    sources=sources,
     query=query_mowgli,
     ordered=ordered,
     no_evidences=True,
-    # sources=sources,
+    significance_threshold_method=significance_threshold_method,
 )
 enr_mowgli["method"] = "mowgli"
 

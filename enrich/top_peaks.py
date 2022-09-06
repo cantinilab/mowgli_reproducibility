@@ -71,18 +71,18 @@ for dim in range(H_mofa.shape[1]):
 
 # Save Mowgli's top peaks.
 top_in_mowgli.to_csv(
-    "/users/csb/huizing/Documents/PhD/Code/" +
-    "mowgli_reproducibility/enrich/top_in_mowgli.csv",
+    "/users/csb/huizing/Documents/PhD/Code/"
+    + "mowgli_reproducibility/enrich/top_in_mowgli.csv",
 )
 
 # Save MOFA's top peaks.
 top_in_mofa.to_csv(
-    "/users/csb/huizing/Documents/PhD/Code/" +
-    "mowgli_reproducibility/enrich/top_in_mofa.csv",
+    "/users/csb/huizing/Documents/PhD/Code/"
+    + "mowgli_reproducibility/enrich/top_in_mofa.csv",
 )
 
 # Save MOFA's bottom peaks.
 bottom_in_mofa.to_csv(
-    "/users/csb/huizing/Documents/PhD/Code/" +
-    "mowgli_reproducibility/enrich/bottom_in_mofa.csv",
+    "/users/csb/huizing/Documents/PhD/Code/"
+    + "mowgli_reproducibility/enrich/bottom_in_mofa.csv",
 )
