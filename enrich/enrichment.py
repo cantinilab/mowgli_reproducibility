@@ -23,8 +23,8 @@ H_mowgli = np.load(
 ).item()["H_rna"]
 
 # Define parameters for g:Profiler.
-ordered = True
-n_genes = 200
+ordered = False
+n_genes = 50
 significance_threshold_method = "bonferroni"  # default is g_SCS
 
 # Using custom GMTs: GOCC, GO:MF, GO:BP, REAC, KEGG, Panglao.
