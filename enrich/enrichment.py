@@ -23,7 +23,8 @@ H_mowgli = np.load(
 ).item()["H_rna"]
 
 # Define parameters for g:Profiler.
-ordered = False
+ordered = True
+n_genes = 200
 significance_threshold_method = "bonferroni"  # default is g_SCS
 
 # Using custom GMTs: GOCC, GO:MF, GO:BP, REAC, KEGG, Panglao.
@@ -55,7 +56,7 @@ def bottom_mofa(dim, n):
 
 gp = GProfiler(return_dataframe=True)
 
-query_mofa_bottom = {f"mofa {dim}": bottom_mofa(dim, 200) for dim in range(15)}
+query_mofa_bottom = {f"bottom_mofa {dim}": bottom_mofa(dim, n_genes) for dim in range(15)}
 enr_mofa_bottom = gp.profile(
     organism=custom_data_organism,
     query=query_mofa_bottom,
@@ -65,7 +66,7 @@ enr_mofa_bottom = gp.profile(
 )
 enr_mofa_bottom["method"] = "mofa"
 
-query_mofa_top = {f"mofa {dim}": top_mofa(dim, 200) for dim in range(15)}
+query_mofa_top = {f"top_mofa {dim}": top_mofa(dim, n_genes) for dim in range(15)}
 enr_mofa_top = gp.profile(
     organism=custom_data_organism,
     query=query_mofa_top,
@@ -75,7 +76,7 @@ enr_mofa_top = gp.profile(
 )
 enr_mofa_top["method"] = "mofa"
 
-query_mowgli = {f"mowgli {dim}": top_mowgli(dim, 200) for dim in range(50)}
+query_mowgli = {f"mowgli {dim}": top_mowgli(dim, n_genes) for dim in range(50)}
 enr_mowgli = gp.profile(
     organism=custom_data_organism,
     query=query_mowgli,

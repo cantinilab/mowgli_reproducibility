@@ -4,7 +4,7 @@ import pandas as pd
 import muon as mu
 import mofax
 
-n_peaks = 200
+n_peaks = 100
 
 # Define the data and figure folder.
 data_folder = "/users/csb/huizing/Documents/PhD/Code/mowgli_reproducibility/data/"
@@ -43,31 +43,17 @@ def bottom_mofa(dim, n):
 
 
 # Initialize the top and bottom peaks.
-var_names = mdata["atac"].var_names.str.replace("atac:", "")
-top_in_mowgli = pd.DataFrame({}, index=var_names)
-top_in_mofa = pd.DataFrame({}, index=var_names)
-bottom_in_mofa = pd.DataFrame({}, index=var_names)
+mdata["atac"].var_names = mdata["atac"].var_names.str.replace("atac:", "")
+top_in_mowgli = mdata["atac"].var.copy()
+top_in_mofa = mdata["atac"].var.copy()
+bottom_in_mofa = mdata["atac"].var.copy()
 
 # Fill the Mowgli top peaks.
 for dim in range(H_mowgli.shape[1]):
-    col_name = f"top in dim {dim}"
-    idx = top_mowgli(dim, n_peaks)
+    col_name = f"top_in_dim_{dim}"
+    idx = top_in_mowgli.index[top_mowgli(dim, n_peaks)]
     top_in_mowgli[col_name] = False
-    top_in_mowgli[col_name][idx] = True
-
-# Fill the MOFA top peaks.
-for dim in range(H_mofa.shape[1]):
-    col_name = f"top in dim {dim}"
-    idx = top_mofa(dim, n_peaks)
-    top_in_mofa[col_name] = False
-    top_in_mofa[col_name][idx] = True
-
-# Fill the MOFA bottom peaks.
-for dim in range(H_mofa.shape[1]):
-    col_name = f"bottom in dim {dim}"
-    idx = bottom_mofa(dim, n_peaks)
-    bottom_in_mofa[col_name] = False
-    bottom_in_mofa[col_name][idx] = True
+    top_in_mowgli.loc[idx, col_name] = True
 
 # Save Mowgli's top peaks.
 top_in_mowgli.to_csv(
@@ -75,11 +61,25 @@ top_in_mowgli.to_csv(
     + "mowgli_reproducibility/enrich/top_in_mowgli.csv",
 )
 
+# Fill the MOFA top peaks.
+for dim in range(H_mofa.shape[1]):
+    col_name = f"top_in_dim_{dim}"
+    idx = top_in_mofa.index[top_mofa(dim, n_peaks)]
+    top_in_mofa[col_name] = False
+    top_in_mofa.loc[idx, col_name] = True
+
 # Save MOFA's top peaks.
 top_in_mofa.to_csv(
     "/users/csb/huizing/Documents/PhD/Code/"
     + "mowgli_reproducibility/enrich/top_in_mofa.csv",
 )
+
+# Fill the MOFA bottom peaks.
+for dim in range(H_mofa.shape[1]):
+    col_name = f"bottom_in_dim_{dim}"
+    idx = bottom_in_mofa.index[bottom_mofa(dim, n_peaks)]
+    bottom_in_mofa[col_name] = False
+    bottom_in_mofa.loc[idx, col_name] = True
 
 # Save MOFA's bottom peaks.
 bottom_in_mofa.to_csv(
