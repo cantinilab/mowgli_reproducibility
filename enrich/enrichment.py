@@ -24,11 +24,11 @@ H_mowgli = np.load(
 
 # Define parameters for g:Profiler.
 ordered = False
-n_genes = 50
+n_genes = 200
 significance_threshold_method = "bonferroni"  # default is g_SCS
 
-# Using custom GMTs: GOCC, GO:MF, GO:BP, REAC, KEGG, Panglao.
-custom_data_organism = "gp__DKS1_wNiI_NVk"
+# Using custom GMTs: GOCC, GO:MF, GO:BP, REAC, KEGG, CellMarker.
+custom_data_organism = "gp__AXix_cHWN_41Y"
 
 def top_mowgli(dim, n):
     """
