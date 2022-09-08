@@ -5,12 +5,12 @@ library(ggplot2)
 
 # Loading a GMT file.
 pathways <- list(
-    "GO_Biological_Process_2021" = gmtPathways("/users/csb/huizing/Documents/PhD/Code/mowgli_reproducibility/enrich/gmts/GO_Biological_Process_2021.gmt"), # nolint
-    "GO_Cellular_Component_2021" = gmtPathways("/users/csb/huizing/Documents/PhD/Code/mowgli_reproducibility/enrich/gmts/GO_Cellular_Component_2021.gmt"), # nolint
-    "GO_Molecular_Function_2021" = gmtPathways("/users/csb/huizing/Documents/PhD/Code/mowgli_reproducibility/enrich/gmts/GO_Molecular_Function_2021.gmt"), # nolint
-    "KEGG_2021_Human" = gmtPathways("/users/csb/huizing/Documents/PhD/Code/mowgli_reproducibility/enrich/gmts/KEGG_2021_Human.gmt"), # nolint
-    "PanglaoDB_Augmented_2021" = gmtPathways("/users/csb/huizing/Documents/PhD/Code/mowgli_reproducibility/enrich/gmts/PanglaoDB_Augmented_2021.gmt"), # nolint
-    "Reactome_2016" = gmtPathways("/users/csb/huizing/Documents/PhD/Code/mowgli_reproducibility/enrich/gmts/Reactome_2016.gmt") # nolint
+    # "GO_Biological_Process_2021" = gmtPathways("/users/csb/huizing/Documents/PhD/Code/mowgli_reproducibility/enrich/gmts/GO_Biological_Process_2021.gmt"), # nolint
+    # "GO_Cellular_Component_2021" = gmtPathways("/users/csb/huizing/Documents/PhD/Code/mowgli_reproducibility/enrich/gmts/GO_Cellular_Component_2021.gmt"), # nolint
+    # "GO_Molecular_Function_2021" = gmtPathways("/users/csb/huizing/Documents/PhD/Code/mowgli_reproducibility/enrich/gmts/GO_Molecular_Function_2021.gmt"), # nolint
+    # "KEGG_2021_Human" = gmtPathways("/users/csb/huizing/Documents/PhD/Code/mowgli_reproducibility/enrich/gmts/KEGG_2021_Human.gmt"), # nolint
+    # "PanglaoDB_Augmented_2021" = gmtPathways("/users/csb/huizing/Documents/PhD/Code/mowgli_reproducibility/enrich/gmts/PanglaoDB_Augmented_2021.gmt"), # nolint
+    # "Reactome_2016" = gmtPathways("/users/csb/huizing/Documents/PhD/Code/mowgli_reproducibility/enrich/gmts/Reactome_2016.gmt"), # nolint
     "Azimuth_Cell_Types_2021" = gmtPathways("/users/csb/huizing/Documents/PhD/Code/mowgli_reproducibility/enrich/gmts/Azimuth_Cell_Types_2021.gmt") # nolint
 )
 
