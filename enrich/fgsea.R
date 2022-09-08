@@ -11,6 +11,7 @@ pathways <- list(
     "KEGG_2021_Human" = gmtPathways("/users/csb/huizing/Documents/PhD/Code/mowgli_reproducibility/enrich/gmts/KEGG_2021_Human.gmt"), # nolint
     "PanglaoDB_Augmented_2021" = gmtPathways("/users/csb/huizing/Documents/PhD/Code/mowgli_reproducibility/enrich/gmts/PanglaoDB_Augmented_2021.gmt"), # nolint
     "Reactome_2016" = gmtPathways("/users/csb/huizing/Documents/PhD/Code/mowgli_reproducibility/enrich/gmts/Reactome_2016.gmt") # nolint
+    "Azimuth_Cell_Types_2021" = gmtPathways("/users/csb/huizing/Documents/PhD/Code/mowgli_reproducibility/enrich/gmts/Azimuth_Cell_Types_2021.gmt") # nolint
 )
 
 # Initializing a dataframe with the results.
