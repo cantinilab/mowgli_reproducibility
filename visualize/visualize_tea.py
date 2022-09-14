@@ -162,6 +162,9 @@ varnames = rna_all_genes.var_names
 for celltype in rna_markers:
     rna_markers[celltype] = [g for g in rna_markers[celltype] if g in varnames]
 
+# Define a flat list of rna markers.
+rna_markers_flat = [m for markers in rna_markers.values() for m in markers]
+
 # Define Mowgli marker factors for cell types.
 mowgli_factor_markers = {
     "NK": ["2"],
@@ -270,6 +273,7 @@ plt.savefig(fig_folder + "mowgli_tea_umap_annotated.pdf")
 ############################## Interpret Mowgli's dimensions #############################
 ##########################################################################################
 
+# Make a dotplot of weights for Mowgli's factors across clusters.
 mowgli_embedding = ad.AnnData(mdata.obsm["X_mowgli"])
 mowgli_embedding.obs_names = mdata.obs_names
 mowgli_embedding.obs["annotation_mowgli"] = mdata.obs["annotation_mowgli"]
@@ -298,17 +302,7 @@ axes["mainplot_ax"].set_xlabel("Factor #")
 axes["mainplot_ax"].set_xticklabels(axes["mainplot_ax"].get_xticklabels(), rotation=0)
 plt.savefig(fig_folder + "mowgli_tea_factors.pdf")
 
-# # %%
-# celltypes = [
-#     "Natural Killer CL0000623",
-#     "B Cell CL0000785",
-#     "Monocyte CL0000576",
-#     "CD4 T CL0000624",
-#     "CD8 T CL0000625",
-#     "Mucosal Associated Invariant T CL0000940",
-# ]
-
-
+# Make a matrixplot of ADT weights accross Mowgli's factors.
 adata = ad.AnnData(H_mowgli["H_adt"])
 adata.obs_names = mdata["adt"].var_names
 adata.obs["adt"] = pd.Categorical(adata.obs_names)
@@ -326,110 +320,53 @@ sc.pl.matrixplot(
 plt.savefig(fig_folder + "mowgli_tea_factors_adt.pdf")
 
 
+adata = ad.AnnData(H_mowgli["H_rna"])
+adata.obs_names = mdata["rna"].var_names.str.replace("rna:", "")
+adata.obs["rna"] = pd.Categorical(adata.obs_names)
+genes = [g for g in rna_markers_flat if g in adata.obs_names]
+adata = adata[genes, mowgli_factor_markers_flat]
+sc.pl.matrixplot(
+    adata,
+    mowgli_factor_markers,
+    groupby="rna",
+    cmap="Reds",
+    categories_order=genes,
+    title="Gene weights in Mowgli's top factors",
+    show=False,
+    # standard_scale="group",
+)
+plt.savefig(fig_folder + "mowgli_tea_factors_rna.pdf")
 
-# # %%
-# adata = ad.AnnData(H_mowgli["H_rna"])
-# adata.obs_names = mdata["rna"].var_names.str.replace("rna:", "")
-# adata.obs["rna"] = pd.Categorical(adata.obs_names)
-# genes = [
-#     "KLRD1",
-#     "KLRF1",
-#     "GZMB",
-#     "NKG7",
-#     "GNLY",
-#     "GZMA",
-#     "KLRB1",
-#     "GZMK",
-#     "SLC4A10",
-#     "CD4",
-#     "CD8A",
-#     "LINC02446",
-#     "FCN1",
-#     "LYZ",
-#     "PSAP",
-#     "S100A9",
-#     "RALGPS2",
-#     "MS4A1",
-#     "BANK1",
-#     "IGHM",
-# ]
-# adata = adata[
-#     genes,
-#     [2, 9, 6, 8, 18, 16, 49, 32, 33, 7],
-# ]
-# varnames = {
-#     "NK": ["2"],
-#     "MAIT": ["9", "6"],
-#     "CD4": ["8", "18"],
-#     "CD8": ["16", "49"],
-#     "Mono": ["32"],
-#     "B": ["33"],
-#     "Eryth": ["7"],
-#     # " ": ["1", "3", "4", "5", "10", "11", "12", "13", "14", "15", "17", "19", "20", "21", "22", "23", "24", "25", "26", "27", "28", "29", "30", "31", "35", "36", "37", "38", "39", "40", "41", "42", "43", "44", "45", "46", "47", "48"],
-# }
-# sc.pl.matrixplot(
-#     adata,
-#     varnames,
-#     groupby="rna",
-#     cmap="Reds",
-#     categories_order=genes,
-#     title="Gene weights in Mowgli's top factors",
-#     # standard_scale="group",
-# )
+gene_sets = {
+    "NK gene set": "Natural Killer CL0000623",
+    "B gene set": "B Cell CL0000785",
+    "Mono gene set": "Monocyte CL0000576",
+    "CD4 gene set": "CD4 T CL0000624",
+    "CD8 gene set": "CD8 T CL0000625",
+    "MAIT gene set": "Mucosal Associated Invariant T CL0000940",
+}
 
+mowgli_pvals = ad.AnnData(np.zeros((len(gene_sets), mowgli_embedding.n_vars)))
+mowgli_pvals.obs_names = gene_sets.keys()
+mowgli_pvals.var_names = mowgli_embedding.var_names
 
-# # %%
-# # celltypes = enr.loc[enr["source"] == "Azimuth_Cell_Types_2021", "native"].unique()
+for i, x in enumerate(gene_sets):
+    idx = enr["native"] == gene_sets[x]
+    idx &= enr["method"] == "mowgli"
+    mowgli_pvals.X[i, enr.loc[idx, "dim"]] = enr.loc[idx, "minlogp"]
 
-# # %%
-# mowgli_pvals = ad.AnnData(np.zeros((len(celltypes), mowgli_embedding.n_vars)))
-# mowgli_pvals.obs_names = celltypes
-# mowgli_pvals.var_names = mowgli_embedding.var_names
-
-# for i, celltype in enumerate(celltypes):
-#     idx = enr["native"] == celltype
-#     idx &= enr["method"] == "mowgli"
-#     mowgli_pvals.X[i, enr.loc[idx, "dim"]] = enr.loc[idx, "minlogp"]
-# mowgli_pvals.obs["celltype"] = pd.Categorical(mowgli_pvals.obs_names)
-
-# # %%
-# mowgli_pvals.obs["celltype"].cat.categories = [
-#     "B gene set",
-#     "CD4 T gene set",
-#     "CD8 T gene set",
-#     "Mono gene set",
-#     "MAIT gene set",
-#     "NK gene set",
-# ]
-
-
-# # %%
-# varnames = {
-#     "NK": ["2"],
-#     "MAIT": ["9", "6"],
-#     "CD4": ["8", "18"],
-#     "CD8": ["16", "49"],
-#     "Mono": ["32"],
-#     "B": ["33"],
-#     "Eryth": ["7"],
-#     # " ": ["1", "3", "4", "5", "10", "11", "12", "13", "14", "15", "17", "19", "20", "21", "22", "23", "24", "25", "26", "27", "28", "29", "30", "31", "35", "36", "37", "38", "39", "40", "41", "42", "43", "44", "45", "46", "47", "48"],
-# }
-# sc.pl.matrixplot(
-#     mowgli_pvals,
-#     varnames,
-#     groupby="celltype",
-#     categories_order=[
-#         "NK gene set",
-#         "MAIT gene set",
-#         "CD4 T gene set",
-#         "CD8 T gene set",
-#         "B gene set",
-#         "Mono gene set",
-#     ],
-#     cmap="Reds",
-#     title="Cell type enrichment for the factors",
-#     colorbar_title=r"$-\log_{10}(p~value)$",
-# )
+mowgli_pvals.obs["gene_set"] = pd.Categorical(mowgli_pvals.obs_names)
+sc.pl.matrixplot(
+    mowgli_pvals,
+    mowgli_factor_markers,
+    groupby="gene_set",
+    categories_order=gene_sets.keys(),
+    cmap="Reds",
+    title="Cell type enrichment for the factors",
+    colorbar_title=r"$-\log_{10}(p~value)$",
+    show=False,
+)
+plt.savefig(fig_folder + "mowgli_tea_enrich_pvals.pdf")
 
 
 # # %%
