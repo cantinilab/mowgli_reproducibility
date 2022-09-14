@@ -25,7 +25,7 @@ H_mowgli = np.load(
 # Define parameters for g:Profiler.
 ordered = False
 n_genes = 150
-significance_threshold_method = "g_SCS"  # default is g_SCS
+significance_threshold_method = "bonferroni"  # default is g_SCS
 
 # Using custom GMTs: GOCC, GO:MF, GO:BP, REAC, KEGG, CellMarker, Azimuth.
 custom_data_organism = "gp__m04q_p2KA_cbk"
@@ -34,7 +34,8 @@ def top_mowgli(dim, n):
     """
     Get the top n genes for a given dimension.
     """
-    idx = H_mowgli[:, dim].argsort()[::-1][:n]
+    H_scaled = H_mowgli/H_mowgli.sum(axis=1, keepdims=True)
+    idx = H_scaled[:, dim].argsort()[::-1][:n]
     return mdata["rna"].var_names[idx].str.replace("rna:", "").to_list()
 
 
