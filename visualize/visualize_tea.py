@@ -179,6 +179,39 @@ mowgli_factor_markers = {
 # Define a flat list of Mowgli marker factors.
 mowgli_factor_markers_flat = [m for l in mowgli_factor_markers.values() for m in l]
 
+# Define MOFA+ positive marker factors for cell types.
+mofa_pos_factor_markers = {
+    "B": ["0", "11"],
+    "Mono": ["1", "8"],
+    "NK": ["3"],
+    "MAIT": ["4"],
+    "CD8": ["9"],
+    "Eryth": ["6"],
+}
+
+# Define a flat list of MOFA+ positive marker factors.
+mofa_pos_factor_markers_flat = [m for l in mofa_pos_factor_markers.values() for m in l]
+
+# Define MOFA+ negative marker factors for cell types.
+mofa_neg_factor_markers = {
+    "Mono": ["2", "8"],
+    "Eryth": ["5", "10"],
+    "MAIT": ["9", "3"],
+}
+
+# Define a flat list of MOFA+ negative marker factors.
+mofa_neg_factor_markers_flat = [m for l in mofa_neg_factor_markers.values() for m in l]
+
+# Define gene sets for cell types.
+gene_sets = {
+    "NK gene set": "Natural Killer CL0000623",
+    "B gene set": "B Cell CL0000785",
+    "Mono gene set": "Monocyte CL0000576",
+    "CD4 gene set": "CD4 T CL0000624",
+    "CD8 gene set": "CD8 T CL0000625",
+    "MAIT gene set": "Mucosal Associated Invariant T CL0000940",
+}
+
 ##########################################################################################
 ##################################### Annotate Mowgli ####################################
 ##########################################################################################
@@ -204,7 +237,7 @@ ax = sc.pl.umap(
     frameon=False,
     show=False,
 )
-plt.savefig(fig_folder + "mowgli_tea_umap.pdf")
+plt.savefig(fig_folder + "mowgli_tea_umap.pdf", bbox_inches="tight")
 
 # Make a dotplot with ADT values for each cluster.
 mdata["adt"].obs["leiden_mowgli"] = mdata.obs["leiden_mowgli"]
@@ -222,7 +255,7 @@ axes = sc.pl.dotplot(
 )
 axes["mainplot_ax"].set_ylabel("Cluster #")
 axes["mainplot_ax"].set_xlabel("Marker proteins")
-plt.savefig(fig_folder + "mowgli_tea_leiden_adt.pdf")
+plt.savefig(fig_folder + "mowgli_tea_leiden_adt.pdf", bbox_inches="tight")
 
 # Make a dotplot with RNA values for each cluster.
 rna_all_genes.obs["leiden_mowgli"] = mdata.obs["leiden_mowgli"]
@@ -238,7 +271,7 @@ axes = sc.pl.dotplot(
 )
 axes["mainplot_ax"].set_ylabel("Cluster #")
 axes["mainplot_ax"].set_xlabel("Marker genes")
-plt.savefig(fig_folder + "mowgli_tea_leiden_rna.pdf")
+plt.savefig(fig_folder + "mowgli_tea_leiden_rna.pdf", bbox_inches="tight")
 
 # Annotate the Mowgli embedding.
 mowgli_cluster_names = {
@@ -267,7 +300,7 @@ ax = sc.pl.umap(
     legend_fontweight="normal",
     show=False,
 )
-plt.savefig(fig_folder + "mowgli_tea_umap_annotated.pdf")
+plt.savefig(fig_folder + "mowgli_tea_umap_annotated.pdf", bbox_inches="tight")
 
 ##########################################################################################
 ############################## Interpret Mowgli's dimensions #############################
@@ -300,7 +333,7 @@ axes = sc.pl.dotplot(
 axes["mainplot_ax"].set_ylabel("Cluster")
 axes["mainplot_ax"].set_xlabel("Factor #")
 axes["mainplot_ax"].set_xticklabels(axes["mainplot_ax"].get_xticklabels(), rotation=0)
-plt.savefig(fig_folder + "mowgli_tea_factors.pdf")
+plt.savefig(fig_folder + "mowgli_tea_factors.pdf", bbox_inches="tight")
 
 # Make a matrixplot of ADT weights accross Mowgli's factors.
 adata = ad.AnnData(H_mowgli["H_adt"])
@@ -317,7 +350,7 @@ sc.pl.matrixplot(
     # standard_scale="group",
     show=False,
 )
-plt.savefig(fig_folder + "mowgli_tea_factors_adt.pdf")
+plt.savefig(fig_folder + "mowgli_tea_factors_adt.pdf", bbox_inches="tight")
 
 
 adata = ad.AnnData(H_mowgli["H_rna"])
@@ -335,16 +368,7 @@ sc.pl.matrixplot(
     show=False,
     # standard_scale="group",
 )
-plt.savefig(fig_folder + "mowgli_tea_factors_rna.pdf")
-
-gene_sets = {
-    "NK gene set": "Natural Killer CL0000623",
-    "B gene set": "B Cell CL0000785",
-    "Mono gene set": "Monocyte CL0000576",
-    "CD4 gene set": "CD4 T CL0000624",
-    "CD8 gene set": "CD8 T CL0000625",
-    "MAIT gene set": "Mucosal Associated Invariant T CL0000940",
-}
+plt.savefig(fig_folder + "mowgli_tea_factors_rna.pdf", bbox_inches="tight")
 
 mowgli_pvals = ad.AnnData(np.zeros((len(gene_sets), mowgli_embedding.n_vars)))
 mowgli_pvals.obs_names = gene_sets.keys()
@@ -366,537 +390,281 @@ sc.pl.matrixplot(
     colorbar_title=r"$-\log_{10}(p~value)$",
     show=False,
 )
-plt.savefig(fig_folder + "mowgli_tea_enrich_pvals.pdf")
+plt.savefig(fig_folder + "mowgli_tea_enrich_pvals.pdf", bbox_inches="tight")
 
+# TODO: Pearson correlation between factors and enrichment p-values.
 
-# # %%
-# # Pearson correlation.
+##########################################################################################
+##################################### Annotate MOFA+ #####################################
+##########################################################################################
 
-# idx = [2, 9, 6, 8, 18, 16, 49, 32, 33]
+# Compute neighbors UMAP embedding and Leiden clustering for MOFA+.
+sc.pp.neighbors(mdata, n_neighbors=25, key_added="mofa_neighbors", use_rep="X_mofa")
+sc.tl.umap(mdata, neighbors_key="mofa_neighbors")
+sc.tl.leiden(
+    mdata,
+    resolution=0.2,
+    key_added="leiden_mofa",
+    neighbors_key="mofa_neighbors",
+)
 
-# pval_matrix = mowgli_pvals[
-#     [
-#         "B Cell CL0000785",
-#         "Monocyte CL0000576",
-#         "Natural Killer CL0000623",
-#         "Mucosal Associated Invariant T CL0000940",
-#         "CD4 T CL0000624",
-#         "CD8 T CL0000625",
-#     ]
-# ].X[:, idx]
+# Make the UMAP plot, colored by cluster.
+ax = sc.pl.umap(
+    mdata,
+    color="leiden_mofa",
+    alpha=0.7,
+    legend_loc="on data",
+    title="Leiden clustering of MOFA+ embedding",
+    legend_fontoutline=2,
+    frameon=False,
+    show=False,
+)
+plt.savefig(fig_folder + "mofa_tea_umap.pdf", bbox_inches="tight")
 
+# Make a dotplot with ADT values for each cluster.
+mdata["adt"].obs["leiden_mofa"] = mdata.obs["leiden_mofa"]
+mdata["adt"].var_names = mdata["adt"].var_names.str.replace("adt:", "")
+axes = sc.pl.dotplot(
+    mdata["adt"],
+    adt_markers,
+    groupby="leiden_mofa",
+    title="MOFA+: counts for marker proteins in each cluster",
+    mean_only_expressed=True,
+    colorbar_title="Mean ADT count",
+    size_title="Fraction of cells\nin cluster (%)",
+    expression_cutoff=0.5,
+    show=False,
+)
+axes["mainplot_ax"].set_ylabel("Cluster #")
+axes["mainplot_ax"].set_xlabel("Marker proteins")
+plt.savefig(fig_folder + "mofa_tea_leiden_adt.pdf", bbox_inches="tight")
 
-# mean_dim_matrix = np.vstack(
-#     [
-#         mowgli_embedding[mowgli_embedding.obs["leiden"] == "B cells"].X.mean(0),
-#         mowgli_embedding[mowgli_embedding.obs["leiden"] == "Monocytes"].X.mean(0),
-#         mowgli_embedding[mowgli_embedding.obs["leiden"] == "NK cells"].X.mean(0),
-#         mowgli_embedding[mowgli_embedding.obs["leiden"] == "MAIT T cells"].X.mean(0),
-#         mowgli_embedding[mowgli_embedding.obs["leiden"] == "CD4 T cells"].X.mean(0),
-#         mowgli_embedding[mowgli_embedding.obs["leiden"] == "CD8 T cells"].X.mean(0),
-#     ]
-# )[:, idx]
+# Make a dotplot with RNA values for each cluster.
+rna_all_genes.obs["leiden_mofa"] = mdata.obs["leiden_mofa"]
+axes = sc.pl.dotplot(
+    rna_all_genes,
+    rna_markers,
+    groupby="leiden_mofa",
+    title="Counts for marker genes in each cluster",
+    mean_only_expressed=True,
+    colorbar_title="Mean gene counts",
+    size_title="Fraction of cells\nin cluster (%)",
+    show=False,
+)
+axes["mainplot_ax"].set_ylabel("Cluster #")
+axes["mainplot_ax"].set_xlabel("Marker genes")
+plt.savefig(fig_folder + "mofa_tea_leiden_rna.pdf", bbox_inches="tight")
 
-# pearsonr(pval_matrix.ravel(), mean_dim_matrix.ravel())[0]
+# Annotate the MOFA+ embedding.
+mofa_cluster_names = {
+    0: "CD4 T cells",
+    1: "B cells",
+    2: "CD4 T cells",
+    3: "Monocytes",
+    4: "CD8 T cells",
+    5: "NK cells",
+    6: "CD8 T cells",
+    7: "MAIT T cells",
+    8: "B cells",
+    9: "Erythroid cells",
+}
+codes = mdata.obs["leiden_mofa"].cat.codes
+mdata.obs["annotation_mofa"] = [mofa_cluster_names[c] for c in codes]
 
+# Make a UMAP plot of the MOFA+ embedding, colored by annotation.
+ax = sc.pl.umap(
+    mdata,
+    color="annotation_mofa",
+    alpha=0.7,
+    legend_loc="on data",
+    title="Annotated MOFA+ embedding",
+    legend_fontoutline=2,
+    frameon=False,
+    legend_fontweight="normal",
+    show=False,
+)
+plt.savefig(fig_folder + "mofa_tea_umap_annotated.pdf", bbox_inches="tight")
 
-# # %% [markdown]
-# # ## Annotate MOFA
+##########################################################################################
+############################### Interpret MOFA's dimensions ##############################
+##########################################################################################
 
-# # %%
-# # Make an object for the MOFA embedding.
-# mofa_embedding = ad.AnnData(mdata.obsm["X_mofa"], obs=mdata.obs)
-# mofa_embedding.obs[mdata["adt"].var_names] = mdata["adt"].X
+# Make a dotplot of positive weights for MOFA+'s factors across clusters.
+mofa_embedding = ad.AnnData(mdata.obsm["X_mofa"])
+mofa_embedding.obs_names = mdata.obs_names
+mofa_embedding.obs["annotation_mofa"] = mdata.obs["annotation_mofa"]
+axes = sc.pl.dotplot(
+    mofa_embedding,
+    mofa_pos_factor_markers,
+    groupby="annotation_mofa",
+    categories_order=[
+        "NK cells",
+        "MAIT T cells",
+        "CD4 T cells",
+        "CD8 T cells",
+        "Monocytes",
+        "B cells",
+        "Erythroid cells",
+    ],
+    expression_cutoff=0,
+    mean_only_expressed=True,
+    title="Positive weights of MOFA+'s factors",
+    colorbar_title="Mean weight",
+    size_title="Fraction of cells\nin cluster (%)",
+    cmap="Reds",
+    show=False,
+)
+axes["mainplot_ax"].set_ylabel("Cluster")
+axes["mainplot_ax"].set_xlabel("Factor #")
+axes["mainplot_ax"].set_xticklabels(axes["mainplot_ax"].get_xticklabels(), rotation=0)
+plt.savefig(fig_folder + "mofa_tea_factors_pos.pdf", bbox_inches="tight")
 
-# # Compute neighbors for mofa.
-# sc.pp.neighbors(mofa_embedding, n_neighbors=25)
+# Make a dotplot of negative weights for MOFA+'s factors across clusters.
+mofa_embedding = ad.AnnData(-mdata.obsm["X_mofa"])
+mofa_embedding.obs_names = mdata.obs_names
+mofa_embedding.obs["annotation_mofa"] = mdata.obs["annotation_mofa"]
+axes = sc.pl.dotplot(
+    mofa_embedding,
+    mofa_neg_factor_markers,
+    groupby="annotation_mofa",
+    categories_order=[
+        "NK cells",
+        "MAIT T cells",
+        "CD4 T cells",
+        "CD8 T cells",
+        "Monocytes",
+        "B cells",
+        "Erythroid cells",
+    ],
+    expression_cutoff=0,
+    mean_only_expressed=True,
+    title="Negative weights of MOFA+'s factors",
+    colorbar_title="Mean weight",
+    size_title="Fraction of cells\nin cluster (%)",
+    cmap="Blues",
+    show=False,
+)
+axes["mainplot_ax"].set_ylabel("Cluster")
+axes["mainplot_ax"].set_xlabel("Factor #")
+axes["mainplot_ax"].set_xticklabels(axes["mainplot_ax"].get_xticklabels(), rotation=0)
+plt.savefig(fig_folder + "mofa_tea_factors_neg.pdf", bbox_inches="tight")
 
-# # Compute UMAP for mofa
-# sc.tl.umap(mofa_embedding)
+# Make a matrixplot of positive ADT weights accross MOFA+'s factors.
+adata = ad.AnnData(H_mofa["H_adt"])
+adata.X[adata.X < 0] = 0
+adata.obs_names = mdata["adt"].var_names
+adata.obs["adt"] = pd.Categorical(adata.obs_names)
+adata = adata[adt_markers_flat, mofa_pos_factor_markers_flat]
+sc.pl.matrixplot(
+    adata,
+    mofa_pos_factor_markers,
+    groupby="adt",
+    cmap="Reds",
+    categories_order=adt_markers_flat,
+    title="Positive protein weights in MOFA+'s top factors",
+    show=False,
+    # standard_scale="group",
+)
+plt.savefig(fig_folder + "mofa_tea_factors_pos_adt.pdf", bbox_inches="tight")
 
-# # Compute Leiden for mofa
-# sc.tl.leiden(mofa_embedding, resolution=0.2, key_added="leiden")
+# Make a matrixplot of negative ADT weights accross MOFA+'s factors.
+adata = ad.AnnData(-H_mofa["H_adt"])
+adata.X[adata.X < 0] = 0
+adata.obs_names = mdata["adt"].var_names
+adata.obs["adt"] = pd.Categorical(adata.obs_names)
+adata = adata[adt_markers_flat, mofa_neg_factor_markers_flat]
+sc.pl.matrixplot(
+    adata,
+    mofa_neg_factor_markers,
+    groupby="adt",
+    cmap="Blues",
+    categories_order=adt_markers_flat,
+    title="Negative protein weights in MOFA+'s top factors",
+    show=False,
+    # standard_scale="group",
+)
+plt.savefig(fig_folder + "mofa_tea_factors_neg_adt.pdf", bbox_inches="tight")
 
-# # %%
-# sc.pl.umap(
-#     mofa_embedding,
-#     color="leiden",
-#     alpha=0.7,
-#     legend_loc="on data",
-#     title="Leiden clustering of mofa embedding",
-#     legend_fontoutline=2,
-#     frameon=False,
-# )
+# Make a matrixplot of positive RNA weights accross MOFA+'s factors.
+adata = ad.AnnData(H_mofa["H_rna"])
+adata.X[adata.X < 0] = 0
+adata.obs_names = mdata["rna"].var_names.str.replace("rna:", "")
+adata.obs["rna"] = pd.Categorical(adata.obs_names)
+genes = [g for g in rna_markers_flat if g in adata.obs_names]
+adata = adata[genes, mofa_pos_factor_markers_flat]
+sc.pl.matrixplot(
+    adata,
+    mofa_pos_factor_markers,
+    groupby="rna",
+    cmap="Reds",
+    categories_order=genes,
+    title="Positive gene weights in MOFA+'s top factors",
+    show=False,
+    # standard_scale="group",
+)
+plt.savefig(fig_folder + "mofa_tea_factors_pos_rna.pdf", bbox_inches="tight")
 
+# Make a matrixplot of negative RNA weights accross MOFA+'s factors.
+adata = ad.AnnData(-H_mofa["H_rna"])
+adata.X[adata.X < 0] = 0
+adata.obs_names = mdata["rna"].var_names.str.replace("rna:", "")
+adata.obs["rna"] = pd.Categorical(adata.obs_names)
+genes = [g for g in rna_markers_flat if g in adata.obs_names]
+adata = adata[genes, mofa_pos_factor_markers_flat]
+sc.pl.matrixplot(
+    adata,
+    mofa_pos_factor_markers,
+    groupby="rna",
+    cmap="Blues",
+    categories_order=genes,
+    title="Negative gene weights in MOFA+'s top factors",
+    show=False,
+    # standard_scale="group",
+)
+plt.savefig(fig_folder + "mofa_tea_factors_neg_rna.pdf", bbox_inches="tight")
 
-# # %%
-# mdata["adt"].obs["leiden_mofa"] = mofa_embedding.obs["leiden"]
-# mdata["adt"].var_names = mdata["adt"].var_names.str.replace("adt:", "")
-# axes = sc.pl.dotplot(
-#     mdata["adt"],
-#     {
-#         "B": ["CD19", "CD21", "IgD", "IgM"],
-#         "T": "CD3",
-#         "CD4 T": "CD4",
-#         "CD8 T": "CD8a",
-#         "Mono": ["CD14", "CD141", "CD11b", "CD172a", "CD11c"],
-#         "NK": ["CD16", "CD56"],
-#         "MAIT": "TCR-Va7.2",
-#         "Eryth": "CD71",
-#     },
-#     groupby="leiden_mofa",
-#     title="Counts for marker proteins in each cluster",
-#     mean_only_expressed=True,
-#     colorbar_title="Mean ADT counts",
-#     size_title="Fraction of cells\nin cluster (%)",
-#     show=False,
-#     expression_cutoff=0.5,
-# )
-# axes["mainplot_ax"].set_ylabel("Cluster #")
-# axes["mainplot_ax"].set_xlabel("Marker proteins")
-# plt.show()
+mofa_pvals = ad.AnnData(np.zeros((len(gene_sets), mofa_embedding.n_vars)))
+mofa_pvals.obs_names = gene_sets.keys()
+mofa_pvals.var_names = mofa_embedding.var_names
 
-# # %%
-# rna_all_genes.obs["leiden_mofa"] = mofa_embedding.obs["leiden"]
-# axes = sc.pl.dotplot(
-#     rna_all_genes,
-#     {
-#         "B": [
-#             gene
-#             for gene in ["RALGPS2", "MS4A1", "BANK1", "IGHM"]
-#             if gene in rna_all_genes.var_names
-#         ],
-#         "T": [
-#             gene for gene in ["CD3D", "CD3G", "TRAC"] if gene in rna_all_genes.var_names
-#         ],
-#         "CD4 T": [gene for gene in ["CD4"] if gene in rna_all_genes.var_names],
-#         "CD8 T": [
-#             gene
-#             for gene in ["CD8A", "CD8B", "LINC02446"]
-#             if gene in rna_all_genes.var_names
-#         ],
-#         "Mono": [
-#             gene
-#             for gene in ["CTSS", "FCN1", "LYZ", "PSAP", "S100A9"]
-#             if gene in rna_all_genes.var_names
-#         ],
-#         "NK": [
-#             gene
-#             for gene in ["KLRD1", "KLRF1", "CST7", "GZMB", "NKG7", "GNLY"]
-#             if gene in rna_all_genes.var_names
-#         ],
-#         "MAIT": [
-#             gene
-#             for gene in ["KLRB1", "GZMK", "SLC4A10", "GZMA"]
-#             if gene in rna_all_genes.var_names
-#         ],
-#         "Eryth": [
-#             gene for gene in ["HBD", "HBM", "TRIM58"] if gene in rna_all_genes.var_names
-#         ],
-#     },
-#     groupby="leiden_mofa",
-#     title="Counts for marker genes in each cluster",
-#     mean_only_expressed=True,
-#     colorbar_title="Mean gene counts",
-#     size_title="Fraction of cells\nin cluster (%)",
-#     show=False,
-# )
-# axes["mainplot_ax"].set_ylabel("Cluster #")
-# axes["mainplot_ax"].set_xlabel("Marker genes")
-# plt.show()
+for i, x in enumerate(gene_sets):
+    idx = enr["native"] == gene_sets[x]
+    idx &= enr["query"].str.startswith("top_mofa")
+    mofa_pvals.X[i, enr.loc[idx, "dim"]] = enr.loc[idx, "minlogp"]
 
+mofa_pvals.obs["gene_set"] = pd.Categorical(mofa_pvals.obs_names)
+sc.pl.matrixplot(
+    mofa_pvals,
+    mofa_pos_factor_markers,
+    groupby="gene_set",
+    categories_order=gene_sets.keys(),
+    cmap="Reds",
+    title="Cell type enrichment for the factors (positive)",
+    colorbar_title=r"$-\log_{10}(p~value)$",
+    show=False,
+)
+plt.savefig(fig_folder + "mofa_tea_enrich_pvals_pos.pdf", bbox_inches="tight")
 
-# # %%
-# # Annotate the mofa embedding.
-# cluster_names = {
-#     0: "CD4 T cells",
-#     1: "B cells",
-#     2: "CD4 T cells",
-#     3: "Monocytes",
-#     4: "CD8 T cells",
-#     5: "NK cells",
-#     6: "CD8 T cells",
-#     7: "MAIT T cells",
-#     8: "B cells",
-#     9: "Erythroid cells",
-# }
-# mofa_embedding.obs["leiden"] = [
-#     cluster_names[c] for c in mofa_embedding.obs["leiden"].cat.codes
-# ]
+mofa_pvals = ad.AnnData(np.zeros((len(gene_sets), mofa_embedding.n_vars)))
+mofa_pvals.obs_names = gene_sets.keys()
+mofa_pvals.var_names = mofa_embedding.var_names
 
-# # %%
-# ax = sc.pl.umap(
-#     mofa_embedding,
-#     color="leiden",
-#     alpha=0.7,
-#     legend_loc="on data",
-#     title="Annotated mofa embedding",
-#     legend_fontoutline=2,
-#     frameon=False,
-#     legend_fontweight="normal",
-#     show=False,
-# )
+for i, x in enumerate(gene_sets):
+    idx = enr["native"] == gene_sets[x]
+    idx &= enr["query"].str.startswith("bottom_mofa")
+    mofa_pvals.X[i, enr.loc[idx, "dim"]] = enr.loc[idx, "minlogp"]
 
-# # %% [markdown]
-# # ## Interpret MOFA's dimensions
+mofa_pvals.obs["gene_set"] = pd.Categorical(mofa_pvals.obs_names)
+sc.pl.matrixplot(
+    mofa_pvals,
+    mofa_neg_factor_markers,
+    groupby="gene_set",
+    categories_order=gene_sets.keys(),
+    cmap="Reds",
+    title="Cell type enrichment for the factors (negative)",
+    colorbar_title=r"$-\log_{10}(p~value)$",
+    show=False,
+)
+plt.savefig(fig_folder + "mofa_tea_enrich_pvals_neg.pdf", bbox_inches="tight")
 
-# # %%
-# varnames = {
-#     "B": ["0", "11"],
-#     "Mono": ["1", "8"],
-#     "NK": ["3"],
-#     "MAIT": ["4"],
-#     "CD8": ["9"],
-#     "Eryth": ["6"],
-#     " ": ["5", "7", "10", "12", "13", "14"],
-# }
-# axes = sc.pl.dotplot(
-#     mofa_embedding,
-#     varnames,
-#     groupby="leiden",
-#     categories_order=[
-#         "B cells",
-#         "Monocytes",
-#         "NK cells",
-#         "MAIT T cells",
-#         "CD4 T cells",
-#         "CD8 T cells",
-#         "Erythroid cells",
-#     ],
-#     expression_cutoff=0,
-#     vmin=0,
-#     # vmax=5,
-#     log=True,
-#     mean_only_expressed=True,
-#     title="Positive weights of mofa's factors",
-#     colorbar_title="Mean weight",
-#     size_title="Fraction of cells\nin cluster (%)",
-#     show=False,
-# )
-# axes["mainplot_ax"].set_ylabel("Cluster")
-# axes["mainplot_ax"].set_xlabel("Factor #")
-# axes["mainplot_ax"].set_xticklabels(axes["mainplot_ax"].get_xticklabels(), rotation=0)
-# plt.show()
-
-# min_mofa_embedding = mofa_embedding.copy()
-# min_mofa_embedding.X = -min_mofa_embedding.X
-# varnames = {
-#     "Mono": ["2", "8"],
-#     "Eryth": ["5", "10"],
-#     "MAIT": ["9", "3"],
-#     " ": ["0", "1", "4", "6", "7", "11", "12", "13", "14"],
-# }
-# axes = sc.pl.dotplot(
-#     min_mofa_embedding,
-#     varnames,
-#     groupby="leiden",
-#     categories_order=[
-#         "Monocytes",
-#         "Erythroid cells",
-#         "MAIT T cells",
-#         "CD4 T cells",
-#         "B cells",
-#         "NK cells",
-#         "CD8 T cells",
-#     ],
-#     expression_cutoff=0,
-#     vmin=0,
-#     # vmax=5,
-#     log=True,
-#     mean_only_expressed=True,
-#     title="Negative weights of mofa's factors",
-#     colorbar_title="Mean weight",
-#     size_title="Fraction of cells\nin cluster (%)",
-#     show=False,
-#     cmap="Blues",
-# )
-# axes["mainplot_ax"].set_ylabel("Cluster")
-# axes["mainplot_ax"].set_xlabel("Factor #")
-# axes["mainplot_ax"].set_xticklabels(axes["mainplot_ax"].get_xticklabels(), rotation=0)
-# plt.show()
-
-
-# # %%
-# celltypes = [
-#     "Natural Killer CL0000623",
-#     "B Cell CL0000785",
-#     "Monocyte CL0000576",
-#     "CD4 T CL0000624",
-#     "CD8 T CL0000625",
-#     "Mucosal Associated Invariant T CL0000940",
-# ]
-
-
-# # %%
-# adata = ad.AnnData(H_mofa["H_adt"])
-# adata.X[adata.X < 0] = 0
-# adata.obs_names = mdata["adt"].var_names
-# adata.obs["adt"] = pd.Categorical(adata.obs_names)
-# adts = [
-#     "CD19",
-#     "CD21",
-#     "CD71",
-#     "CD172a",
-#     "CD11c",
-#     "CD56",
-#     "TCR-Va7.2",
-#     "KLRG1",
-#     "CD8a",
-#     "CD4",
-# ]
-# adata = adata[
-#     adts,
-#     [0, 11, 1, 8, 3, 4, 9, 6, 5, 7, 10, 12, 13, 14],
-# ]
-# varnames = {
-#     "B": ["0", "11"],
-#     "Mono": ["1", "8"],
-#     "NK": ["3"],
-#     "MAIT": ["4"],
-#     "CD8": ["9"],
-#     "Eryth": ["6"],
-#     " ": ["5", "7", "10", "12", "13", "14"],
-# }
-# sc.pl.matrixplot(
-#     adata,
-#     varnames,
-#     groupby="adt",
-#     cmap="Reds",
-#     categories_order=adts,
-#     title="Positive proteins weights in mofa's top factors",
-#     # standard_scale="group",
-# )
-
-# adata = ad.AnnData(H_mofa["H_adt"])
-# adata.X = -adata.X
-# adata.X[adata.X < 0] = 0
-# adata.obs_names = mdata["adt"].var_names
-# adata.obs["adt"] = pd.Categorical(adata.obs_names)
-# adts = [
-#     "CD172a",
-#     "CD11c",
-#     "CD71",
-#     "CD56",
-#     "TCR-Va7.2",
-#     "KLRG1",
-#     "CD8a",
-#     "CD4",
-#     "CD19",
-#     "CD21",
-# ]
-# adata = adata[
-#     adts,
-#     [2, 8, 5, 10, 9, 3, 0, 1, 4, 6, 7, 11, 12, 13, 14],
-# ]
-# varnames = {
-#     "Mono": ["2", "8"],
-#     "Eryth": ["5", "10"],
-#     "MAIT": ["9", "3"],
-#     " ": ["0", "1", "4", "6", "7", "11", "12", "13", "14"],
-# }
-# sc.pl.matrixplot(
-#     adata,
-#     varnames,
-#     groupby="adt",
-#     categories_order=adts,
-#     title="Negative protein weights in mofa's top factors",
-#     # standard_scale="group",
-#     cmap="Blues",
-# )
-
-
-# # %%
-# adata = ad.AnnData(H_mofa["H_rna"])
-# adata.X[adata.X < 0] = 0
-# adata.obs_names = mdata["rna"].var_names.str.replace("rna:", "")
-# adata.obs["rna"] = pd.Categorical(adata.obs_names)
-# genes = [
-#     "KLRD1",
-#     "KLRF1",
-#     "GZMB",
-#     "NKG7",
-#     "GNLY",
-#     "GZMA",
-#     "KLRB1",
-#     "GZMK",
-#     "SLC4A10",
-#     "CD4",
-#     "CD8A",
-#     "LINC02446",
-#     "FCN1",
-#     "LYZ",
-#     "PSAP",
-#     "S100A9",
-#     "RALGPS2",
-#     "MS4A1",
-#     "BANK1",
-#     "IGHM",
-# ]
-# adata = adata[
-#     genes,
-#     [0, 11, 1, 8, 3, 4, 9, 6, 5, 7, 10, 12, 13, 14],
-# ]
-# varnames = {
-#     "NK": ["3"],
-#     "MAIT": ["4"],
-#     "CD8": ["9"],
-#     "Eryth": ["6"],
-#     "Mono": ["1", "8"],
-#     "B": ["0", "11"],
-#     " ": ["5", "7", "10", "12", "13", "14"],
-# }
-# sc.pl.matrixplot(
-#     adata,
-#     varnames,
-#     groupby="rna",
-#     cmap="Reds",
-#     categories_order=genes,
-#     title="Positive gene weights in mofa's top factors",
-#     # standard_scale="group",
-# )
-
-
-# adata = ad.AnnData(H_mofa["H_rna"])
-# adata.X = -adata.X
-# adata.X[adata.X < 0] = 0
-# adata.obs_names = mdata["rna"].var_names.str.replace("rna:", "")
-# adata.obs["rna"] = pd.Categorical(adata.obs_names)
-# genes = [
-#     "KLRD1",
-#     "KLRF1",
-#     "GZMB",
-#     "NKG7",
-#     "GNLY",
-#     "GZMA",
-#     "KLRB1",
-#     "GZMK",
-#     "SLC4A10",
-#     "CD4",
-#     "CD8A",
-#     "LINC02446",
-#     "FCN1",
-#     "LYZ",
-#     "PSAP",
-#     "S100A9",
-#     "RALGPS2",
-#     "MS4A1",
-#     "BANK1",
-#     "IGHM",
-# ]
-# adata = adata[
-#     genes,
-#     [2, 8, 5, 10, 9, 3, 0, 1, 4, 6, 7, 11, 12, 13, 14],
-# ]
-# varnames = {
-#     "MAIT": ["9", "3"],
-#     "Eryth": ["5", "10"],
-#     "Mono": ["2", "8"],
-#     " ": ["0", "1", "4", "6", "7", "11", "12", "13", "14"],
-# }
-# sc.pl.matrixplot(
-#     adata,
-#     varnames,
-#     groupby="rna",
-#     cmap="Blues",
-#     categories_order=genes,
-#     title="Negative gene weights in mofa's top factors",
-#     # standard_scale="group",
-# )
-
-
-# # %%
-# # celltypes = enr.loc[enr["source"] == "Azimuth_Cell_Types_2021", "native"].unique()
-
-# # %%
-# mofa_top_pvals = ad.AnnData(np.zeros((len(celltypes), mofa_embedding.n_vars)))
-# mofa_top_pvals.obs_names = celltypes
-# mofa_top_pvals.var_names = mofa_embedding.var_names
-
-# for i, celltype in enumerate(celltypes):
-#     idx = enr["native"] == celltype
-#     idx &= enr["query"].str.startswith("top_mofa")
-#     mofa_top_pvals.X[i, enr.loc[idx, "dim"]] = enr.loc[idx, "minlogp"]
-# mofa_top_pvals.obs["celltype"] = pd.Categorical(mofa_top_pvals.obs_names)
-
-# mofa_bottom_pvals = ad.AnnData(np.zeros((len(celltypes), mofa_embedding.n_vars)))
-# mofa_bottom_pvals.obs_names = celltypes
-# mofa_bottom_pvals.var_names = mofa_embedding.var_names
-
-# for i, celltype in enumerate(celltypes):
-#     idx = enr["native"] == celltype
-#     idx &= enr["query"].str.startswith("bottom_mofa")
-#     mofa_bottom_pvals.X[i, enr.loc[idx, "dim"]] = enr.loc[idx, "minlogp"]
-# mofa_bottom_pvals.obs["celltype"] = pd.Categorical(mofa_bottom_pvals.obs_names)
-
-# # %%
-# mofa_top_pvals.obs["celltype"].cat.categories = [
-#     "B gene set",
-#     "CD4 T gene set",
-#     "CD8 T gene set",
-#     "Mono gene set",
-#     "MAIT gene set",
-#     "NK gene set",
-# ]
-
-# mofa_bottom_pvals.obs["celltype"].cat.categories = [
-#     "B gene set",
-#     "CD4 T gene set",
-#     "CD8 T gene set",
-#     "Mono gene set",
-#     "MAIT gene set",
-#     "NK gene set",
-# ]
-
-
-# # %%
-# varnames = {
-#     "NK": ["3"],
-#     "MAIT": ["4"],
-#     "CD8": ["9"],
-#     "Eryth": ["6"],
-#     "Mono": ["1", "8"],
-#     "B": ["0", "11"],
-#     " ": ["5", "7", "10", "12", "13", "14"],
-# }
-# sc.pl.matrixplot(
-#     mofa_top_pvals,
-#     varnames,
-#     groupby="celltype",
-#     categories_order=[
-#         "NK gene set",
-#         "MAIT gene set",
-#         "CD4 T gene set",
-#         "CD8 T gene set",
-#         "B gene set",
-#         "Mono gene set",
-#     ],
-#     cmap="Reds",
-#     title="Cell type positive enrichment for the factors",
-#     colorbar_title=r"$-\log_{10}(p~value)$",
-# )
-
-# varnames = {
-#     "MAIT": ["9", "3"],
-#     "Eryth": ["5", "10"],
-#     "Mono": ["2", "8"],
-#     " ": ["0", "1", "4", "6", "7", "11", "12", "13", "14"],
-# }
-# sc.pl.matrixplot(
-#     mofa_bottom_pvals,
-#     varnames,
-#     groupby="celltype",
-#     categories_order=[
-#         "NK gene set",
-#         "MAIT gene set",
-#         "CD4 T gene set",
-#         "CD8 T gene set",
-#         "B gene set",
-#         "Mono gene set",
-#     ],
-#     cmap="Blues",
-#     title="Cell type negative enrichment for the factors",
-#     colorbar_title=r"$-\log_{10}(p~value)$",
-# )
-
-
-# # %%
+# TODO: Pearson correlation between factors and enrichment p-values.
