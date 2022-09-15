@@ -132,14 +132,14 @@ enr["minlogp"] = -np.log10(enr["p_value"])
 
 # Define protein markers for cell types.
 adt_markers = {
+    "Eryth": ["CD71"],
     "B": ["CD19", "CD21", "IgD", "IgM"],
-    "T": ["CD3"],
-    "CD4 T": ["CD4"],
-    "CD8 T": ["CD8a"],
     "Mono": ["CD14", "CD141", "CD11b", "CD172a", "CD11c"],
     "NK": ["CD16", "CD56"],
+    "T": ["CD3"],
     "MAIT": ["TCR-Va7.2"],
-    "Eryth": ["CD71"],
+    "CD8 T": ["CD8a"],
+    "CD4 T": ["CD4"],
 }
 
 # Define a flat list of adt markers.
@@ -147,14 +147,14 @@ adt_markers_flat = [m for markers in adt_markers.values() for m in markers]
 
 # Define RNA markers for cell types.
 rna_markers = {
+    "Eryth": ["HBD", "HBM", "TRIM58"],
     "B": ["RALGPS2", "MS4A1", "BANK1", "IGHM"],
-    "T": ["CD3D", "CD3G", "TRAC"],
-    "CD4 T": ["CD4"],
-    "CD8 T": ["CD8A", "CD8B", "LINC02446"],
     "Mono": ["CTSS", "FCN1", "LYZ", "PSAP", "S100A9"],
     "NK": ["KLRD1", "KLRF1", "CST7", "GZMB", "NKG7", "GNLY"],
+    "T": ["CD3D", "CD3G", "TRAC"],
     "MAIT": ["KLRB1", "GZMK", "SLC4A10", "GZMA"],
-    "Eryth": ["HBD", "HBM", "TRIM58"],
+    "CD8 T": ["CD8A", "CD8B", "LINC02446"],
+    "CD4 T": ["CD4"],
 }
 
 # Make sure that RNA markers are present in our data.
@@ -167,49 +167,67 @@ rna_markers_flat = [m for markers in rna_markers.values() for m in markers]
 
 # Define Mowgli marker factors for cell types.
 mowgli_factor_markers = {
+    "Eryth": ["7", "30"],
+    "B": ["33", "44"],
+    "Mono": ["32", "34"],
     "NK": ["2"],
-    "MAIT": ["9", "6"],
-    "CD4": ["8", "18"],
+    "MAIT": ["9"],
     "CD8": ["16", "49"],
-    "Mono": ["32"],
-    "B": ["33"],
-    "Eryth": ["7"],
+    "CD4": ["8", "18", "28"],
 }
 
 # Define a flat list of Mowgli marker factors.
 mowgli_factor_markers_flat = [m for l in mowgli_factor_markers.values() for m in l]
 
+# Add the rest of the factors.
+# mowgli_factor_markers[" "] = [
+    # str(i) for i in range(50) if str(i) not in mowgli_factor_markers_flat
+# ]
+# mowgli_factor_markers_flat += mowgli_factor_markers[" "]
+
 # Define MOFA+ positive marker factors for cell types.
 mofa_pos_factor_markers = {
+    "Eryth": ["6"],
     "B": ["0", "11"],
     "Mono": ["1", "8"],
     "NK": ["3"],
     "MAIT": ["4"],
     "CD8": ["9"],
-    "Eryth": ["6"],
 }
 
 # Define a flat list of MOFA+ positive marker factors.
 mofa_pos_factor_markers_flat = [m for l in mofa_pos_factor_markers.values() for m in l]
 
+# Add the rest of the factors.
+# mofa_pos_factor_markers[" "] = [
+    # str(i) for i in range(15) if str(i) not in mofa_pos_factor_markers_flat
+# ]
+# mofa_pos_factor_markers_flat += mofa_pos_factor_markers[" "]
+
 # Define MOFA+ negative marker factors for cell types.
 mofa_neg_factor_markers = {
-    "Mono": ["2", "8"],
     "Eryth": ["5", "10"],
+    "Mono": ["2", "8"],
     "MAIT": ["9", "3"],
 }
 
 # Define a flat list of MOFA+ negative marker factors.
 mofa_neg_factor_markers_flat = [m for l in mofa_neg_factor_markers.values() for m in l]
 
+# Add the rest of the factors.
+# mofa_neg_factor_markers[" "] = [
+    # str(i) for i in range(15) if str(i) not in mofa_neg_factor_markers_flat
+# ]
+# mofa_neg_factor_markers_flat += mofa_neg_factor_markers[" "]
+
 # Define gene sets for cell types.
 gene_sets = {
-    "NK gene set": "Natural Killer CL0000623",
     "B gene set": "B Cell CL0000785",
     "Mono gene set": "Monocyte CL0000576",
-    "CD4 gene set": "CD4 T CL0000624",
-    "CD8 gene set": "CD8 T CL0000625",
+    "NK gene set": "Natural Killer CL0000623",
     "MAIT gene set": "Mucosal Associated Invariant T CL0000940",
+    "CD8 gene set": "CD8 T CL0000625",
+    "CD4 gene set": "CD4 T CL0000624",
 }
 
 ##########################################################################################
@@ -249,9 +267,11 @@ axes = sc.pl.dotplot(
     title="Mowgli: counts for marker proteins in each cluster",
     mean_only_expressed=True,
     colorbar_title="Mean ADT count",
+    categories_order=["8", "0", "5", "6", "7", "3", "1", "2", "4"],
     size_title="Fraction of cells\nin cluster (%)",
     expression_cutoff=0.5,
     show=False,
+    cmap="Purples",
 )
 axes["mainplot_ax"].set_ylabel("Cluster #")
 axes["mainplot_ax"].set_xlabel("Marker proteins")
@@ -263,11 +283,13 @@ axes = sc.pl.dotplot(
     rna_all_genes,
     rna_markers,
     groupby="leiden_mowgli",
-    title="Counts for marker genes in each cluster",
+    title="Mowgli: counts for marker genes in each cluster",
+    categories_order=["8", "0", "5", "6", "7", "3", "1", "2", "4"],
     mean_only_expressed=True,
     colorbar_title="Mean gene counts",
     size_title="Fraction of cells\nin cluster (%)",
     show=False,
+    cmap="Purples",
 )
 axes["mainplot_ax"].set_ylabel("Cluster #")
 axes["mainplot_ax"].set_xlabel("Marker genes")
@@ -315,19 +337,20 @@ axes = sc.pl.dotplot(
     mowgli_factor_markers,
     groupby="annotation_mowgli",
     categories_order=[
+        "Erythroid cells",
+        "B cells",
+        "Monocytes",
         "NK cells",
         "MAIT T cells",
-        "CD4 T cells",
         "CD8 T cells",
-        "Monocytes",
-        "B cells",
-        "Erythroid cells",
+        "CD4 T cells",
     ],
-    expression_cutoff=1e-3,
+    expression_cutoff=1e-2,
     mean_only_expressed=True,
     title="Weights of Mowgli's factors",
     colorbar_title="Mean weight",
     size_title="Fraction of cells\nin cluster (%)",
+    cmap="Purples",
     show=False,
 )
 axes["mainplot_ax"].set_ylabel("Cluster")
@@ -344,10 +367,11 @@ sc.pl.matrixplot(
     adata,
     mowgli_factor_markers,
     groupby="adt",
-    cmap="Reds",
+    cmap="Purples",
     categories_order=adt_markers_flat,
     title="Proteins weights in Mowgli's top factors",
     # standard_scale="group",
+    log=True,
     show=False,
 )
 plt.savefig(fig_folder + "mowgli_tea_factors_adt.pdf", bbox_inches="tight")
@@ -362,7 +386,7 @@ sc.pl.matrixplot(
     adata,
     mowgli_factor_markers,
     groupby="rna",
-    cmap="Reds",
+    cmap="Purples",
     categories_order=genes,
     title="Gene weights in Mowgli's top factors",
     show=False,
@@ -385,7 +409,7 @@ sc.pl.matrixplot(
     mowgli_factor_markers,
     groupby="gene_set",
     categories_order=gene_sets.keys(),
-    cmap="Reds",
+    cmap="Purples",
     title="Cell type enrichment for the factors",
     colorbar_title=r"$-\log_{10}(p~value)$",
     show=False,
@@ -429,6 +453,7 @@ axes = sc.pl.dotplot(
     adt_markers,
     groupby="leiden_mofa",
     title="MOFA+: counts for marker proteins in each cluster",
+    categories_order=["9", "1", "8", "3", "5", "7", "6", "4", "0", "2"],
     mean_only_expressed=True,
     colorbar_title="Mean ADT count",
     size_title="Fraction of cells\nin cluster (%)",
@@ -444,6 +469,7 @@ rna_all_genes.obs["leiden_mofa"] = mdata.obs["leiden_mofa"]
 axes = sc.pl.dotplot(
     rna_all_genes,
     rna_markers,
+    categories_order=["9", "1", "8", "3", "5", "7", "6", "4", "0", "2"],
     groupby="leiden_mofa",
     title="Counts for marker genes in each cluster",
     mean_only_expressed=True,
@@ -498,19 +524,19 @@ axes = sc.pl.dotplot(
     mofa_pos_factor_markers,
     groupby="annotation_mofa",
     categories_order=[
+        "Erythroid cells",
+        "B cells",
+        "Monocytes",
         "NK cells",
         "MAIT T cells",
-        "CD4 T cells",
         "CD8 T cells",
-        "Monocytes",
-        "B cells",
-        "Erythroid cells",
+        "CD4 T cells",
     ],
     expression_cutoff=0,
     mean_only_expressed=True,
     title="Positive weights of MOFA+'s factors",
     colorbar_title="Mean weight",
-    size_title="Fraction of cells\nin cluster (%)",
+    size_title="% of cells with\nweights > 0 in cluster",
     cmap="Reds",
     show=False,
 )
@@ -528,19 +554,19 @@ axes = sc.pl.dotplot(
     mofa_neg_factor_markers,
     groupby="annotation_mofa",
     categories_order=[
+        "Erythroid cells",
+        "B cells",
+        "Monocytes",
         "NK cells",
         "MAIT T cells",
-        "CD4 T cells",
         "CD8 T cells",
-        "Monocytes",
-        "B cells",
-        "Erythroid cells",
+        "CD4 T cells",
     ],
     expression_cutoff=0,
     mean_only_expressed=True,
     title="Negative weights of MOFA+'s factors",
     colorbar_title="Mean weight",
-    size_title="Fraction of cells\nin cluster (%)",
+    size_title="% of cells with\nweights < 0 in cluster",
     cmap="Blues",
     show=False,
 )
@@ -555,16 +581,20 @@ adata.X[adata.X < 0] = 0
 adata.obs_names = mdata["adt"].var_names
 adata.obs["adt"] = pd.Categorical(adata.obs_names)
 adata = adata[adt_markers_flat, mofa_pos_factor_markers_flat]
-sc.pl.matrixplot(
+axes = sc.pl.matrixplot(
     adata,
     mofa_pos_factor_markers,
     groupby="adt",
     cmap="Reds",
     categories_order=adt_markers_flat,
     title="Positive protein weights in MOFA+'s top factors",
+    colorbar_title="ADT weight in factor",
     show=False,
+    swap_axes=True,
     # standard_scale="group",
 )
+axes["mainplot_ax"].set_ylabel("Proteins")
+axes["mainplot_ax"].set_xlabel("Factor #")
 plt.savefig(fig_folder + "mofa_tea_factors_pos_adt.pdf", bbox_inches="tight")
 
 # Make a matrixplot of negative ADT weights accross MOFA+'s factors.
@@ -573,16 +603,19 @@ adata.X[adata.X < 0] = 0
 adata.obs_names = mdata["adt"].var_names
 adata.obs["adt"] = pd.Categorical(adata.obs_names)
 adata = adata[adt_markers_flat, mofa_neg_factor_markers_flat]
-sc.pl.matrixplot(
+axes = sc.pl.matrixplot(
     adata,
     mofa_neg_factor_markers,
     groupby="adt",
     cmap="Blues",
     categories_order=adt_markers_flat,
     title="Negative protein weights in MOFA+'s top factors",
+    colorbar_title="ADT weight in factor",
     show=False,
     # standard_scale="group",
 )
+axes["mainplot_ax"].set_ylabel("Proteins")
+axes["mainplot_ax"].set_xlabel("Factor #")
 plt.savefig(fig_folder + "mofa_tea_factors_neg_adt.pdf", bbox_inches="tight")
 
 # Make a matrixplot of positive RNA weights accross MOFA+'s factors.
@@ -633,16 +666,18 @@ for i, x in enumerate(gene_sets):
     mofa_pvals.X[i, enr.loc[idx, "dim"]] = enr.loc[idx, "minlogp"]
 
 mofa_pvals.obs["gene_set"] = pd.Categorical(mofa_pvals.obs_names)
-sc.pl.matrixplot(
+axes = sc.pl.matrixplot(
     mofa_pvals,
     mofa_pos_factor_markers,
     groupby="gene_set",
     categories_order=gene_sets.keys(),
     cmap="Reds",
-    title="Cell type enrichment for the factors (positive)",
-    colorbar_title=r"$-\log_{10}(p~value)$",
+    title="MOFA+: Cell-type gene set enrichment for the top genes in factors",
+    colorbar_title=r"$-\log_{10}$(p value)",
     show=False,
 )
+axes["mainplot_ax"].set_xlabel("Factor #")
+axes["mainplot_ax"].set_ylabel("Gene set")
 plt.savefig(fig_folder + "mofa_tea_enrich_pvals_pos.pdf", bbox_inches="tight")
 
 mofa_pvals = ad.AnnData(np.zeros((len(gene_sets), mofa_embedding.n_vars)))
@@ -655,16 +690,18 @@ for i, x in enumerate(gene_sets):
     mofa_pvals.X[i, enr.loc[idx, "dim"]] = enr.loc[idx, "minlogp"]
 
 mofa_pvals.obs["gene_set"] = pd.Categorical(mofa_pvals.obs_names)
-sc.pl.matrixplot(
+axes = sc.pl.matrixplot(
     mofa_pvals,
     mofa_neg_factor_markers,
     groupby="gene_set",
     categories_order=gene_sets.keys(),
-    cmap="Reds",
-    title="Cell type enrichment for the factors (negative)",
-    colorbar_title=r"$-\log_{10}(p~value)$",
+    cmap="Blues",
+    title="MOFA+: Cell-type gene set enrichment for the bottom genes in factors",
+    colorbar_title=r"$-\log_{10}$(p value)",
     show=False,
 )
+axes["mainplot_ax"].set_xlabel("Factor #")
+axes["mainplot_ax"].set_ylabel("Gene set")
 plt.savefig(fig_folder + "mofa_tea_enrich_pvals_neg.pdf", bbox_inches="tight")
 
 # TODO: Pearson correlation between factors and enrichment p-values.
