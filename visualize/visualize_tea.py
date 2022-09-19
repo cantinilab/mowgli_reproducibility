@@ -9,6 +9,8 @@ import muon as mu
 import scanpy as sc
 import mofax
 import anndata as ad
+from scipy.stats import pearsonr
+import seaborn as sns
 
 ##########################################################################################
 #################################### Define some paths ###################################
@@ -181,7 +183,7 @@ mowgli_factor_markers_flat = [m for l in mowgli_factor_markers.values() for m in
 
 # Add the rest of the factors.
 # mowgli_factor_markers[" "] = [
-    # str(i) for i in range(50) if str(i) not in mowgli_factor_markers_flat
+# str(i) for i in range(50) if str(i) not in mowgli_factor_markers_flat
 # ]
 # mowgli_factor_markers_flat += mowgli_factor_markers[" "]
 
@@ -200,7 +202,7 @@ mofa_pos_factor_markers_flat = [m for l in mofa_pos_factor_markers.values() for 
 
 # Add the rest of the factors.
 # mofa_pos_factor_markers[" "] = [
-    # str(i) for i in range(15) if str(i) not in mofa_pos_factor_markers_flat
+# str(i) for i in range(15) if str(i) not in mofa_pos_factor_markers_flat
 # ]
 # mofa_pos_factor_markers_flat += mofa_pos_factor_markers[" "]
 
@@ -216,7 +218,7 @@ mofa_neg_factor_markers_flat = [m for l in mofa_neg_factor_markers.values() for 
 
 # Add the rest of the factors.
 # mofa_neg_factor_markers[" "] = [
-    # str(i) for i in range(15) if str(i) not in mofa_neg_factor_markers_flat
+# str(i) for i in range(15) if str(i) not in mofa_neg_factor_markers_flat
 # ]
 # mofa_neg_factor_markers_flat += mofa_neg_factor_markers[" "]
 
@@ -256,6 +258,7 @@ ax = sc.pl.umap(
     show=False,
 )
 plt.savefig(fig_folder + "mowgli_tea_umap.pdf", bbox_inches="tight")
+plt.clf()
 
 # Make a dotplot with ADT values for each cluster.
 mdata["adt"].obs["leiden_mowgli"] = mdata.obs["leiden_mowgli"]
@@ -276,6 +279,7 @@ axes = sc.pl.dotplot(
 axes["mainplot_ax"].set_ylabel("Cluster #")
 axes["mainplot_ax"].set_xlabel("Marker proteins")
 plt.savefig(fig_folder + "mowgli_tea_leiden_adt.pdf", bbox_inches="tight")
+plt.clf()
 
 # Make a dotplot with RNA values for each cluster.
 rna_all_genes.obs["leiden_mowgli"] = mdata.obs["leiden_mowgli"]
@@ -294,6 +298,7 @@ axes = sc.pl.dotplot(
 axes["mainplot_ax"].set_ylabel("Cluster #")
 axes["mainplot_ax"].set_xlabel("Marker genes")
 plt.savefig(fig_folder + "mowgli_tea_leiden_rna.pdf", bbox_inches="tight")
+plt.clf()
 
 # Annotate the Mowgli embedding.
 mowgli_cluster_names = {
@@ -323,6 +328,7 @@ ax = sc.pl.umap(
     show=False,
 )
 plt.savefig(fig_folder + "mowgli_tea_umap_annotated.pdf", bbox_inches="tight")
+plt.clf()
 
 ##########################################################################################
 ############################## Interpret Mowgli's dimensions #############################
@@ -357,9 +363,11 @@ axes["mainplot_ax"].set_ylabel("Cluster")
 axes["mainplot_ax"].set_xlabel("Factor #")
 axes["mainplot_ax"].set_xticklabels(axes["mainplot_ax"].get_xticklabels(), rotation=0)
 plt.savefig(fig_folder + "mowgli_tea_factors.pdf", bbox_inches="tight")
+plt.clf()
 
 # Make a matrixplot of ADT weights accross Mowgli's factors.
 adata = ad.AnnData(H_mowgli["H_adt"])
+adata.X /= adata.X.std(axis=1, keepdims=True)
 adata.obs_names = mdata["adt"].var_names
 adata.obs["adt"] = pd.Categorical(adata.obs_names)
 adata = adata[adt_markers_flat, mowgli_factor_markers_flat]
@@ -370,14 +378,16 @@ sc.pl.matrixplot(
     cmap="Purples",
     categories_order=adt_markers_flat,
     title="Proteins weights in Mowgli's top factors",
+    colorbar_title="ADT weight",
     # standard_scale="group",
-    log=True,
     show=False,
 )
 plt.savefig(fig_folder + "mowgli_tea_factors_adt.pdf", bbox_inches="tight")
+plt.clf()
 
 
 adata = ad.AnnData(H_mowgli["H_rna"])
+adata.X /= adata.X.std(axis=1, keepdims=True)
 adata.obs_names = mdata["rna"].var_names.str.replace("rna:", "")
 adata.obs["rna"] = pd.Categorical(adata.obs_names)
 genes = [g for g in rna_markers_flat if g in adata.obs_names]
@@ -389,10 +399,12 @@ sc.pl.matrixplot(
     cmap="Purples",
     categories_order=genes,
     title="Gene weights in Mowgli's top factors",
-    show=False,
+    colorbar_title="Gene weight",
     # standard_scale="group",
+    show=False,
 )
 plt.savefig(fig_folder + "mowgli_tea_factors_rna.pdf", bbox_inches="tight")
+plt.clf()
 
 mowgli_pvals = ad.AnnData(np.zeros((len(gene_sets), mowgli_embedding.n_vars)))
 mowgli_pvals.obs_names = gene_sets.keys()
@@ -415,8 +427,8 @@ sc.pl.matrixplot(
     show=False,
 )
 plt.savefig(fig_folder + "mowgli_tea_enrich_pvals.pdf", bbox_inches="tight")
+plt.clf()
 
-# TODO: Pearson correlation between factors and enrichment p-values.
 
 ##########################################################################################
 ##################################### Annotate MOFA+ #####################################
@@ -444,6 +456,7 @@ ax = sc.pl.umap(
     show=False,
 )
 plt.savefig(fig_folder + "mofa_tea_umap.pdf", bbox_inches="tight")
+plt.clf()
 
 # Make a dotplot with ADT values for each cluster.
 mdata["adt"].obs["leiden_mofa"] = mdata.obs["leiden_mofa"]
@@ -463,6 +476,7 @@ axes = sc.pl.dotplot(
 axes["mainplot_ax"].set_ylabel("Cluster #")
 axes["mainplot_ax"].set_xlabel("Marker proteins")
 plt.savefig(fig_folder + "mofa_tea_leiden_adt.pdf", bbox_inches="tight")
+plt.clf()
 
 # Make a dotplot with RNA values for each cluster.
 rna_all_genes.obs["leiden_mofa"] = mdata.obs["leiden_mofa"]
@@ -480,6 +494,7 @@ axes = sc.pl.dotplot(
 axes["mainplot_ax"].set_ylabel("Cluster #")
 axes["mainplot_ax"].set_xlabel("Marker genes")
 plt.savefig(fig_folder + "mofa_tea_leiden_rna.pdf", bbox_inches="tight")
+plt.clf()
 
 # Annotate the MOFA+ embedding.
 mofa_cluster_names = {
@@ -510,6 +525,7 @@ ax = sc.pl.umap(
     show=False,
 )
 plt.savefig(fig_folder + "mofa_tea_umap_annotated.pdf", bbox_inches="tight")
+plt.clf()
 
 ##########################################################################################
 ############################### Interpret MOFA's dimensions ##############################
@@ -544,6 +560,7 @@ axes["mainplot_ax"].set_ylabel("Cluster")
 axes["mainplot_ax"].set_xlabel("Factor #")
 axes["mainplot_ax"].set_xticklabels(axes["mainplot_ax"].get_xticklabels(), rotation=0)
 plt.savefig(fig_folder + "mofa_tea_factors_pos.pdf", bbox_inches="tight")
+plt.clf()
 
 # Make a dotplot of negative weights for MOFA+'s factors across clusters.
 mofa_embedding = ad.AnnData(-mdata.obsm["X_mofa"])
@@ -565,7 +582,7 @@ axes = sc.pl.dotplot(
     expression_cutoff=0,
     mean_only_expressed=True,
     title="Negative weights of MOFA+'s factors",
-    colorbar_title="Mean weight",
+    colorbar_title="Mean absolute weight",
     size_title="% of cells with\nweights < 0 in cluster",
     cmap="Blues",
     show=False,
@@ -574,9 +591,14 @@ axes["mainplot_ax"].set_ylabel("Cluster")
 axes["mainplot_ax"].set_xlabel("Factor #")
 axes["mainplot_ax"].set_xticklabels(axes["mainplot_ax"].get_xticklabels(), rotation=0)
 plt.savefig(fig_folder + "mofa_tea_factors_neg.pdf", bbox_inches="tight")
+plt.clf()
+
+# TODO: adt pos makers flat and adt neg markers flat
+# TODO: standardize manually
 
 # Make a matrixplot of positive ADT weights accross MOFA+'s factors.
 adata = ad.AnnData(H_mofa["H_adt"])
+adata.X /= adata.X.std(axis=1, keepdims=True)
 adata.X[adata.X < 0] = 0
 adata.obs_names = mdata["adt"].var_names
 adata.obs["adt"] = pd.Categorical(adata.obs_names)
@@ -588,17 +610,18 @@ axes = sc.pl.matrixplot(
     cmap="Reds",
     categories_order=adt_markers_flat,
     title="Positive protein weights in MOFA+'s top factors",
-    colorbar_title="ADT weight in factor",
-    show=False,
-    swap_axes=True,
+    colorbar_title="ADT weight",
     # standard_scale="group",
+    show=False,
 )
 axes["mainplot_ax"].set_ylabel("Proteins")
 axes["mainplot_ax"].set_xlabel("Factor #")
 plt.savefig(fig_folder + "mofa_tea_factors_pos_adt.pdf", bbox_inches="tight")
+plt.clf()
 
 # Make a matrixplot of negative ADT weights accross MOFA+'s factors.
 adata = ad.AnnData(-H_mofa["H_adt"])
+adata.X /= adata.X.std(axis=1, keepdims=True)
 adata.X[adata.X < 0] = 0
 adata.obs_names = mdata["adt"].var_names
 adata.obs["adt"] = pd.Categorical(adata.obs_names)
@@ -610,16 +633,18 @@ axes = sc.pl.matrixplot(
     cmap="Blues",
     categories_order=adt_markers_flat,
     title="Negative protein weights in MOFA+'s top factors",
-    colorbar_title="ADT weight in factor",
-    show=False,
+    colorbar_title="Absolute ADT weight",
     # standard_scale="group",
+    show=False,
 )
 axes["mainplot_ax"].set_ylabel("Proteins")
 axes["mainplot_ax"].set_xlabel("Factor #")
 plt.savefig(fig_folder + "mofa_tea_factors_neg_adt.pdf", bbox_inches="tight")
+plt.clf()
 
 # Make a matrixplot of positive RNA weights accross MOFA+'s factors.
 adata = ad.AnnData(H_mofa["H_rna"])
+adata.X /= adata.X.std(axis=1, keepdims=True)
 adata.X[adata.X < 0] = 0
 adata.obs_names = mdata["rna"].var_names.str.replace("rna:", "")
 adata.obs["rna"] = pd.Categorical(adata.obs_names)
@@ -632,42 +657,47 @@ sc.pl.matrixplot(
     cmap="Reds",
     categories_order=genes,
     title="Positive gene weights in MOFA+'s top factors",
-    show=False,
+    colorbar_title="Gene weight",
     # standard_scale="group",
+    show=False,
 )
 plt.savefig(fig_folder + "mofa_tea_factors_pos_rna.pdf", bbox_inches="tight")
+plt.clf()
 
 # Make a matrixplot of negative RNA weights accross MOFA+'s factors.
 adata = ad.AnnData(-H_mofa["H_rna"])
+adata.X /= adata.X.std(axis=1, keepdims=True)
 adata.X[adata.X < 0] = 0
 adata.obs_names = mdata["rna"].var_names.str.replace("rna:", "")
 adata.obs["rna"] = pd.Categorical(adata.obs_names)
 genes = [g for g in rna_markers_flat if g in adata.obs_names]
-adata = adata[genes, mofa_pos_factor_markers_flat]
+adata = adata[genes, mofa_neg_factor_markers_flat]
 sc.pl.matrixplot(
     adata,
-    mofa_pos_factor_markers,
+    mofa_neg_factor_markers,
     groupby="rna",
     cmap="Blues",
     categories_order=genes,
     title="Negative gene weights in MOFA+'s top factors",
     show=False,
+    colorbar_title="Absolute gene weight",
     # standard_scale="group",
 )
 plt.savefig(fig_folder + "mofa_tea_factors_neg_rna.pdf", bbox_inches="tight")
+plt.clf()
 
-mofa_pvals = ad.AnnData(np.zeros((len(gene_sets), mofa_embedding.n_vars)))
-mofa_pvals.obs_names = gene_sets.keys()
-mofa_pvals.var_names = mofa_embedding.var_names
+mofa_pvals_top = ad.AnnData(np.zeros((len(gene_sets), mofa_embedding.n_vars)))
+mofa_pvals_top.obs_names = gene_sets.keys()
+mofa_pvals_top.var_names = mofa_embedding.var_names
 
 for i, x in enumerate(gene_sets):
     idx = enr["native"] == gene_sets[x]
     idx &= enr["query"].str.startswith("top_mofa")
-    mofa_pvals.X[i, enr.loc[idx, "dim"]] = enr.loc[idx, "minlogp"]
+    mofa_pvals_top.X[i, enr.loc[idx, "dim"]] = enr.loc[idx, "minlogp"]
 
-mofa_pvals.obs["gene_set"] = pd.Categorical(mofa_pvals.obs_names)
+mofa_pvals_top.obs["gene_set"] = pd.Categorical(mofa_pvals_top.obs_names)
 axes = sc.pl.matrixplot(
-    mofa_pvals,
+    mofa_pvals_top,
     mofa_pos_factor_markers,
     groupby="gene_set",
     categories_order=gene_sets.keys(),
@@ -679,19 +709,20 @@ axes = sc.pl.matrixplot(
 axes["mainplot_ax"].set_xlabel("Factor #")
 axes["mainplot_ax"].set_ylabel("Gene set")
 plt.savefig(fig_folder + "mofa_tea_enrich_pvals_pos.pdf", bbox_inches="tight")
+plt.clf()
 
-mofa_pvals = ad.AnnData(np.zeros((len(gene_sets), mofa_embedding.n_vars)))
-mofa_pvals.obs_names = gene_sets.keys()
-mofa_pvals.var_names = mofa_embedding.var_names
+mofa_pvals_bottom = ad.AnnData(np.zeros((len(gene_sets), mofa_embedding.n_vars)))
+mofa_pvals_bottom.obs_names = gene_sets.keys()
+mofa_pvals_bottom.var_names = mofa_embedding.var_names
 
 for i, x in enumerate(gene_sets):
     idx = enr["native"] == gene_sets[x]
     idx &= enr["query"].str.startswith("bottom_mofa")
-    mofa_pvals.X[i, enr.loc[idx, "dim"]] = enr.loc[idx, "minlogp"]
+    mofa_pvals_bottom.X[i, enr.loc[idx, "dim"]] = enr.loc[idx, "minlogp"]
 
-mofa_pvals.obs["gene_set"] = pd.Categorical(mofa_pvals.obs_names)
+mofa_pvals_bottom.obs["gene_set"] = pd.Categorical(mofa_pvals_bottom.obs_names)
 axes = sc.pl.matrixplot(
-    mofa_pvals,
+    mofa_pvals_bottom,
     mofa_neg_factor_markers,
     groupby="gene_set",
     categories_order=gene_sets.keys(),
@@ -703,5 +734,4 @@ axes = sc.pl.matrixplot(
 axes["mainplot_ax"].set_xlabel("Factor #")
 axes["mainplot_ax"].set_ylabel("Gene set")
 plt.savefig(fig_folder + "mofa_tea_enrich_pvals_neg.pdf", bbox_inches="tight")
-
-# TODO: Pearson correlation between factors and enrichment p-values.
+plt.clf()
