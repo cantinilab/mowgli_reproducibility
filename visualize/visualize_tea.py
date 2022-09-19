@@ -365,6 +365,38 @@ axes["mainplot_ax"].set_xticklabels(axes["mainplot_ax"].get_xticklabels(), rotat
 plt.savefig(fig_folder + "mowgli_tea_factors.pdf", bbox_inches="tight")
 plt.clf()
 
+# TODO: Make a bubble plot of Mowgli's weights for each factor, CD4 vs other clusters
+
+df = []
+
+for factor in mowgli_embedding.var_names:
+    idx_cd4 = mowgli_embedding.obs["annotation_mowgli"] == "CD4 T cells"
+    mean_cd4 = float(mowgli_embedding[idx_cd4, factor].X.ravel().mean())
+    mean_other = float(mowgli_embedding[~idx_cd4, factor].X.ravel().mean())
+    prop_expressed = float(np.mean(mowgli_embedding[idx_cd4, factor].X.ravel() > 1e-3))
+    df.append(
+        {
+            "factor": factor,
+            "mean_cd4": mean_cd4,
+            "mean_other": mean_other,
+            "prop_expressed": prop_expressed,
+        }
+    )
+df = pd.DataFrame(df)
+
+fig, ax = plt.subplots(1, 1, figsize=(10, 10))
+sns.scatterplot(
+    data=df,
+    x="mean_other",
+    y="mean_cd4",
+    size="prop_expressed",
+    ax=ax,
+    sizes=(10, 500),
+)
+plt.savefig(fig_folder + "mowgli_tea_factors_bubble.pdf", bbox_inches="tight")
+plt.clf()
+
+
 # Make a matrixplot of ADT weights accross Mowgli's factors.
 adata = ad.AnnData(H_mowgli["H_adt"])
 adata.X /= adata.X.std(axis=1, keepdims=True)
