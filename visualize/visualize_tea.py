@@ -393,6 +393,9 @@ sns.scatterplot(
     ax=ax,
     sizes=(10, 500),
 )
+max_val = df[["mean_other", "mean_cd4"]].to_numpy().max()
+ax.set_xlim(0, max_val + 0.1)
+ax.set_ylim(0, max_val + 0.1)
 plt.savefig(fig_folder + "mowgli_tea_factors_bubble.pdf", bbox_inches="tight")
 plt.clf()
 
@@ -594,6 +597,41 @@ axes["mainplot_ax"].set_xticklabels(axes["mainplot_ax"].get_xticklabels(), rotat
 plt.savefig(fig_folder + "mofa_tea_factors_pos.pdf", bbox_inches="tight")
 plt.clf()
 
+# TODO: Make a bubble plot of Mowgli's weights for each factor, CD4 vs other clusters
+
+df = []
+
+mofa_embedding.X[mofa_embedding.X < 0] = 0
+for factor in mofa_embedding.var_names:
+    idx_cd4 = mofa_embedding.obs["annotation_mofa"] == "CD4 T cells"
+    mean_cd4 = float(mofa_embedding[idx_cd4, factor].X.ravel().mean())
+    mean_other = float(mofa_embedding[~idx_cd4, factor].X.ravel().mean())
+    prop_expressed = float(np.mean(mofa_embedding[idx_cd4, factor].X.ravel() > 0))
+    df.append(
+        {
+            "factor": factor,
+            "mean_cd4": mean_cd4,
+            "mean_other": mean_other,
+            "prop_expressed": prop_expressed,
+        }
+    )
+df = pd.DataFrame(df)
+
+fig, ax = plt.subplots(1, 1, figsize=(10, 10))
+sns.scatterplot(
+    data=df,
+    x="mean_other",
+    y="mean_cd4",
+    size="prop_expressed",
+    ax=ax,
+    sizes=(10, 500),
+)
+max_val = df[["mean_other", "mean_cd4"]].to_numpy().max()
+ax.set_xlim(0, max_val + 0.1)
+ax.set_ylim(0, max_val + 0.1)
+plt.savefig(fig_folder + "mofa_tea_factors_pos_bubble.pdf", bbox_inches="tight")
+plt.clf()
+
 # Make a dotplot of negative weights for MOFA+'s factors across clusters.
 mofa_embedding = ad.AnnData(-mdata.obsm["X_mofa"])
 mofa_embedding.obs_names = mdata.obs_names
@@ -624,6 +662,42 @@ axes["mainplot_ax"].set_xlabel("Factor #")
 axes["mainplot_ax"].set_xticklabels(axes["mainplot_ax"].get_xticklabels(), rotation=0)
 plt.savefig(fig_folder + "mofa_tea_factors_neg.pdf", bbox_inches="tight")
 plt.clf()
+
+df = []
+
+mofa_embedding.X[mofa_embedding.X < 0] = 0
+for factor in mofa_embedding.var_names:
+    idx_cd4 = mofa_embedding.obs["annotation_mofa"] == "CD4 T cells"
+    mean_cd4 = float(mofa_embedding[idx_cd4, factor].X.ravel().mean())
+    mean_other = float(mofa_embedding[~idx_cd4, factor].X.ravel().mean())
+    prop_expressed = float(np.mean(mofa_embedding[idx_cd4, factor].X.ravel() > 0))
+    df.append(
+        {
+            "factor": factor,
+            "mean_cd4": mean_cd4,
+            "mean_other": mean_other,
+            "prop_expressed": prop_expressed,
+        }
+    )
+df = pd.DataFrame(df)
+
+fig, ax = plt.subplots(1, 1, figsize=(10, 10))
+sns.scatterplot(
+    data=df,
+    x="mean_other",
+    y="mean_cd4",
+    size="prop_expressed",
+    ax=ax,
+    sizes=(10, 500),
+)
+# Make axes of equal range.
+max_val = df[["mean_other", "mean_cd4"]].to_numpy().max()
+ax.set_xlim(0, max_val + 0.1)
+ax.set_ylim(0, max_val + 0.1)
+plt.savefig(fig_folder + "mofa_tea_factors_neg_bubble.pdf", bbox_inches="tight")
+plt.clf()
+
+# TODO: equal axis for bubble plots
 
 # TODO: adt pos makers flat and adt neg markers flat
 # TODO: standardize manually
