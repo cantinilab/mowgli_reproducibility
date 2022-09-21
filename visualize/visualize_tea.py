@@ -258,7 +258,7 @@ ax = sc.pl.umap(
     show=False,
 )
 plt.savefig(fig_folder + "mowgli_tea_umap.pdf", bbox_inches="tight")
-plt.clf()
+plt.close()
 
 # Make a dotplot with ADT values for each cluster.
 mdata["adt"].obs["leiden_mowgli"] = mdata.obs["leiden_mowgli"]
@@ -279,7 +279,7 @@ axes = sc.pl.dotplot(
 axes["mainplot_ax"].set_ylabel("Cluster #")
 axes["mainplot_ax"].set_xlabel("Marker proteins")
 plt.savefig(fig_folder + "mowgli_tea_leiden_adt.pdf", bbox_inches="tight")
-plt.clf()
+plt.close()
 
 # Make a dotplot with RNA values for each cluster.
 rna_all_genes.obs["leiden_mowgli"] = mdata.obs["leiden_mowgli"]
@@ -298,7 +298,7 @@ axes = sc.pl.dotplot(
 axes["mainplot_ax"].set_ylabel("Cluster #")
 axes["mainplot_ax"].set_xlabel("Marker genes")
 plt.savefig(fig_folder + "mowgli_tea_leiden_rna.pdf", bbox_inches="tight")
-plt.clf()
+plt.close()
 
 # Annotate the Mowgli embedding.
 mowgli_cluster_names = {
@@ -328,7 +328,7 @@ ax = sc.pl.umap(
     show=False,
 )
 plt.savefig(fig_folder + "mowgli_tea_umap_annotated.pdf", bbox_inches="tight")
-plt.clf()
+plt.close()
 
 ##########################################################################################
 ############################## Interpret Mowgli's dimensions #############################
@@ -363,41 +363,9 @@ axes["mainplot_ax"].set_ylabel("Cluster")
 axes["mainplot_ax"].set_xlabel("Factor #")
 axes["mainplot_ax"].set_xticklabels(axes["mainplot_ax"].get_xticklabels(), rotation=0)
 plt.savefig(fig_folder + "mowgli_tea_factors.pdf", bbox_inches="tight")
-plt.clf()
+plt.close()
 
 # TODO: Make a bubble plot of Mowgli's weights for each factor, CD4 vs other clusters
-
-df = []
-
-for factor in mowgli_embedding.var_names:
-    idx_cd4 = mowgli_embedding.obs["annotation_mowgli"] == "CD4 T cells"
-    mean_cd4 = float(mowgli_embedding[idx_cd4, factor].X.ravel().mean())
-    mean_other = float(mowgli_embedding[~idx_cd4, factor].X.ravel().mean())
-    prop_expressed = float(np.mean(mowgli_embedding[idx_cd4, factor].X.ravel() > 1e-3))
-    df.append(
-        {
-            "factor": factor,
-            "mean_cd4": mean_cd4,
-            "mean_other": mean_other,
-            "prop_expressed": prop_expressed,
-        }
-    )
-df = pd.DataFrame(df)
-
-fig, ax = plt.subplots(1, 1, figsize=(10, 10))
-sns.scatterplot(
-    data=df,
-    x="mean_other",
-    y="mean_cd4",
-    size="prop_expressed",
-    ax=ax,
-    sizes=(10, 500),
-)
-max_val = df[["mean_other", "mean_cd4"]].to_numpy().max()
-ax.set_xlim(0, max_val + 0.1)
-ax.set_ylim(0, max_val + 0.1)
-plt.savefig(fig_folder + "mowgli_tea_factors_bubble.pdf", bbox_inches="tight")
-plt.clf()
 
 
 # Make a matrixplot of ADT weights accross Mowgli's factors.
@@ -418,7 +386,7 @@ sc.pl.matrixplot(
     show=False,
 )
 plt.savefig(fig_folder + "mowgli_tea_factors_adt.pdf", bbox_inches="tight")
-plt.clf()
+plt.close()
 
 
 adata = ad.AnnData(H_mowgli["H_rna"])
@@ -439,7 +407,7 @@ sc.pl.matrixplot(
     show=False,
 )
 plt.savefig(fig_folder + "mowgli_tea_factors_rna.pdf", bbox_inches="tight")
-plt.clf()
+plt.close()
 
 mowgli_pvals = ad.AnnData(np.zeros((len(gene_sets), mowgli_embedding.n_vars)))
 mowgli_pvals.obs_names = gene_sets.keys()
@@ -462,7 +430,7 @@ sc.pl.matrixplot(
     show=False,
 )
 plt.savefig(fig_folder + "mowgli_tea_enrich_pvals.pdf", bbox_inches="tight")
-plt.clf()
+plt.close()
 
 
 ##########################################################################################
@@ -491,7 +459,7 @@ ax = sc.pl.umap(
     show=False,
 )
 plt.savefig(fig_folder + "mofa_tea_umap.pdf", bbox_inches="tight")
-plt.clf()
+plt.close()
 
 # Make a dotplot with ADT values for each cluster.
 mdata["adt"].obs["leiden_mofa"] = mdata.obs["leiden_mofa"]
@@ -511,7 +479,7 @@ axes = sc.pl.dotplot(
 axes["mainplot_ax"].set_ylabel("Cluster #")
 axes["mainplot_ax"].set_xlabel("Marker proteins")
 plt.savefig(fig_folder + "mofa_tea_leiden_adt.pdf", bbox_inches="tight")
-plt.clf()
+plt.close()
 
 # Make a dotplot with RNA values for each cluster.
 rna_all_genes.obs["leiden_mofa"] = mdata.obs["leiden_mofa"]
@@ -529,7 +497,7 @@ axes = sc.pl.dotplot(
 axes["mainplot_ax"].set_ylabel("Cluster #")
 axes["mainplot_ax"].set_xlabel("Marker genes")
 plt.savefig(fig_folder + "mofa_tea_leiden_rna.pdf", bbox_inches="tight")
-plt.clf()
+plt.close()
 
 # Annotate the MOFA+ embedding.
 mofa_cluster_names = {
@@ -560,7 +528,7 @@ ax = sc.pl.umap(
     show=False,
 )
 plt.savefig(fig_folder + "mofa_tea_umap_annotated.pdf", bbox_inches="tight")
-plt.clf()
+plt.close()
 
 ##########################################################################################
 ############################### Interpret MOFA's dimensions ##############################
@@ -595,42 +563,8 @@ axes["mainplot_ax"].set_ylabel("Cluster")
 axes["mainplot_ax"].set_xlabel("Factor #")
 axes["mainplot_ax"].set_xticklabels(axes["mainplot_ax"].get_xticklabels(), rotation=0)
 plt.savefig(fig_folder + "mofa_tea_factors_pos.pdf", bbox_inches="tight")
-plt.clf()
+plt.close()
 
-# TODO: Make a bubble plot of Mowgli's weights for each factor, CD4 vs other clusters
-
-df = []
-
-mofa_embedding.X[mofa_embedding.X < 0] = 0
-for factor in mofa_embedding.var_names:
-    idx_cd4 = mofa_embedding.obs["annotation_mofa"] == "CD4 T cells"
-    mean_cd4 = float(mofa_embedding[idx_cd4, factor].X.ravel().mean())
-    mean_other = float(mofa_embedding[~idx_cd4, factor].X.ravel().mean())
-    prop_expressed = float(np.mean(mofa_embedding[idx_cd4, factor].X.ravel() > 0))
-    df.append(
-        {
-            "factor": factor,
-            "mean_cd4": mean_cd4,
-            "mean_other": mean_other,
-            "prop_expressed": prop_expressed,
-        }
-    )
-df = pd.DataFrame(df)
-
-fig, ax = plt.subplots(1, 1, figsize=(10, 10))
-sns.scatterplot(
-    data=df,
-    x="mean_other",
-    y="mean_cd4",
-    size="prop_expressed",
-    ax=ax,
-    sizes=(10, 500),
-)
-max_val = df[["mean_other", "mean_cd4"]].to_numpy().max()
-ax.set_xlim(0, max_val + 0.1)
-ax.set_ylim(0, max_val + 0.1)
-plt.savefig(fig_folder + "mofa_tea_factors_pos_bubble.pdf", bbox_inches="tight")
-plt.clf()
 
 # Make a dotplot of negative weights for MOFA+'s factors across clusters.
 mofa_embedding = ad.AnnData(-mdata.obsm["X_mofa"])
@@ -661,41 +595,7 @@ axes["mainplot_ax"].set_ylabel("Cluster")
 axes["mainplot_ax"].set_xlabel("Factor #")
 axes["mainplot_ax"].set_xticklabels(axes["mainplot_ax"].get_xticklabels(), rotation=0)
 plt.savefig(fig_folder + "mofa_tea_factors_neg.pdf", bbox_inches="tight")
-plt.clf()
-
-df = []
-
-mofa_embedding.X[mofa_embedding.X < 0] = 0
-for factor in mofa_embedding.var_names:
-    idx_cd4 = mofa_embedding.obs["annotation_mofa"] == "CD4 T cells"
-    mean_cd4 = float(mofa_embedding[idx_cd4, factor].X.ravel().mean())
-    mean_other = float(mofa_embedding[~idx_cd4, factor].X.ravel().mean())
-    prop_expressed = float(np.mean(mofa_embedding[idx_cd4, factor].X.ravel() > 0))
-    df.append(
-        {
-            "factor": factor,
-            "mean_cd4": mean_cd4,
-            "mean_other": mean_other,
-            "prop_expressed": prop_expressed,
-        }
-    )
-df = pd.DataFrame(df)
-
-fig, ax = plt.subplots(1, 1, figsize=(10, 10))
-sns.scatterplot(
-    data=df,
-    x="mean_other",
-    y="mean_cd4",
-    size="prop_expressed",
-    ax=ax,
-    sizes=(10, 500),
-)
-# Make axes of equal range.
-max_val = df[["mean_other", "mean_cd4"]].to_numpy().max()
-ax.set_xlim(0, max_val + 0.1)
-ax.set_ylim(0, max_val + 0.1)
-plt.savefig(fig_folder + "mofa_tea_factors_neg_bubble.pdf", bbox_inches="tight")
-plt.clf()
+plt.close()
 
 # TODO: equal axis for bubble plots
 
@@ -723,7 +623,7 @@ axes = sc.pl.matrixplot(
 axes["mainplot_ax"].set_ylabel("Proteins")
 axes["mainplot_ax"].set_xlabel("Factor #")
 plt.savefig(fig_folder + "mofa_tea_factors_pos_adt.pdf", bbox_inches="tight")
-plt.clf()
+plt.close()
 
 # Make a matrixplot of negative ADT weights accross MOFA+'s factors.
 adata = ad.AnnData(-H_mofa["H_adt"])
@@ -746,7 +646,7 @@ axes = sc.pl.matrixplot(
 axes["mainplot_ax"].set_ylabel("Proteins")
 axes["mainplot_ax"].set_xlabel("Factor #")
 plt.savefig(fig_folder + "mofa_tea_factors_neg_adt.pdf", bbox_inches="tight")
-plt.clf()
+plt.close()
 
 # Make a matrixplot of positive RNA weights accross MOFA+'s factors.
 adata = ad.AnnData(H_mofa["H_rna"])
@@ -768,7 +668,7 @@ sc.pl.matrixplot(
     show=False,
 )
 plt.savefig(fig_folder + "mofa_tea_factors_pos_rna.pdf", bbox_inches="tight")
-plt.clf()
+plt.close()
 
 # Make a matrixplot of negative RNA weights accross MOFA+'s factors.
 adata = ad.AnnData(-H_mofa["H_rna"])
@@ -790,7 +690,7 @@ sc.pl.matrixplot(
     # standard_scale="group",
 )
 plt.savefig(fig_folder + "mofa_tea_factors_neg_rna.pdf", bbox_inches="tight")
-plt.clf()
+plt.close()
 
 mofa_pvals_top = ad.AnnData(np.zeros((len(gene_sets), mofa_embedding.n_vars)))
 mofa_pvals_top.obs_names = gene_sets.keys()
@@ -815,7 +715,7 @@ axes = sc.pl.matrixplot(
 axes["mainplot_ax"].set_xlabel("Factor #")
 axes["mainplot_ax"].set_ylabel("Gene set")
 plt.savefig(fig_folder + "mofa_tea_enrich_pvals_pos.pdf", bbox_inches="tight")
-plt.clf()
+plt.close()
 
 mofa_pvals_bottom = ad.AnnData(np.zeros((len(gene_sets), mofa_embedding.n_vars)))
 mofa_pvals_bottom.obs_names = gene_sets.keys()
@@ -840,4 +740,230 @@ axes = sc.pl.matrixplot(
 axes["mainplot_ax"].set_xlabel("Factor #")
 axes["mainplot_ax"].set_ylabel("Gene set")
 plt.savefig(fig_folder + "mofa_tea_enrich_pvals_neg.pdf", bbox_inches="tight")
-plt.clf()
+plt.close()
+
+##########################################################################################
+###################################### Bubble plots ######################################
+##########################################################################################
+
+# TODO: same sizes everywhere. Some sort of score.
+# TODO: Ratio
+# TODO: Numbers of the factors
+
+mowgli_embedding = ad.AnnData(mdata.obsm["X_mowgli"])
+mowgli_embedding.obs_names = mdata.obs_names
+mowgli_embedding.obs["annotation_mowgli"] = mdata.obs["annotation_mowgli"]
+fig, axes = plt.subplots(2, 7, figsize=(25, 8), constrained_layout=True)
+
+for i, cluster in enumerate(
+    [
+        "Erythroid cells",
+        "B cells",
+        "Monocytes",
+        "NK cells",
+        "MAIT T cells",
+        "CD8 T cells",
+        "CD4 T cells",
+    ]
+):
+
+    df = []
+
+    for factor in mowgli_embedding.var_names:
+        idx_cluster = mowgli_embedding.obs["annotation_mowgli"] == cluster
+        mean_cluster = float(mowgli_embedding[idx_cluster, factor].X.ravel().mean())
+        mean_other = float(mowgli_embedding[~idx_cluster, factor].X.ravel().mean())
+        prop_expressed = float(
+            np.mean(mowgli_embedding[idx_cluster, factor].X.ravel() > 1e-3)
+        )
+        df.append(
+            {
+                "factor": factor,
+                "mean_cluster": mean_cluster,
+                "mean_other": mean_other,
+                "prop_expressed": prop_expressed,
+            }
+        )
+    df = pd.DataFrame(df)
+
+    max_val = df[["mean_other", "mean_cluster"]].to_numpy().max()
+    padding = 0.1 * max_val
+    axes[0, i].plot(
+        [0, max_val], [0, max_val], linewidth=2, linestyle="--", color="grey"
+    )
+    sns.scatterplot(
+        data=df,
+        x="mean_other",
+        y="mean_cluster",
+        size="prop_expressed",
+        ax=axes[0, i],
+        sizes=(10, 500),
+        alpha=0.7,
+        color="purple",
+    )
+
+    for j in range(len(df)):
+        if (df["mean_cluster"].iloc[j] - df["mean_other"].iloc[j]) / df[
+            "mean_cluster"
+        ].max() > 0.25:
+            axes[0, i].text(
+                df["mean_other"].iloc[j],
+                df["mean_cluster"].iloc[j],
+                df["factor"].iloc[j],
+                horizontalalignment="center",
+                verticalalignment="center",
+                size="medium",
+                color="white",
+                weight="semibold",
+                alpha=0.8,
+            )
+
+    j = np.argmax((df["mean_cluster"] - df["mean_other"]) / df["mean_cluster"].max())
+    score = (df["mean_cluster"].iloc[j] - df["mean_other"].iloc[j]) / df[
+        "mean_cluster"
+    ].max()
+    axes[0, i].text(
+        df["mean_other"].iloc[j] + padding,
+        df["mean_cluster"].iloc[j],
+        f"score = {score:.2f}",
+        horizontalalignment="left",
+        verticalalignment="center",
+        size="medium",
+        color="black",
+        weight="semibold",
+        alpha=0.8,
+    )
+
+    axes[0, i].get_legend().remove()
+    axes[0, i].set_title(cluster)
+    axes[0, i].set_xlabel(None)
+    if i > 0:
+        axes[0, i].set_ylabel(None)
+    axes[0, i].set_xlim(-padding, max_val + padding)
+    axes[0, i].set_ylim(-padding, max_val + padding)
+
+mofa_embedding_pos = ad.AnnData(mdata.obsm["X_mofa"])
+mofa_embedding_pos.obs_names = mdata.obs_names
+mofa_embedding_pos.obs["annotation_mofa"] = mdata.obs["annotation_mofa"]
+mofa_embedding_pos.X[mofa_embedding_pos.X < 0] = 0
+
+mofa_embedding_neg = ad.AnnData(-mdata.obsm["X_mofa"])
+mofa_embedding_neg.obs_names = mdata.obs_names
+mofa_embedding_neg.obs["annotation_mofa"] = mdata.obs["annotation_mofa"]
+mofa_embedding_neg.X[mofa_embedding_neg.X < 0] = 0
+
+for i, cluster in enumerate(
+    [
+        "Erythroid cells",
+        "B cells",
+        "Monocytes",
+        "NK cells",
+        "MAIT T cells",
+        "CD8 T cells",
+        "CD4 T cells",
+    ]
+):
+
+    df = []
+
+    for factor in mofa_embedding_pos.var_names:
+        idx_cluster = mofa_embedding_pos.obs["annotation_mofa"] == cluster
+        mean_cluster = float(mofa_embedding_pos[idx_cluster, factor].X.ravel().mean())
+        mean_other = float(mofa_embedding_pos[~idx_cluster, factor].X.ravel().mean())
+        prop_expressed = float(
+            np.mean(mofa_embedding_pos[idx_cluster, factor].X.ravel() > 1e-3)
+        )
+        df.append(
+            {
+                "factor": factor,
+                "direction": "+",
+                "mean_cluster": mean_cluster,
+                "mean_other": mean_other,
+                "prop_expressed": prop_expressed,
+            }
+        )
+    
+    for factor in mofa_embedding_neg.var_names:
+        idx_cluster = mofa_embedding_neg.obs["annotation_mofa"] == cluster
+        mean_cluster = float(mofa_embedding_neg[idx_cluster, factor].X.ravel().mean())
+        mean_other = float(mofa_embedding_neg[~idx_cluster, factor].X.ravel().mean())
+        prop_expressed = float(
+            np.mean(mofa_embedding_neg[idx_cluster, factor].X.ravel() > 1e-3)
+        )
+        df.append(
+            {
+                "factor": factor,
+                "direction": "-",
+                "mean_cluster": mean_cluster,
+                "mean_other": mean_other,
+                "prop_expressed": prop_expressed,
+            }
+        )
+
+    df = pd.DataFrame(df)
+
+    max_val = df[["mean_other", "mean_cluster"]].to_numpy().max()
+    padding = 0.1 * max_val
+    axes[1, i].plot(
+        [0, max_val], [0, max_val], linewidth=2, linestyle="--", color="grey"
+    )
+
+    sns.scatterplot(
+        data=df[df["direction"] == "+"],
+        x="mean_other",
+        y="mean_cluster",
+        size="prop_expressed",
+        ax=axes[1, i],
+        sizes=(10, 500),
+        alpha=0.7,
+    )
+
+    sns.scatterplot(
+        data=df[df["direction"] == "-"],
+        x="mean_other",
+        y="mean_cluster",
+        size="prop_expressed",
+        ax=axes[1, i],
+        sizes=(10, 500),
+        alpha=0.7,
+        color="red",
+    )
+
+    for j in range(len(df)):
+        if (df["mean_cluster"].iloc[j] - df["mean_other"].iloc[j]) / df[
+            "mean_cluster"
+        ].max() > 0.25:
+            axes[1, i].text(
+                df["mean_other"].iloc[j],
+                df["mean_cluster"].iloc[j],
+                df["factor"].iloc[j],
+                horizontalalignment="center",
+                verticalalignment="center",
+                size="medium",
+                color="white",
+                weight="semibold",
+                alpha=0.8,
+            )
+
+    j = np.argmax((df["mean_cluster"] - df["mean_other"]) / df["mean_cluster"].max())
+    score = (df["mean_cluster"].iloc[j] - df["mean_other"].iloc[j]) / df[
+        "mean_cluster"
+    ].max()
+    axes[1, i].text(
+        df["mean_other"].iloc[j] + padding,
+        df["mean_cluster"].iloc[j],
+        f"score = {score:.2f}",
+        horizontalalignment="left",
+        verticalalignment="center",
+        size="medium",
+        color="black",
+        weight="semibold",
+        alpha=0.8,
+    )
+
+    axes[1, i].get_legend().remove()
+    axes[1, i].set_xlim(-padding, max_val + padding)
+    axes[1, i].set_ylim(-padding, max_val + padding)
+
+plt.savefig(fig_folder + "tea_factors_bubble.pdf", bbox_inches="tight")
+plt.close()
