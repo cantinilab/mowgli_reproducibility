@@ -11,6 +11,8 @@ import mofax
 import anndata as ad
 from scipy.stats import pearsonr
 import seaborn as sns
+from matplotlib.ticker import FormatStrFormatter
+from matplotlib.lines import Line2D
 
 ##########################################################################################
 #################################### Define some paths ###################################
@@ -369,7 +371,7 @@ plt.close()
 
 
 # Make a matrixplot of ADT weights accross Mowgli's factors.
-adata = ad.AnnData(H_mowgli["H_adt"])
+adata = ad.AnnData(H_mowgli["H_adt"].copy())
 adata.X /= adata.X.std(axis=1, keepdims=True)
 adata.obs_names = mdata["adt"].var_names
 adata.obs["adt"] = pd.Categorical(adata.obs_names)
@@ -389,7 +391,7 @@ plt.savefig(fig_folder + "mowgli_tea_factors_adt.pdf", bbox_inches="tight")
 plt.close()
 
 
-adata = ad.AnnData(H_mowgli["H_rna"])
+adata = ad.AnnData(H_mowgli["H_rna"].copy())
 adata.X /= adata.X.std(axis=1, keepdims=True)
 adata.obs_names = mdata["rna"].var_names.str.replace("rna:", "")
 adata.obs["rna"] = pd.Categorical(adata.obs_names)
@@ -603,7 +605,7 @@ plt.close()
 # TODO: standardize manually
 
 # Make a matrixplot of positive ADT weights accross MOFA+'s factors.
-adata = ad.AnnData(H_mofa["H_adt"])
+adata = ad.AnnData(H_mofa["H_adt"].copy())
 adata.X /= adata.X.std(axis=1, keepdims=True)
 adata.X[adata.X < 0] = 0
 adata.obs_names = mdata["adt"].var_names
@@ -626,7 +628,7 @@ plt.savefig(fig_folder + "mofa_tea_factors_pos_adt.pdf", bbox_inches="tight")
 plt.close()
 
 # Make a matrixplot of negative ADT weights accross MOFA+'s factors.
-adata = ad.AnnData(-H_mofa["H_adt"])
+adata = ad.AnnData(-H_mofa["H_adt"].copy())
 adata.X /= adata.X.std(axis=1, keepdims=True)
 adata.X[adata.X < 0] = 0
 adata.obs_names = mdata["adt"].var_names
@@ -649,7 +651,7 @@ plt.savefig(fig_folder + "mofa_tea_factors_neg_adt.pdf", bbox_inches="tight")
 plt.close()
 
 # Make a matrixplot of positive RNA weights accross MOFA+'s factors.
-adata = ad.AnnData(H_mofa["H_rna"])
+adata = ad.AnnData(H_mofa["H_rna"].copy())
 adata.X /= adata.X.std(axis=1, keepdims=True)
 adata.X[adata.X < 0] = 0
 adata.obs_names = mdata["rna"].var_names.str.replace("rna:", "")
@@ -671,7 +673,7 @@ plt.savefig(fig_folder + "mofa_tea_factors_pos_rna.pdf", bbox_inches="tight")
 plt.close()
 
 # Make a matrixplot of negative RNA weights accross MOFA+'s factors.
-adata = ad.AnnData(-H_mofa["H_rna"])
+adata = ad.AnnData(-H_mofa["H_rna"].copy())
 adata.X /= adata.X.std(axis=1, keepdims=True)
 adata.X[adata.X < 0] = 0
 adata.obs_names = mdata["rna"].var_names.str.replace("rna:", "")
@@ -753,7 +755,7 @@ plt.close()
 mowgli_embedding = ad.AnnData(mdata.obsm["X_mowgli"])
 mowgli_embedding.obs_names = mdata.obs_names
 mowgli_embedding.obs["annotation_mowgli"] = mdata.obs["annotation_mowgli"]
-fig, axes = plt.subplots(2, 7, figsize=(25, 8), constrained_layout=True)
+fig, axes = plt.subplots(2, 7, figsize=(25, 6), constrained_layout=True)
 
 for i, cluster in enumerate(
     [
@@ -786,6 +788,8 @@ for i, cluster in enumerate(
         )
     df = pd.DataFrame(df)
 
+    df = df[df["prop_expressed"] > 0]
+
     max_val = df[["mean_other", "mean_cluster"]].to_numpy().max()
     padding = 0.1 * max_val
     axes[0, i].plot(
@@ -797,7 +801,7 @@ for i, cluster in enumerate(
         y="mean_cluster",
         size="prop_expressed",
         ax=axes[0, i],
-        sizes=(10, 500),
+        sizes=(500 * df["prop_expressed"].min(), 500 * df["prop_expressed"].max()),
         alpha=0.7,
         color="purple",
     )
@@ -834,13 +838,31 @@ for i, cluster in enumerate(
         alpha=0.8,
     )
 
-    axes[0, i].get_legend().remove()
+    if i < 6:
+        axes[0, i].get_legend().remove()
+    else:
+        axes[0, i].legend(
+            loc="upper left",
+            bbox_to_anchor=(1.05, 1),
+            frameon=False,
+            title="Prop. of cells in cluster\nwith weights > 1e-3",
+        )
+        for lh in axes[0, i].get_legend().legendHandles:
+            lh.set_alpha(0.7)
+
     axes[0, i].set_title(cluster)
     axes[0, i].set_xlabel(None)
     if i > 0:
         axes[0, i].set_ylabel(None)
+    else:
+        axes[0, i].set_ylabel("Mean weight in cell type")
     axes[0, i].set_xlim(-padding, max_val + padding)
     axes[0, i].set_ylim(-padding, max_val + padding)
+
+    axes[0, i].spines.right.set_visible(False)
+    axes[0, i].spines.top.set_visible(False)
+    axes[0, i].yaxis.set_major_formatter(FormatStrFormatter("%.2f"))
+    axes[0, i].xaxis.set_major_formatter(FormatStrFormatter("%.2f"))
 
 mofa_embedding_pos = ad.AnnData(mdata.obsm["X_mofa"])
 mofa_embedding_pos.obs_names = mdata.obs_names
@@ -876,13 +898,13 @@ for i, cluster in enumerate(
         df.append(
             {
                 "factor": factor,
-                "direction": "+",
+                "Sign of weights": "Positive",
                 "mean_cluster": mean_cluster,
                 "mean_other": mean_other,
-                "prop_expressed": prop_expressed,
+                "Proportion": prop_expressed,
             }
         )
-    
+
     for factor in mofa_embedding_neg.var_names:
         idx_cluster = mofa_embedding_neg.obs["annotation_mofa"] == cluster
         mean_cluster = float(mofa_embedding_neg[idx_cluster, factor].X.ravel().mean())
@@ -893,10 +915,10 @@ for i, cluster in enumerate(
         df.append(
             {
                 "factor": factor,
-                "direction": "-",
+                "Sign of weights": "Negative",
                 "mean_cluster": mean_cluster,
                 "mean_other": mean_other,
-                "prop_expressed": prop_expressed,
+                "Proportion": prop_expressed,
             }
         )
 
@@ -909,24 +931,18 @@ for i, cluster in enumerate(
     )
 
     sns.scatterplot(
-        data=df[df["direction"] == "+"],
+        data=df,
         x="mean_other",
         y="mean_cluster",
-        size="prop_expressed",
+        hue="Sign of weights",
+        palette=["tab:blue", "tab:red"],
+        size="Proportion",
         ax=axes[1, i],
-        sizes=(10, 500),
+        sizes=(
+            500 * df["Proportion"].min(),
+            500 * df["Proportion"].max(),
+        ),
         alpha=0.7,
-    )
-
-    sns.scatterplot(
-        data=df[df["direction"] == "-"],
-        x="mean_other",
-        y="mean_cluster",
-        size="prop_expressed",
-        ax=axes[1, i],
-        sizes=(10, 500),
-        alpha=0.7,
-        color="red",
     )
 
     for j in range(len(df)):
@@ -961,9 +977,80 @@ for i, cluster in enumerate(
         alpha=0.8,
     )
 
-    axes[1, i].get_legend().remove()
+    if i > 0:
+        axes[1, i].set_ylabel(None)
+    else:
+        axes[1, i].set_ylabel("Mean weight in cell type")
+
+    if i < 6:
+        axes[1, i].get_legend().remove()
+    else:
+        axes[1, i].legend(
+            loc="upper left",
+            bbox_to_anchor=(1.05, 1),
+            frameon=False,
+            title="Prop. of cells in cluster with\npositive / negative weights",
+        )
+        for lh in axes[1, i].get_legend().legendHandles:
+            lh.set_alpha(0.7)
+
+    axes[1, i].spines.right.set_visible(False)
+    axes[1, i].spines.top.set_visible(False)
+    axes[1, i].yaxis.set_major_formatter(FormatStrFormatter("%.2f"))
+    axes[1, i].xaxis.set_major_formatter(FormatStrFormatter("%.2f"))
+    axes[1, i].set_xlabel("Mean weight in other cell types")
     axes[1, i].set_xlim(-padding, max_val + padding)
     axes[1, i].set_ylim(-padding, max_val + padding)
 
 plt.savefig(fig_folder + "tea_factors_bubble.pdf", bbox_inches="tight")
+plt.close()
+
+##########################################################################################
+############################### Focus: Memory B cell factor ##############################
+##########################################################################################
+
+fig, axes = plt.subplots(1, 3, figsize=(10, 3), constrained_layout=True)
+sc.pp.neighbors(mowgli_embedding, n_neighbors=25)
+sc.tl.umap(mowgli_embedding)
+sc.pl.embedding(
+    mowgli_embedding,
+    color="44",
+    alpha=0.7,
+    title="Weight of factor 44",
+    basis="X_umap",
+    frameon=False,
+    show=False,
+    ax=axes[0],
+)
+df = pd.DataFrame(
+    H_mowgli["H_adt"],
+    index=mdata["adt"].var_names,
+    columns=mowgli_embedding.var_names,
+)
+
+sns.barplot(
+    data=df,
+    y="44",
+    x=df.index,
+    ax=axes[1],
+    order=df.index[df["44"].argsort()[::-1][:15]],
+    color="purple",
+)
+axes[1].set_xticklabels(axes[1].get_xticklabels(), rotation=90)
+
+sns.barplot(
+    data=enr[
+        (enr["method"] == "mowgli")
+        & (enr["dim"] == 44)
+        & (enr["native"].str.contains("GO"))
+    ][:10],
+    x="minlogp",
+    y="native",
+    ax=axes[2],
+)
+# Shorten the yticklabels to 15 characters.
+axes[2].set_yticklabels([label.get_text()[:15] for label in axes[2].get_yticklabels()])
+# axes[2].set_yticks(axes[2].get_yticks(), [label.get_text()[:15] for label in axes[2].get_yticklabels()])
+
+plt.savefig(fig_folder + "mowgli_tea_umap_44.pdf", bbox_inches="tight")
 plt.close()
