@@ -748,10 +748,6 @@ plt.close()
 ###################################### Bubble plots ######################################
 ##########################################################################################
 
-# TODO: same sizes everywhere. Some sort of score.
-# TODO: Ratio
-# TODO: Numbers of the factors
-
 mowgli_embedding = ad.AnnData(mdata.obsm["X_mowgli"])
 mowgli_embedding.obs_names = mdata.obs_names
 mowgli_embedding.obs["annotation_mowgli"] = mdata.obs["annotation_mowgli"]
@@ -989,7 +985,7 @@ for i, cluster in enumerate(
             loc="upper left",
             bbox_to_anchor=(1.05, 1),
             frameon=False,
-            title="Prop. of cells in cluster with\npositive / negative weights",
+            title="Prop. of cells in cluster with\nabsolute weights > 1e-3",
         )
         for lh in axes[1, i].get_legend().legendHandles:
             lh.set_alpha(0.7)
@@ -1003,54 +999,4 @@ for i, cluster in enumerate(
     axes[1, i].set_ylim(-padding, max_val + padding)
 
 plt.savefig(fig_folder + "tea_factors_bubble.pdf", bbox_inches="tight")
-plt.close()
-
-##########################################################################################
-############################### Focus: Memory B cell factor ##############################
-##########################################################################################
-
-fig, axes = plt.subplots(1, 3, figsize=(10, 3), constrained_layout=True)
-sc.pp.neighbors(mowgli_embedding, n_neighbors=25)
-sc.tl.umap(mowgli_embedding)
-sc.pl.embedding(
-    mowgli_embedding,
-    color="44",
-    alpha=0.7,
-    title="Weight of factor 44",
-    basis="X_umap",
-    frameon=False,
-    show=False,
-    ax=axes[0],
-)
-df = pd.DataFrame(
-    H_mowgli["H_adt"],
-    index=mdata["adt"].var_names,
-    columns=mowgli_embedding.var_names,
-)
-
-sns.barplot(
-    data=df,
-    y="44",
-    x=df.index,
-    ax=axes[1],
-    order=df.index[df["44"].argsort()[::-1][:15]],
-    color="purple",
-)
-axes[1].set_xticklabels(axes[1].get_xticklabels(), rotation=90)
-
-sns.barplot(
-    data=enr[
-        (enr["method"] == "mowgli")
-        & (enr["dim"] == 44)
-        & (enr["native"].str.contains("GO"))
-    ][:10],
-    x="minlogp",
-    y="native",
-    ax=axes[2],
-)
-# Shorten the yticklabels to 15 characters.
-axes[2].set_yticklabels([label.get_text()[:15] for label in axes[2].get_yticklabels()])
-# axes[2].set_yticks(axes[2].get_yticks(), [label.get_text()[:15] for label in axes[2].get_yticklabels()])
-
-plt.savefig(fig_folder + "mowgli_tea_umap_44.pdf", bbox_inches="tight")
 plt.close()
