@@ -25,7 +25,8 @@ def top_mowgli(dim, n):
     """
     Get the top n peaks for a given dimension.
     """
-    return H_mowgli[:, dim].argsort()[::-1][:n]
+    H_scaled = H_mowgli/H_mowgli.sum(axis=1, keepdims=True)
+    return H_scaled[:, dim].argsort()[::-1][:n]
 
 
 def top_mofa(dim, n):
