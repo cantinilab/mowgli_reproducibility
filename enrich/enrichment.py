@@ -27,8 +27,11 @@ ordered = False
 n_genes = 150
 significance_threshold_method = "bonferroni"  # default is g_SCS
 
-# Using custom GMTs: GOCC, GO:MF, GO:BP, REAC, KEGG, CellMarker, Azimuth.
-custom_data_organism = "gp__m04q_p2KA_cbk"
+# Using custom GMTs: GO:CC, GO:MF, GO:BP, REAC, KEGG, CellMarker, Azimuth.
+# custom_data_organism = "gp__m04q_p2KA_cbk"
+
+# Using custom GMTs: GO:CC, GO:MF, GO:BP, REAC, KEGG, CellMarker, Azimuth, ImmuneSigDB, TFtargets, chEA.
+custom_data_organism = "gp__2jrt_Bshf_Inw" 
 
 def top_mowgli(dim, n):
     """
