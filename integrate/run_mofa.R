@@ -3,7 +3,7 @@ library(MOFA2)
 library(MuDataSeurat)
 
 # Define the hyperparameters.
-num_factors <- 30
+num_factors <- 5
 my_seed <- 42
 
 ################################### Liu ########################################

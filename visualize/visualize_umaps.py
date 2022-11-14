@@ -108,7 +108,7 @@ seurat_path = {
 }
 
 # Compute and plot the UMAP embeddings
-def plot_umaps(datasets, path):
+def plot_umaps(datasets, path, s=15):
 
     # Define the subplots.
     fig = plt.figure(constrained_layout=True, figsize=(10, 10))
@@ -158,8 +158,8 @@ def plot_umaps(datasets, path):
                 mdata,
                 ax=axes[i, j],
                 color="rna:celltype",
-                s=15,
-                alpha=0.8,
+                s=s,
+                alpha=0.7,
                 title="",
                 show=False,
             )
@@ -167,13 +167,8 @@ def plot_umaps(datasets, path):
             # Decorate the plots.
             axes[i, j].set_facecolor((0, 0, 0, 0))
             axes[i, j].set(xlabel=None)
+            axes[i, j].set(ylabel=None)
             axes[i, j].get_legend().remove()
-
-            # We only want the dataset name on the 1st column.
-            if j > 0:
-                axes[i, j].set(ylabel=None)
-            else:
-                axes[i, j].set(ylabel=dataset)
 
     # Add the method names as column titles.
     axes[0, 0].set_title("Mowgli")
@@ -187,6 +182,7 @@ def plot_umaps(datasets, path):
 plot_umaps(
     ["sim1", "sim2", "sim3", "sim4", "sim5", "sim6"],
     "/users/csb/huizing/Documents/PhD/Code/mowgli_reproducibility/visualize/figures/simulated_umaps.pdf",
+    s=50
 )
 
 # Make the plot for real data.

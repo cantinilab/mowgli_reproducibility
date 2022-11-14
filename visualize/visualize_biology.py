@@ -262,6 +262,7 @@ sc.pl.embedding(
     color=mdata["adt"].var_names.to_list(),
     legend_fontoutline=2,
     frameon=False,
+    show=False,
     save=False,
 )
 plt.savefig(os.path.join(fig_folder, "mowgli_adt.pdf"), bbox_inches="tight")
@@ -275,6 +276,7 @@ sc.pl.embedding(
     color=mdata["adt"].var_names.to_list(),
     legend_fontoutline=2,
     frameon=False,
+    show=False,
     save=False,
 )
 plt.savefig(os.path.join(fig_folder, "mofa_adt.pdf"), bbox_inches="tight")
@@ -315,21 +317,24 @@ link = {"source": source, "target": target, "value": value}
 
 fig = go.Figure(data=[go.Sankey(node=node, link=link)])
 fig.update_layout(font_size=10, width=500, height=500)
-fig.show()
+fig.write_image(os.path.join(fig_folder, "sankey.pdf"))
 # TODO: how to save this?
 
 ############################### Translate proteins to genes ##############################
 
 adt_to_rna = {"CD10": "MME", "CD11b": "ITGAM", "CD11c": "ITGAX", "CD123": "IL3RA"}
-adt_to_rna += {"CD127": "IL7R", "CD14": "CD14", "CD141": "THBD", "CD16": "FCGR3A"}
-adt_to_rna += {"CD172a": "SIRPA", "CD185": "CXCR5", "CD19": "CD19", "CD192": "CCR2"}
-adt_to_rna += {"CD197": "CCR7", "CD21": "CR2", "CD24": "CD24", "CD25": "IL2RA"}
-adt_to_rna += {"CD269": "TNFRSF17", "CD27": "CD27", "CD278": "ICOS", "CD279": "PDCD1"}
-adt_to_rna += {"CD3": "CD3G", "CD304": "NRP1", "CD319": "SLAMF7", "CD38": "CD38"}
-adt_to_rna += {"CD39": "ENTPD1", "CD4": "CD4", "CD40": "CD40", "CD45RA": "PTPRC"}
-adt_to_rna += {"CD45RO": "PTPRC", "CD56": "NCAM1", "CD66b": "CEACAM8", "CD71": "TFRC"}
-adt_to_rna += {"CD80": "CD80", "CD86": "CD86", "CD8a": "CD8A", "CD95": "FAS"}
-adt_to_rna += {"HLA-DR": "HLA-DRA", "IgD": "IGHD", "IgM": "IGHM", "KLRG1": "KLRG1"}
+adt_to_rna = {**adt_to_rna, "CD127": "IL7R", "CD14": "CD14", "CD141": "THBD"}
+adt_to_rna = {**adt_to_rna, "CD172a": "SIRPA", "CD185": "CXCR5", "CD19": "CD19"}
+adt_to_rna = {**adt_to_rna, "CD197": "CCR7", "CD21": "CR2", "CD24": "CD24"}
+adt_to_rna = {**adt_to_rna, "CD269": "TNFRSF17", "CD27": "CD27", "CD278": "ICOS"}
+adt_to_rna = {**adt_to_rna, "CD3": "CD3G", "CD304": "NRP1", "CD319": "SLAMF7"}
+adt_to_rna = {**adt_to_rna, "CD39": "ENTPD1", "CD4": "CD4", "CD40": "CD40"}
+adt_to_rna = {**adt_to_rna, "CD45RO": "PTPRC", "CD56": "NCAM1", "CD66b": "CEACAM8"}
+adt_to_rna = {**adt_to_rna, "CD80": "CD80", "CD86": "CD86", "CD8a": "CD8A"}
+adt_to_rna = {**adt_to_rna, "HLA-DR": "HLA-DRA", "IgD": "IGHD", "IgM": "IGHM"}
+adt_to_rna = {**adt_to_rna, "CD16": "FCGR3A", "CD192": "CCR2", "CD25": "IL2RA"}
+adt_to_rna = {**adt_to_rna, "CD279": "PDCD1", "CD38": "CD38", "CD45RA": "PTPRC"}
+adt_to_rna = {**adt_to_rna, "CD71": "TFRC", "CD95": "FAS", "KLRG1": "KLRG1"}
 # "FceRI": "FceRI"
 # "IgG1-K-Isotype-Control": "IgG1-K-Isotype-Control"
 # "TCR-Va24-Ja18": "TCR-Va24-Ja18"
@@ -435,7 +440,7 @@ sc.pl.umap(
     show=False,
     ax=axins_1,
 )
-axins_1.set_title("CD65-dim Natural Killer Cells", fontsize=10)
+axins_1.set_title("CD56-dim Natural Killer Cells", fontsize=10)
 fig.axes[-1].remove()
 
 idx_zoom_2 = mdata.obs["annotation_mowgli"].str.contains("B")
@@ -521,12 +526,13 @@ for axins, idx_zoom in zip(
     axins.set_ylabel(None)
     axins.set_facecolor((1, 1, 1, 0.75))
     rect, lines = ax.indicate_inset_zoom(axins)
-    for lin in lines:
+    for line in lines:
         line.set_visible(True)
 
 plt.savefig(os.path.join(fig_folder, "multi_umap.pdf"), bbox_inches="tight")
 
 ########################### Make a plot with dictionary weights ##########################
+
 
 def plot_weights(dim, H, manual_stars, star_cell_types, n_features, ax, adt=False):
     idx = np.argsort(H.X[:, dim])[::-1][:n_features]
@@ -539,7 +545,9 @@ def plot_weights(dim, H, manual_stars, star_cell_types, n_features, ax, adt=Fals
     for direction in ["top", "right", "left"]:
         ax.spines[direction].set_visible(False)
 
+
 ################################ Make a plot with gene sets ##############################
+
 
 def plot_gene_sets(enr, dim, contains, contains_not, n_gs, gs_stars, ax):
     idx_immune = enr["source"] == "immune"
@@ -599,7 +607,9 @@ def plot_gene_sets(enr, dim, contains, contains_not, n_gs, gs_stars, ax):
     for direction in ["top", "right", "left"]:
         ax.spines[direction].set_visible(False)
 
+
 ################################# Make a plot with motifs ################################
+
 
 def plot_motifs(all_motifs, dim, n_motifs, pathway_files, ax):
     df = all_motifs[all_motifs["dim"] == dim].sort_values("pvalue", ascending=True)
@@ -620,7 +630,9 @@ def plot_motifs(all_motifs, dim, n_motifs, pathway_files, ax):
     ax.set_title("Motif enrichment")
     ax.set_ylabel(None)
 
+
 ########################## Assemble the previous plots into one ##########################
+
 
 def compact_plot(
     dim,
@@ -651,6 +663,7 @@ def compact_plot(
     for ax in fig.axes:
         for tick in ax.get_yticklabels():
             tick.set_fontname("Roboto Condensed")
+
 
 ################## Plot the weights en enrichments for different factors #################
 

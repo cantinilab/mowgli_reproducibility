@@ -328,32 +328,17 @@ def plot_scores_selected_simulated(path):
     idx = (
         (scores_df["Latent dimension"] == "5")
         & (scores_df["Method"] == "MOFA+")
-        & (scores_df["Dataset"].str.contains("Liu|Simulated"))
-    )
-    idx |= (
-        (scores_df["Latent dimension"] == "15")
-        & (scores_df["Method"] == "MOFA+")
-        & (~scores_df["Dataset"].str.contains("Liu|Simulated"))
+        & (scores_df["Dataset"].str.contains("Simulated"))
     )
     idx |= (
         (scores_df["Latent dimension"] == "5")
         & (scores_df["Method"] == "Mowgli")
-        & (scores_df["Dataset"].str.contains("Liu|Simulated"))
-    )
-    idx |= (
-        (scores_df["Latent dimension"] == "50")
-        & (scores_df["Method"] == "Mowgli")
-        & (~scores_df["Dataset"].str.contains("Liu|Simulated"))
+        & (scores_df["Dataset"].str.contains("Simulated"))
     )
     idx |= (
         (scores_df["Latent dimension"] == "5")
         & (scores_df["Method"] == "NMF")
-        & (scores_df["Dataset"].str.contains("Liu|Simulated"))
-    )
-    idx |= (
-        (scores_df["Latent dimension"] == "30")
-        & (scores_df["Method"] == "NMF")
-        & (~scores_df["Dataset"].str.contains("Liu|Simulated"))
+        & (scores_df["Dataset"].str.contains("Simulated"))
     )
     idx |= scores_df["Method"] == "Seurat"
     scores_df_sub = scores_df.loc[idx]
@@ -361,32 +346,17 @@ def plot_scores_selected_simulated(path):
     idx = (
         (ari_res["Latent dimension"] == "5")
         & (ari_res["Method"] == "MOFA+")
-        & (ari_res["Dataset"].str.contains("Liu|Simulated"))
-    )
-    idx |= (
-        (ari_res["Latent dimension"] == "15")
-        & (ari_res["Method"] == "MOFA+")
-        & (~ari_res["Dataset"].str.contains("Liu|Simulated"))
+        & (ari_res["Dataset"].str.contains("Simulated"))
     )
     idx |= (
         (ari_res["Latent dimension"] == "5")
         & (ari_res["Method"] == "Mowgli")
-        & (ari_res["Dataset"].str.contains("Liu|Simulated"))
-    )
-    idx |= (
-        (ari_res["Latent dimension"] == "50")
-        & (ari_res["Method"] == "Mowgli")
-        & (~ari_res["Dataset"].str.contains("Liu|Simulated"))
+        & (ari_res["Dataset"].str.contains("Simulated"))
     )
     idx |= (
         (ari_res["Latent dimension"] == "5")
         & (ari_res["Method"] == "NMF")
-        & (ari_res["Dataset"].str.contains("Liu|Simulated"))
-    )
-    idx |= (
-        (ari_res["Latent dimension"] == "30")
-        & (ari_res["Method"] == "NMF")
-        & (~ari_res["Dataset"].str.contains("Liu|Simulated"))
+        & (ari_res["Dataset"].str.contains("Simulated"))
     )
     idx |= ari_res["Method"] == "Seurat"
     ari_res_sub = ari_res.loc[idx]
@@ -394,32 +364,17 @@ def plot_scores_selected_simulated(path):
     idx = (
         (purity_res["Latent dimension"] == "5")
         & (purity_res["Method"] == "MOFA+")
-        & (purity_res["Dataset"].str.contains("Liu|Simulated"))
-    )
-    idx |= (
-        (purity_res["Latent dimension"] == "15")
-        & (purity_res["Method"] == "MOFA+")
-        & (~purity_res["Dataset"].str.contains("Liu|Simulated"))
+        & (purity_res["Dataset"].str.contains("Simulated"))
     )
     idx |= (
         (purity_res["Latent dimension"] == "5")
         & (purity_res["Method"] == "Mowgli")
-        & (purity_res["Dataset"].str.contains("Liu|Simulated"))
-    )
-    idx |= (
-        (purity_res["Latent dimension"] == "50")
-        & (purity_res["Method"] == "Mowgli")
-        & (~purity_res["Dataset"].str.contains("Liu|Simulated"))
+        & (purity_res["Dataset"].str.contains("Simulated"))
     )
     idx |= (
         (purity_res["Latent dimension"] == "5")
         & (purity_res["Method"] == "NMF")
-        & (purity_res["Dataset"].str.contains("Liu|Simulated"))
-    )
-    idx |= (
-        (purity_res["Latent dimension"] == "30")
-        & (purity_res["Method"] == "NMF")
-        & (~purity_res["Dataset"].str.contains("Liu|Simulated"))
+        & (purity_res["Dataset"].str.contains("Simulated"))
     )
     idx |= purity_res["Method"] == "Seurat"
     purity_res_sub = purity_res.loc[idx]
@@ -461,7 +416,14 @@ def plot_scores_selected_simulated(path):
         bbox_to_anchor=(-0.1, 1),
         ncol=1,
     )
-    axes["A"].set_yticklabels(axes["A"].get_yticklabels(), rotation=90, va="center")
+    axes["A"].set_yticklabels([
+        "Mix groups in RNA",
+        "Mix in both omics",
+        "Rare population",
+        "82\% sparse",
+        "90\% sparse",
+        "96\% sparse",
+    ], rotation=90, va="center")
 
     # Visualize the ARI as a line plot.
     ymin = ari_res_sub["ARI"].min()
@@ -483,8 +445,8 @@ def plot_scores_selected_simulated(path):
         ax.get_legend().remove()
         ax.set(ylim=(ymin, ymax))
         ax.set(ylabel="maximum ARI")
+        ax.set_xticks([])
         if i < len(datasets) - 1:
-            ax.set_xticklabels([])
             ax.set(xlabel=None)
 
     # Visualize the purity score as a line plot.
