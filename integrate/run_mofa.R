@@ -83,6 +83,9 @@ trained_mofa_object <- MOFA2::run_mofa(mofa_object, out_path, use_basilisk = FAL
 file_path <- "Phd/mowgli_reproducibility/data/Liu/liu_simulated_2.h5mu.gz"
 out_path <- paste0("Phd/mowgli_reproducibility/data/Liu/liu_simulated_2_mofa_", num_factors, ".hdf5")
 
+# Read the MuData file as a Seurat object.
+seurat_object <- MuDataSeurat::ReadH5MU(file_path)
+
 # Center the preprocessed RNA data.
 Seurat::DefaultAssay(seurat_object) <- "rna"
 seurat_object <- Seurat::ScaleData(seurat_object, do.center = TRUE, do.scale = FALSE)
