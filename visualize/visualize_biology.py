@@ -345,7 +345,7 @@ adt_to_rna = {**adt_to_rna, "CD71": "TFRC", "CD95": "FAS", "KLRG1": "KLRG1"}
 ########################## Are top genes targets of top motifs? ##########################
 
 
-def get_tf_gene_matches(dim: int, pathway_file: str, n_genes=20, n_tf=20):
+def get_tf_gene_matches(dim: int, pathway_file: str, n_genes=15, n_tf=20):
 
     pathways = pd.read_csv(
         os.path.join(data_folder, "pathways/", pathway_file),
@@ -365,7 +365,10 @@ def get_tf_gene_matches(dim: int, pathway_file: str, n_genes=20, n_tf=20):
         idx = pathways["TF"].apply(lambda g: g in motif.split("::"))
         links = pathways.loc[idx, "target"].to_list()
         if len(np.intersect1d(links, top_rna)) > 0:
+            print("motif", motif, "contains", ", ".join(np.intersect1d(links, top_rna)))
             list_motifs.append(motif)
+
+    print("\n\n")
 
     return list_motifs
 
@@ -674,8 +677,8 @@ compact_plot(
     contains=["NK"],
     contains_not=["TCELL", "BCELL", "MONO", "DC"],
     star_cell_types=["NK-cell"],
-    manual_stars=["CD11c", "KLRG1", "CD16"],
-    gs_stars=[0, 1, 2, 4, 5, 6, 7, 8, 13, 14],  # , 15, 18, 19]
+    manual_stars=["KLRG1", "CD16"],
+    gs_stars=[0, 1, 2, 4, 5, 7, 8, 13, 14, 15, 18],
     pathway_files=["natural_killer_cells.txt.gz"],
     axes=axes[0],
 )
@@ -687,7 +690,7 @@ compact_plot(
     star_cell_types=["naive B-cell"],
     manual_stars=[],
     pathway_files=["cd19+_b_cells.txt.gz"],
-    gs_stars=[0, 1, 2, 3, 4, 5, 9, 12, 14],  # , 16]
+    gs_stars=[0, 1, 2, 3, 4, 5, 9, 12, 14, 16],
     axes=axes[1],
 )
 
@@ -698,7 +701,7 @@ compact_plot(
     star_cell_types=["memory B-cell"],
     pathway_files=["cd19+_b_cells.txt.gz"],
     manual_stars=[],
-    gs_stars=[0, 1, 2, 4, 7, 9, 10, 11, 12, 13],
+    gs_stars=[0, 1, 2, 4, 7, 9, 11, 13, 18],
     axes=axes[2],
 )
 
@@ -708,10 +711,11 @@ compact_plot(
     contains_not=["CD4", "BCELL", "DC", "MONO"],
     star_cell_types=["memory CD8 T-cell"],
     manual_stars=[
+        "KLRG1",  # Because TEM
         "CD45RO",  # Because memory
         "TCR-a/b",  # Because CD8 T cell
     ],
-    gs_stars=[2, 4, 5, 6, 10, 12, 13, 14],  # , 15, 16, 18]
+    gs_stars=[0, 1, 2, 4, 5, 6, 10, 12, 13, 14, 15, 16, 18],
     pathway_files=["cd8+_t_cells.txt.gz"],
     axes=axes[3],
 )
