@@ -149,7 +149,7 @@ sc.pp.filter_genes(mdata['rna'], min_cells=1)
 sc.pp.filter_genes(mdata['atac'], min_cells=1)
 
 # Write simulated data
-mdata.write_h5mu(data_path + 'liu_simulated_1.h5mu.gz', compression='gzip')
+# mdata.write_h5mu(data_path + 'liu_simulated_1.h5mu.gz', compression='gzip')
 
 ################### SIMULATED DATA 2 : Mix in both omics ######################
 
@@ -176,7 +176,7 @@ sc.pp.filter_genes(mdata['rna'], min_cells=1)
 sc.pp.filter_genes(mdata['atac'], min_cells=1)
 
 # Write simulated data
-mdata.write_h5mu(data_path + 'liu_simulated_2.h5mu.gz', compression='gzip')
+# mdata.write_h5mu(data_path + 'liu_simulated_2.h5mu.gz', compression='gzip')
 
 #################### SIMULATED DATA 3 : Rare population #######################
 
@@ -199,7 +199,7 @@ sc.pp.filter_genes(mdata['rna'], min_cells=1)
 sc.pp.filter_genes(mdata['atac'], min_cells=1)
 
 # Write simulated data
-mdata.write_h5mu(data_path + 'liu_simulated_3.h5mu.gz', compression='gzip')
+# mdata.write_h5mu(data_path + 'liu_simulated_3.h5mu.gz', compression='gzip')
 
 ################### SIMULATED DATA 4 : Dropout noise ######################
 
@@ -230,7 +230,7 @@ sc.pp.filter_genes(mdata['rna'], min_cells=1)
 sc.pp.filter_genes(mdata['atac'], min_cells=1)
 
 # Write simulated data
-mdata.write_h5mu(data_path + 'liu_simulated_4.h5mu.gz', compression='gzip')
+# mdata.write_h5mu(data_path + 'liu_simulated_4.h5mu.gz', compression='gzip')
 
 ################### SIMULATED DATA 5 : Dropout noise ######################
 
@@ -261,7 +261,7 @@ sc.pp.filter_genes(mdata['rna'], min_cells=1)
 sc.pp.filter_genes(mdata['atac'], min_cells=1)
 
 # Write simulated data
-mdata.write_h5mu(data_path + 'liu_simulated_5.h5mu.gz', compression='gzip')
+# mdata.write_h5mu(data_path + 'liu_simulated_5.h5mu.gz', compression='gzip')
 
 ################### SIMULATED DATA 6 : Dropout noise ######################
 
@@ -292,4 +292,4 @@ sc.pp.filter_genes(mdata['rna'], min_cells=1)
 sc.pp.filter_genes(mdata['atac'], min_cells=1)
 
 # Write simulated data
-mdata.write_h5mu(data_path + 'liu_simulated_6.h5mu.gz', compression='gzip')
+# mdata.write_h5mu(data_path + 'liu_simulated_6.h5mu.gz', compression='gzip')

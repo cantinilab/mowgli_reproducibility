@@ -367,8 +367,6 @@ axes["mainplot_ax"].set_xticklabels(axes["mainplot_ax"].get_xticklabels(), rotat
 plt.savefig(fig_folder + "mowgli_tea_factors.pdf", bbox_inches="tight")
 plt.close()
 
-# TODO: Make a bubble plot of Mowgli's weights for each factor, CD4 vs other clusters
-
 
 # Make a matrixplot of ADT weights accross Mowgli's factors.
 adata = ad.AnnData(H_mowgli["H_adt"].copy())
@@ -599,8 +597,6 @@ axes["mainplot_ax"].set_xticklabels(axes["mainplot_ax"].get_xticklabels(), rotat
 plt.savefig(fig_folder + "mofa_tea_factors_neg.pdf", bbox_inches="tight")
 plt.close()
 
-# TODO: equal axis for bubble plots
-
 # TODO: adt pos makers flat and adt neg markers flat
 # TODO: standardize manually
 
@@ -818,21 +814,20 @@ for i, cluster in enumerate(
                 alpha=0.8,
             )
 
-    j = np.argmax((df["mean_cluster"] - df["mean_other"]) / df["mean_cluster"].max())
-    score = (df["mean_cluster"].iloc[j] - df["mean_other"].iloc[j]) / df[
-        "mean_cluster"
-    ].max()
-    axes[0, i].text(
-        df["mean_other"].iloc[j] + padding,
-        df["mean_cluster"].iloc[j],
-        f"score = {score:.2f}",
-        horizontalalignment="left",
-        verticalalignment="center",
-        size="medium",
-        color="black",
-        weight="semibold",
-        alpha=0.8,
-    )
+    scores = (df["mean_cluster"] - df["mean_other"]) / df["mean_cluster"].max()
+    for j, score in enumerate(scores):
+        if score > 0.6:
+            axes[0, i].text(
+                df["mean_other"].iloc[j] + padding,
+                df["mean_cluster"].iloc[j],
+                f"score = {score:.2f}",
+                horizontalalignment="left",
+                verticalalignment="center",
+                size="medium",
+                color="black",
+                weight="semibold",
+                alpha=0.8,
+            )
 
     if i < 6:
         axes[0, i].get_legend().remove()
@@ -957,21 +952,20 @@ for i, cluster in enumerate(
                 alpha=0.8,
             )
 
-    j = np.argmax((df["mean_cluster"] - df["mean_other"]) / df["mean_cluster"].max())
-    score = (df["mean_cluster"].iloc[j] - df["mean_other"].iloc[j]) / df[
-        "mean_cluster"
-    ].max()
-    axes[1, i].text(
-        df["mean_other"].iloc[j] + padding,
-        df["mean_cluster"].iloc[j],
-        f"score = {score:.2f}",
-        horizontalalignment="left",
-        verticalalignment="center",
-        size="medium",
-        color="black",
-        weight="semibold",
-        alpha=0.8,
-    )
+    scores = (df["mean_cluster"] - df["mean_other"]) / df["mean_cluster"].max()
+    for j, score in enumerate(scores):
+        if score > 0.6:
+            axes[1, i].text(
+                df["mean_other"].iloc[j] + padding,
+                df["mean_cluster"].iloc[j],
+                f"score = {score:.2f}",
+                horizontalalignment="left",
+                verticalalignment="center",
+                size="medium",
+                color="black",
+                weight="semibold",
+                alpha=0.8,
+            )
 
     if i > 0:
         axes[1, i].set_ylabel(None)

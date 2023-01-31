@@ -287,6 +287,8 @@ annot_azimuth = mdata.obs["predicted.celltype.l1"]
 annot_mofa = mdata.obs["annotation_mofa"]
 annot_mowgli = mdata.obs["annotation_mowgli"]
 
+print("Agreement between Mowgli and MOFA+:", np.mean(annot_mofa == annot_mowgli))
+
 categories_mowgli = np.sort(annot_mowgli.cat.categories).tolist()
 categories_azimuth = np.sort(annot_azimuth.cat.categories).tolist()
 categories_mofa = np.sort(annot_mofa.cat.categories).tolist()
@@ -345,7 +347,7 @@ adt_to_rna = {**adt_to_rna, "CD71": "TFRC", "CD95": "FAS", "KLRG1": "KLRG1"}
 ########################## Are top genes targets of top motifs? ##########################
 
 
-def get_tf_gene_matches(dim: int, pathway_file: str, n_genes=15, n_tf=20):
+def get_tf_gene_matches(dim: int, pathway_file: str, n_genes=20, n_tf=20):
 
     pathways = pd.read_csv(
         os.path.join(data_folder, "pathways/", pathway_file),
@@ -357,7 +359,7 @@ def get_tf_gene_matches(dim: int, pathway_file: str, n_genes=15, n_tf=20):
     idx = np.argsort(H_rna.X[:, dim])[::-1][:n_genes]
     top_rna = H_rna.obs_names[idx].to_list()
 
-    top_motifs = all_motifs[all_motifs["dim"] == dim].sort_values("pvalue")
+    top_motifs = all_motifs[all_motifs["dim"] == dim].sort_values("p.adjust")
     top_motifs = top_motifs.head(n_tf)["motif.name"].to_list()
 
     list_motifs = []
@@ -365,7 +367,7 @@ def get_tf_gene_matches(dim: int, pathway_file: str, n_genes=15, n_tf=20):
         idx = pathways["TF"].apply(lambda g: g in motif.split("::"))
         links = pathways.loc[idx, "target"].to_list()
         if len(np.intersect1d(links, top_rna)) > 0:
-            print("motif", motif, "contains", ", ".join(np.intersect1d(links, top_rna)))
+            print("the tf", motif, "targets", ", ".join(np.intersect1d(links, top_rna)))
             list_motifs.append(motif)
 
     print("\n\n")
@@ -564,7 +566,7 @@ def plot_gene_sets(enr, dim, contains, contains_not, n_gs, gs_stars, ax):
     idx_mf = enr["source"] == "go_mf"
     idx = (idx_immune | idx_azimuth | idx_bp | idx_cc | idx_mf) & (enr["dim"] == dim)
 
-    df = enr[idx].sort_values("minlogp", ascending=False)
+    df = enr[idx].sort_values("minlogp", ascending=False).copy()
 
     idx = df["source"] == "immune"
     df.loc[idx, "name"] = (
@@ -615,11 +617,13 @@ def plot_gene_sets(enr, dim, contains, contains_not, n_gs, gs_stars, ax):
 
 
 def plot_motifs(all_motifs, dim, n_motifs, pathway_files, ax):
-    df = all_motifs[all_motifs["dim"] == dim].sort_values("pvalue", ascending=True)
+    df = all_motifs[all_motifs["dim"] == dim].copy().sort_values("p.adjust", ascending=True)
     df = df.drop_duplicates("motif.name").head(n_motifs)
 
     for pathway_file in pathway_files:
+        print(pathway_file)
         list_motifs = get_tf_gene_matches(dim, pathway_file)
+        print(len(list_motifs))
         for motif in list_motifs:
             df.loc[df["motif.name"] == motif, "motif.name"] = f"* {motif}"
 
@@ -741,7 +745,7 @@ colors = [
     (3, "adt:CD304", "B"),  # DC
     (8, "adt:CD45RA", "CD4"),  # Naive CD4
     (9, "adt:TCR-Va7.2", "MAIT"),  # MAIT T
-    (16, "adt:CD127", "CD8"),  # CD8 T
+    (16, "adt:CD27", "CD8"),  # CD8 T
     (32, "adt:CD14", "Mono"),  # Classical mono
     (34, "adt:CD16", "Mono"),  # Non calssical mono
     (15, "adt:FceRI", "Mono"),  # DC

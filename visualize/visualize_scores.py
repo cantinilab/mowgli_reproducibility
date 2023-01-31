@@ -72,8 +72,8 @@ for x in map_dict:
     scores_df.loc[idx, "Dataset"] = map_dict[x]
 
 # Add a column for the latent dimension.
-# Careful, "5" is included in "50".
-for x in ["5", "15", "30", "50"]:
+# Careful, "5" is included in "50", but since 50 come later, this is corrected.
+for x in ["5", "15", "30", "50", "100"]:
     idx = scores_df.index.to_series().str.contains(x)
     scores_df.loc[idx, "Latent dimension"] = x
 
@@ -127,8 +127,7 @@ for xp_name in scores_df.index:
 purity_res = pd.DataFrame(purity_res)
 
 
-def plot_scores_dim_simulated(palette, method, path):
-
+def plot_scores_dim_simulated(palette, method, path, hue_order=["5", "15", "30", "50"]):
     # Define the datasets.
     datasets = [f"Simulated {i}" for i in range(1, 7)]
 
@@ -158,7 +157,7 @@ def plot_scores_dim_simulated(palette, method, path):
         y="Dataset",
         x="Silhouette score",
         hue="Latent dimension",
-        hue_order=["5", "15", "30", "50"],
+        hue_order=hue_order,
         palette=palette,
         order=datasets,
         ax=axes["A"],
@@ -183,7 +182,7 @@ def plot_scores_dim_simulated(palette, method, path):
             x="Resolution",
             y="ARI",
             hue="Latent dimension",
-            hue_order=["5", "15", "30", "50"],
+            hue_order=hue_order,
             palette=palette,
             ax=ax,
         )
@@ -206,7 +205,7 @@ def plot_scores_dim_simulated(palette, method, path):
             x="k",
             y="Purity score",
             hue="Latent dimension",
-            hue_order=["5", "15", "30", "50"],
+            hue_order=hue_order,
             palette=palette,
             ax=ax,
         )
@@ -224,7 +223,7 @@ def plot_scores_dim_simulated(palette, method, path):
     fig.savefig(path)
 
 
-def plot_scores_dim_real(palette, method, path):
+def plot_scores_dim_real(palette, method, path, hue_order=["5", "15", "30", "50"]):
 
     # Define the datasets.
     datasets = [
@@ -260,7 +259,7 @@ def plot_scores_dim_real(palette, method, path):
         y="Dataset",
         x="Silhouette score",
         hue="Latent dimension",
-        hue_order=["5", "15", "30", "50"],
+        hue_order=hue_order,
         palette=palette,
         order=datasets,
         ax=axes["A"],
@@ -283,7 +282,7 @@ def plot_scores_dim_real(palette, method, path):
             x="Resolution",
             y="ARI",
             hue="Latent dimension",
-            hue_order=["5", "15", "30", "50"],
+            hue_order=hue_order,
             palette=palette,
             ax=ax,
         )
@@ -304,7 +303,7 @@ def plot_scores_dim_real(palette, method, path):
             x="k",
             y="Purity score",
             hue="Latent dimension",
-            hue_order=["5", "15", "30", "50"],
+            hue_order=hue_order,
             palette=palette,
             ax=ax,
         )
@@ -669,8 +668,8 @@ def plot_scores_selected_real(path):
 
 # Plot the scores for Mowgli for simulated data, per dimension.
 path = "/users/csb/huizing/Documents/PhD/Code/mowgli_reproducibility/visualize/figures/scores_dim_simulated_mowgli.pdf"
-palette = sns.color_palette("flare", n_colors=4)
-plot_scores_dim_simulated(palette, "Mowgli", path)
+palette = sns.color_palette("flare", n_colors=5)
+plot_scores_dim_simulated(palette, "Mowgli", path, hue_order=["5", "15", "30", "50", "100"])
 
 # Plot the scores for MOFA+ for simulated data, per dimension.
 path = "/users/csb/huizing/Documents/PhD/Code/mowgli_reproducibility/visualize/figures/scores_dim_simulated_mofa.pdf"
@@ -684,8 +683,8 @@ plot_scores_dim_simulated(palette, "NMF", path)
 
 # Plot the scores for Mowgli for real data, per dimension.
 path = "/users/csb/huizing/Documents/PhD/Code/mowgli_reproducibility/visualize/figures/scores_dim_real_mowgli.pdf"
-palette = sns.color_palette("flare", n_colors=4)
-plot_scores_dim_real(palette, "Mowgli", path)
+palette = sns.color_palette("flare", n_colors=5)
+plot_scores_dim_real(palette, "Mowgli", path, hue_order=["5", "15", "30", "50", "100"])
 
 # Plot the scores for MOFA+ for real data, per dimension.
 path = "/users/csb/huizing/Documents/PhD/Code/mowgli_reproducibility/visualize/figures/scores_dim_real_mofa.pdf"
