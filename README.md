@@ -9,7 +9,7 @@ This is the code used to perform the experiments and generate the figures in our
 ## Code structure
 
 
-- `enrich` contains the code for the enirchment analysis
+- `enrich` contains the code for the enrichment analysis
 - `evaluate` contains the code for computing the various evaluation metrics
 - `integrate` contains the code used to perform the integration with Mowgli, MOF+, Seurat and integrative NMF
 - `preprocess` contains the preprocessing code
