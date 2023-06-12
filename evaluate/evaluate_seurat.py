@@ -1,112 +1,49 @@
-######################################## IMPORTS #########################################
-
-# Load libraries.
-import muon as mu
-from rich.console import Console
-import os
-import numpy as np
-from mowgli import score
-import pickle
-import pandas as pd
-
-console = Console()
-
-# Define the data and figure folder.
-data_folder = "/users/csb/huizing/Documents/PhD/Code/mowgli_reproducibility/data/"
-
-# Define data paths for different datasets.
-data_path = {
-    # "bmcite_seurat": data_folder + "BMCITE/bmcite_preprocessed.h5mu.gz",
-    # "liu_seurat": data_folder + "Liu/liu_preprocessed.h5mu.gz",
-    # "sim1_seurat": data_folder + "Liu/liu_simulated_1.h5mu.gz",
-    # "sim2_seurat": data_folder + "Liu/liu_simulated_2.h5mu.gz",
-    # "sim3_seurat": data_folder + "Liu/liu_simulated_3.h5mu.gz",
-    "sim4_seurat": data_folder + "Liu/liu_simulated_4.h5mu.gz",
-    "sim5_seurat": data_folder + "Liu/liu_simulated_5.h5mu.gz",
-    "sim6_seurat": data_folder + "Liu/liu_simulated_6.h5mu.gz",
-    # "opcite_seurat": data_folder + "OPCITE/opcite_preprocessed.h5mu.gz",
-    # "opmultiome_seurat": data_folder + "OP_multiome/opmultiome_preprocessed.h5mu.gz",
-    # "pbmc_seurat": data_folder + "10X_PBMC_10k/pbmc_preprocessed.h5mu.gz",
-    # "tea_seurat": data_folder + "TEA/tea_preprocessed.h5mu.gz",
-}
-
-seurat_path = {
-    # "bmcite_seurat": data_folder + "BMCITE/bmcite_seurat",
-    # "liu_seurat": data_folder + "Liu/liu_seurat",
-    # "sim1_seurat": data_folder + "Liu/liu_simulated_1_seurat",
-    # "sim2_seurat": data_folder + "Liu/liu_simulated_2_seurat",
-    # "sim3_seurat": data_folder + "Liu/liu_simulated_3_seurat",
-    "sim4_seurat": data_folder + "Liu/liu_simulated_4_seurat",
-    "sim5_seurat": data_folder + "Liu/liu_simulated_5_seurat",
-    "sim6_seurat": data_folder + "Liu/liu_simulated_6_seurat",
-    # "opcite_seurat": data_folder + "OPCITE/opcite_seurat",
-    # "opmultiome_seurat": data_folder + "OP_multiome/opmultiome_seurat",
-    # "pbmc_seurat": data_folder + "10X_PBMC_10k/pbmc_seurat",
-    # "tea_seurat": data_folder + "TEA/tea_seurat",
-}
-
-# Define the path where to save the results.
-res_path = os.path.join(
-    "/users/csb/huizing/Documents/PhD/Code/",
-    "mowgli_reproducibility/evaluate/scores_seurat.pkl",
-)
-
-###################################### JACCARD THING #####################################
+import hydra
+from omegaconf import DictConfig
 
 
-# Define the Jaccard index.
-def jaccard(a, b):
-    inter = len(np.intersect1d(a, b))
-    return inter / (len(a) + len(b) - inter)
+@hydra.main(version_base=None, config_path="../conf", config_name="config")
+def my_app(cfg: DictConfig) -> None:
 
+    ######################################## IMPORTS #########################################
 
-# Function reweighting Scanpy's kNN based on the Jaccard index.
-def jaccard_denoising(adata):
+    # Load libraries.
+    import pickle
 
-    # Iterate over all cells.
-    for i in range(adata.n_obs):
+    import muon as mu
+    import numpy as np
+    import pandas as pd
+    from mowgli import score
+    from rich.console import Console
 
-        # Get nearest neighbors of cell i.
-        _, idx_i = adata.obsp["distances"][i].nonzero()
+    console = Console()
 
-        # Iterate over the nearest neighbors.
-        for j in idx_i:
+    # Define the path where to save the results.
+    res_path = cfg.evaluate_path + "scores_seurat.pkl"
 
-            # Get the nearest neighbors of cell j.
-            _, idx_j = adata.obsp["distances"][j].nonzero()
+    ################################# EVALUATING SEURAT ########################################
 
-            # Compute the Jaccard index.
-            d = jaccard(idx_i, idx_j)
+    with console.status("[bold green]Evaluating Seurat..."):
 
-            # Reweight the kNN.
-            adata.obsp["connectivities"][i, j] = d
-            adata.obsp["connectivities"][j, i] = d
+        # Intialize a dictionary for the scores.
+        scores_dict = {}
+        try:
+            with open(res_path, "rb") as f:
+                scores_dict = pickle.load(f)
+        except Exception as e:
+            print(e)
 
+        # Set the range of nearest neighbors.
+        k_range = list(range(1, 30))
 
-################################# EVALUATING SEURAT ########################################
+        # Set the range of resulotions.
+        res_range = list(np.arange(0.1, 2.1, 0.1))
 
-with console.status("[bold green]Evaluating Seurat...") as status:
-
-    # Intialize a dictionary for the scores.
-    scores_dict = {}
-    with open(res_path, "rb") as f:
-        scores_dict = pickle.load(f)
-
-    # Set the range of nearest neighbors.
-    k_range = list(range(1, 30))
-
-    # Set the range of resulotions.
-    res_range = list(np.arange(0.1, 2.1, 0.1))
-
-    previous_path = ""
-
-    for xp_name in data_path:
+        xp_name = f"{cfg.dataset.save_to_prefix}_seurat"
 
         # Load the data.
         console.log(f"Loading data for {xp_name} [bold green]")
-        if previous_path != data_path[xp_name]:
-            mdata = mu.read_h5mu(data_path[xp_name])
-            previous_path = data_path[xp_name]
+        mdata = mu.read_h5mu(cfg.data_path + cfg.dataset.dataset_path)
         console.log("Data loaded.")
 
         # Initialise scores for this experiment.
@@ -116,7 +53,8 @@ with console.status("[bold green]Evaluating Seurat...") as status:
         console.log(f"Starting to compute scores for {xp_name} [bold green]")
 
         # Load the seurat knn.
-        knn = pd.read_csv(seurat_path[xp_name] + "_knn.csv", index_col=0).to_numpy() - 1
+        seurat_path = cfg.data_path + xp_name
+        knn = pd.read_csv(seurat_path + "_knn.csv", index_col=0).to_numpy() - 1
         mdata.uns = {}
 
         console.log("Loaded the knn [bold green]")
@@ -138,7 +76,7 @@ with console.status("[bold green]Evaluating Seurat...") as status:
         console.log("Computed the purity scores. Phew! [bold green]")
 
         # Load the clustering.
-        leiden = pd.read_csv(seurat_path[xp_name] + "_clustering.csv", index_col=0).to_numpy()
+        leiden = pd.read_csv(seurat_path + "_clustering.csv", index_col=0).to_numpy()
 
         # Compute the ARI for varying resolutions of Leiden clustering.
         aris = []
@@ -155,9 +93,12 @@ with console.status("[bold green]Evaluating Seurat...") as status:
 
         console.log("Computed the ARIs. Phew! [bold green]")
 
+        # Save the results.
+        with open(res_path, "wb") as f:
+            pickle.dump(scores_dict, f)
 
-    # Save the results.
-    with open(res_path, "wb") as f:
-        pickle.dump(scores_dict, f)
+        console.log("Saved all of this! [bold green]")
 
-    console.log("Saved all of this! [bold green]")
+
+if __name__ == "__main__":
+    my_app()
