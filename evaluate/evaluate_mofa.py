@@ -1,176 +1,56 @@
-######################################## IMPORTS #########################################
-
-# Load libraries.
-import scanpy as sc
-import muon as mu
-from rich.console import Console
-import os
-import numpy as np
-from mowgli import score
-import mofax
-import pickle
-
-console = Console()
+import hydra
+from omegaconf import DictConfig
 
 
-# Define the data and figure folder.
-data_folder = "/users/csb/huizing/Documents/PhD/Code/mowgli_reproducibility/data/"
+@hydra.main(version_base=None, config_path="../conf", config_name="config")
+def my_app(cfg: DictConfig) -> None:
+    ######################################## IMPORTS #########################################
 
-# Define the path where to save the results.
-res_path = os.path.join(
-    "/users/csb/huizing/Documents/PhD/Code/",
-    "mowgli_reproducibility/evaluate/scores_mofa.pkl",
-)
+    # Load libraries.
+    import os
+    import pickle
 
-# Define data paths for different datasets.
-data_path = {
-    # "bmcite_mofa_15": data_folder + "BMCITE/bmcite_preprocessed.h5mu.gz",
-    # "bmcite_mofa_30": data_folder + "BMCITE/bmcite_preprocessed.h5mu.gz",
-    # "bmcite_mofa_50": data_folder + "BMCITE/bmcite_preprocessed.h5mu.gz",
-    # "liu_mofa_5": data_folder + "Liu/liu_preprocessed.h5mu.gz",
-    # "liu_mofa_15": data_folder + "Liu/liu_preprocessed.h5mu.gz",
-    # "liu_mofa_30": data_folder + "Liu/liu_preprocessed.h5mu.gz",
-    # "liu_mofa_50": data_folder + "Liu/liu_preprocessed.h5mu.gz",
-    "sim1_mofa_5": data_folder + "Liu/liu_simulated_1.h5mu.gz",
-    "sim1_mofa_15": data_folder + "Liu/liu_simulated_1.h5mu.gz",
-    "sim1_mofa_30": data_folder + "Liu/liu_simulated_1.h5mu.gz",
-    "sim1_mofa_50": data_folder + "Liu/liu_simulated_1.h5mu.gz",
-    "sim2_mofa_5": data_folder + "Liu/liu_simulated_2.h5mu.gz",
-    "sim2_mofa_15": data_folder + "Liu/liu_simulated_2.h5mu.gz",
-    "sim2_mofa_30": data_folder + "Liu/liu_simulated_2.h5mu.gz",
-    "sim2_mofa_50": data_folder + "Liu/liu_simulated_2.h5mu.gz",
-    "sim3_mofa_5": data_folder + "Liu/liu_simulated_3.h5mu.gz",
-    "sim3_mofa_15": data_folder + "Liu/liu_simulated_3.h5mu.gz",
-    "sim3_mofa_30": data_folder + "Liu/liu_simulated_3.h5mu.gz",
-    "sim3_mofa_50": data_folder + "Liu/liu_simulated_3.h5mu.gz",
-    "sim4_mofa_5": data_folder + "Liu/liu_simulated_4.h5mu.gz",
-    "sim4_mofa_15": data_folder + "Liu/liu_simulated_4.h5mu.gz",
-    "sim4_mofa_30": data_folder + "Liu/liu_simulated_4.h5mu.gz",
-    "sim4_mofa_50": data_folder + "Liu/liu_simulated_4.h5mu.gz",
-    "sim5_mofa_5": data_folder + "Liu/liu_simulated_5.h5mu.gz",
-    "sim5_mofa_15": data_folder + "Liu/liu_simulated_5.h5mu.gz",
-    "sim5_mofa_30": data_folder + "Liu/liu_simulated_5.h5mu.gz",
-    "sim5_mofa_50": data_folder + "Liu/liu_simulated_5.h5mu.gz",
-    "sim6_mofa_5": data_folder + "Liu/liu_simulated_6.h5mu.gz",
-    "sim6_mofa_15": data_folder + "Liu/liu_simulated_6.h5mu.gz",
-    "sim6_mofa_30": data_folder + "Liu/liu_simulated_6.h5mu.gz",
-    "sim6_mofa_50": data_folder + "Liu/liu_simulated_6.h5mu.gz",
-    # "opcite_mofa_15": data_folder + "OPCITE/opcite_preprocessed.h5mu.gz",
-    # "opcite_mofa_30": data_folder + "OPCITE/opcite_preprocessed.h5mu.gz",
-    # "opcite_mofa_50": data_folder + "OPCITE/opcite_preprocessed.h5mu.gz",
-    # "opmultiome_mofa_15": data_folder + "OP_multiome/opmultiome_preprocessed.h5mu.gz",
-    # "opmultiome_mofa_30": data_folder + "OP_multiome/opmultiome_preprocessed.h5mu.gz",
-    # "opmultiome_mofa_50": data_folder + "OP_multiome/opmultiome_preprocessed.h5mu.gz",
-    # "pbmc_mofa_15": data_folder + "10X_PBMC_10k/pbmc_preprocessed.h5mu.gz",
-    # "pbmc_mofa_30": data_folder + "10X_PBMC_10k/pbmc_preprocessed.h5mu.gz",
-    # "pbmc_mofa_50": data_folder + "10X_PBMC_10k/pbmc_preprocessed.h5mu.gz",
-    # "tea_mofa_15": data_folder + "TEA/tea_preprocessed.h5mu.gz",
-    # "tea_mofa_30": data_folder + "TEA/tea_preprocessed.h5mu.gz",
-    # "tea_mofa_50": data_folder + "TEA/tea_preprocessed.h5mu.gz",
-}
+    import muon as mu
+    import numpy as np
+    import scanpy as sc
+    from mowgli import score
+    from rich.console import Console
 
-mofa_path = {
-    # "bmcite_mofa_15": data_folder + "BMCITE/bmcite_mofa_15.hdf5",
-    # "bmcite_mofa_30": data_folder + "BMCITE/bmcite_mofa_30.hdf5",
-    # "bmcite_mofa_50": data_folder + "BMCITE/bmcite_mofa_50.hdf5",
-    # "liu_mofa_5": data_folder + "Liu/liu_mofa_5.hdf5",
-    # "liu_mofa_15": data_folder + "Liu/liu_mofa_15.hdf5",
-    # "liu_mofa_30": data_folder + "Liu/liu_mofa_30.hdf5",
-    # "liu_mofa_50": data_folder + "Liu/liu_mofa_50.hdf5",
-    "sim1_mofa_5": data_folder + "Liu/liu_simulated_1_mofa_5.hdf5",
-    "sim1_mofa_15": data_folder + "Liu/liu_simulated_1_mofa_15.hdf5",
-    "sim1_mofa_30": data_folder + "Liu/liu_simulated_1_mofa_30.hdf5",
-    "sim1_mofa_50": data_folder + "Liu/liu_simulated_1_mofa_50.hdf5",
-    "sim2_mofa_5": data_folder + "Liu/liu_simulated_2_mofa_5.hdf5",
-    "sim2_mofa_15": data_folder + "Liu/liu_simulated_2_mofa_15.hdf5",
-    "sim2_mofa_30": data_folder + "Liu/liu_simulated_2_mofa_30.hdf5",
-    "sim2_mofa_50": data_folder + "Liu/liu_simulated_2_mofa_50.hdf5",
-    "sim3_mofa_5": data_folder + "Liu/liu_simulated_3_mofa_5.hdf5",
-    "sim3_mofa_15": data_folder + "Liu/liu_simulated_3_mofa_15.hdf5",
-    "sim3_mofa_30": data_folder + "Liu/liu_simulated_3_mofa_30.hdf5",
-    "sim3_mofa_50": data_folder + "Liu/liu_simulated_3_mofa_50.hdf5",
-    "sim4_mofa_5": data_folder + "Liu/liu_simulated_4_mofa_5.hdf5",
-    "sim4_mofa_15": data_folder + "Liu/liu_simulated_4_mofa_15.hdf5",
-    "sim4_mofa_30": data_folder + "Liu/liu_simulated_4_mofa_30.hdf5",
-    "sim4_mofa_50": data_folder + "Liu/liu_simulated_4_mofa_50.hdf5",
-    "sim5_mofa_5": data_folder + "Liu/liu_simulated_5_mofa_5.hdf5",
-    "sim5_mofa_15": data_folder + "Liu/liu_simulated_5_mofa_15.hdf5",
-    "sim5_mofa_30": data_folder + "Liu/liu_simulated_5_mofa_30.hdf5",
-    "sim5_mofa_50": data_folder + "Liu/liu_simulated_5_mofa_50.hdf5",
-    "sim6_mofa_5": data_folder + "Liu/liu_simulated_6_mofa_5.hdf5",
-    "sim6_mofa_15": data_folder + "Liu/liu_simulated_6_mofa_15.hdf5",
-    "sim6_mofa_30": data_folder + "Liu/liu_simulated_6_mofa_30.hdf5",
-    "sim6_mofa_50": data_folder + "Liu/liu_simulated_6_mofa_50.hdf5",
-    # "opcite_mofa_15": data_folder + "OPCITE/opcite_mofa_15.hdf5",
-    # "opcite_mofa_30": data_folder + "OPCITE/opcite_mofa_30.hdf5",
-    # "opcite_mofa_50": data_folder + "OPCITE/opcite_mofa_50.hdf5",
-    # "opmultiome_mofa_15": data_folder + "OP_multiome/opmultiome_mofa_15.hdf5",
-    # "opmultiome_mofa_30": data_folder + "OP_multiome/opmultiome_mofa_30.hdf5",
-    # "opmultiome_mofa_50": data_folder + "OP_multiome/opmultiome_mofa_50.hdf5",
-    # "pbmc_mofa_15": data_folder + "10X_PBMC_10k/pbmc_mofa_15.hdf5",
-    # "pbmc_mofa_30": data_folder + "10X_PBMC_10k/pbmc_mofa_30.hdf5",
-    # "pbmc_mofa_50": data_folder + "10X_PBMC_10k/pbmc_mofa_50.hdf5",
-    # "tea_mofa_15": data_folder + "TEA/tea_mofa_15.hdf5",
-    # "tea_mofa_30": data_folder + "TEA/tea_mofa_30.hdf5",
-    # "tea_mofa_50": data_folder + "TEA/tea_mofa_50.hdf5",
-}
+    import mofax
 
-###################################### JACCARD THING #####################################
+    console = Console()
+
+    # Define the path where to save the results.
+    res_path = cfg.evaluate_path + "scores_mofa.pkl"
 
 
-# Define the Jaccard index.
-def jaccard(a, b):
-    inter = len(np.intersect1d(a, b))
-    return inter / (len(a) + len(b) - inter)
+    ################################# EVALUATING MOFA ########################################
 
+    with console.status("[bold green]Evaluating MOFA..."):
 
-# Function reweighting Scanpy's kNN based on the Jaccard index.
-def jaccard_denoising(adata):
+        # Intialize a dictionary for the scores.
+        scores_dict = {}
+        try:
+            with open(res_path, "rb") as f:
+                scores_dict = pickle.load(f)
+        except Exception as e:
+            print(e)
 
-    # Iterate over all cells.
-    for i in range(adata.n_obs):
+        # Set the range of nearest neighbors.
+        k_range = list(range(1, 30))
 
-        # Get nearest neighbors of cell i.
-        _, idx_i = adata.obsp["distances"][i].nonzero()
+        # Set the range of resulotions.
+        res_range = list(np.arange(0.1, 2, 0.1))
 
-        # Iterate over the nearest neighbors.
-        for j in idx_i:
+        # Define the experiment name.
+        xp_name = f"{cfg.dataset.save_to_prefix}_mofa_{cfg.latent_dim}"
 
-            # Get the nearest neighbors of cell j.
-            _, idx_j = adata.obsp["distances"][j].nonzero()
-
-            # Compute the Jaccard index.
-            d = jaccard(idx_i, idx_j)
-
-            # Reweight the kNN.
-            adata.obsp["connectivities"][i, j] = d
-            adata.obsp["connectivities"][j, i] = d
-
-
-################################# EVALUATING MOFA ########################################
-
-with console.status("[bold green]Evaluating MOFA...") as status:
-
-    # Intialize a dictionary for the scores.
-    scores_dict = {}
-    with open(res_path, "rb") as f:
-        scores_dict = pickle.load(f)
-
-    # Set the range of nearest neighbors.
-    k_range = list(range(1, 30))
-
-    # Set the range of resulotions.
-    res_range = list(np.arange(0.1, 2, 0.1))
-
-    previous_path = ""
-
-    for xp_name in data_path:
+        # Initialise scores for this experiment.
+        scores_dict[xp_name] = {}
 
         # Load the data.
         console.log(f"Loading data for {xp_name} [bold green]")
-        if previous_path != data_path[xp_name]:
-            mdata = mu.read_h5mu(data_path[xp_name])
-            previous_path = data_path[xp_name]
+        mdata = mu.read_h5mu(cfg.data_path + cfg.dataset.dataset_path)
         console.log("Data loaded.")
 
         # Initialise scores for this experiment.
@@ -180,7 +60,7 @@ with console.status("[bold green]Evaluating MOFA...") as status:
         console.log(f"Starting to compute scores for {xp_name} [bold green]")
 
         # Load the mofa embedding.
-        mofa_object = mofax.mofa_model(mofa_path[xp_name])
+        mofa_object = mofax.mofa_model(cfg.data_path + xp_name + ".hdf5")
         mdata.obsm["X_mofa"] = mofa_object.get_factors()
         mdata.uns = {}
 
@@ -232,28 +112,12 @@ with console.status("[bold green]Evaluating MOFA...") as status:
 
         console.log("Computed the ARIs. Phew! [bold green]")
 
-        # Try jaccard smoothing.
-        jaccard_denoising(mdata)
 
-        sc.tl.leiden(mdata)
-        jaccard_aris = []
-        for res in res_range:
+        # Save the results.
+        with open(res_path, "wb") as f:
+            pickle.dump(scores_dict, f)
 
-            # Log the value of resolution.
-            console.log(f"Computing ARI for resolution={res} [bold green]")
+        console.log("Saved all of this! [bold green]")
 
-            # Compute the ARI.
-            sc.tl.leiden(mdata, resolution=res)
-            s = score.ARI(mdata.obs["rna:celltype"], mdata.obs["leiden"])
-            jaccard_aris.append(s)
-
-        scores_dict[xp_name]["ARIs after denoising"] = jaccard_aris
-
-        console.log("Computed the ARIs after denoising. Phew! [bold green]")
-
-
-    # Save the results.
-    with open(res_path, "wb") as f:
-        pickle.dump(scores_dict, f)
-
-    console.log("Saved all of this! [bold green]")
+if __name__ == "__main__":
+    my_app()

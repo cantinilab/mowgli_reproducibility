@@ -1,224 +1,74 @@
-######################################## IMPORTS #########################################
-
-# Load libraries.
-import scanpy as sc
-import muon as mu
-from rich.console import Console
-import os
-import numpy as np
-from mowgli import score
-import pickle
-import sys
-
-# Define the data and figure folder.
-data_folder = "/users/csb/huizing/Documents/PhD/Code/mowgli_reproducibility/data/"
-res_folder = "/users/csb/huizing/Documents/PhD/Code/Mowgli/local_analysis/from_jz/w/"
-
-# Define data paths for different datasets.
-data_path = {
-    "liu_mowgli_cosine_5": data_folder + "Liu/liu_preprocessed.h5mu.gz",
-    "liu_mowgli_cosine_15": data_folder + "Liu/liu_preprocessed.h5mu.gz",
-    "liu_mowgli_cosine_30": data_folder + "Liu/liu_preprocessed.h5mu.gz",
-    "liu_mowgli_cosine_50": data_folder + "Liu/liu_preprocessed.h5mu.gz",
-    "liu_mowgli_cosine_100": data_folder + "Liu/liu_preprocessed.h5mu.gz",
-    
-    "sim1_mowgli_cosine_5": data_folder + "Liu/liu_simulated_1.h5mu.gz",
-    "sim1_mowgli_cosine_15": data_folder + "Liu/liu_simulated_1.h5mu.gz",
-    "sim1_mowgli_cosine_30": data_folder + "Liu/liu_simulated_1.h5mu.gz",
-    "sim1_mowgli_cosine_50": data_folder + "Liu/liu_simulated_1.h5mu.gz",
-    "sim1_mowgli_cosine_100": data_folder + "Liu/liu_simulated_1.h5mu.gz",
-
-    "sim2_mowgli_cosine_5": data_folder + "Liu/liu_simulated_2.h5mu.gz",
-    "sim2_mowgli_cosine_15": data_folder + "Liu/liu_simulated_2.h5mu.gz",
-    "sim2_mowgli_cosine_30": data_folder + "Liu/liu_simulated_2.h5mu.gz",
-    "sim2_mowgli_cosine_50": data_folder + "Liu/liu_simulated_2.h5mu.gz",
-    "sim2_mowgli_cosine_100": data_folder + "Liu/liu_simulated_2.h5mu.gz",
-
-    "sim3_mowgli_cosine_5": data_folder + "Liu/liu_simulated_3.h5mu.gz",
-    "sim3_mowgli_cosine_15": data_folder + "Liu/liu_simulated_3.h5mu.gz",
-    "sim3_mowgli_cosine_30": data_folder + "Liu/liu_simulated_3.h5mu.gz",
-    "sim3_mowgli_cosine_50": data_folder + "Liu/liu_simulated_3.h5mu.gz",
-    "sim3_mowgli_cosine_100": data_folder + "Liu/liu_simulated_3.h5mu.gz",
-
-    "sim4_mowgli_cosine_5": data_folder + "Liu/liu_simulated_4.h5mu.gz",
-    "sim4_mowgli_cosine_15": data_folder + "Liu/liu_simulated_4.h5mu.gz",
-    "sim4_mowgli_cosine_30": data_folder + "Liu/liu_simulated_4.h5mu.gz",
-    "sim4_mowgli_cosine_50": data_folder + "Liu/liu_simulated_4.h5mu.gz",
-    "sim4_mowgli_cosine_100": data_folder + "Liu/liu_simulated_4.h5mu.gz",
-
-    "sim5_mowgli_cosine_5": data_folder + "Liu/liu_simulated_5.h5mu.gz",
-    "sim5_mowgli_cosine_15": data_folder + "Liu/liu_simulated_5.h5mu.gz",
-    "sim5_mowgli_cosine_30": data_folder + "Liu/liu_simulated_5.h5mu.gz",
-    "sim5_mowgli_cosine_50": data_folder + "Liu/liu_simulated_5.h5mu.gz",
-    "sim5_mowgli_cosine_100": data_folder + "Liu/liu_simulated_5.h5mu.gz",
-
-    "sim6_mowgli_cosine_5": data_folder + "Liu/liu_simulated_6.h5mu.gz",
-    "sim6_mowgli_cosine_15": data_folder + "Liu/liu_simulated_6.h5mu.gz",
-    "sim6_mowgli_cosine_30": data_folder + "Liu/liu_simulated_6.h5mu.gz",
-    "sim6_mowgli_cosine_50": data_folder + "Liu/liu_simulated_6.h5mu.gz",
-    "sim6_mowgli_cosine_100": data_folder + "Liu/liu_simulated_6.h5mu.gz",
-
-    "pbmc_mowgli_cosine_15": data_folder + "10X_PBMC_10k/pbmc_preprocessed.h5mu.gz",
-    "pbmc_mowgli_cosine_30": data_folder + "10X_PBMC_10k/pbmc_preprocessed.h5mu.gz",
-    "pbmc_mowgli_cosine_50": data_folder + "10X_PBMC_10k/pbmc_preprocessed.h5mu.gz",
-    "pbmc_mowgli_cosine_100": data_folder + "10X_PBMC_10k/pbmc_preprocessed.h5mu.gz",
-
-    "opmultiome_mowgli_cosine_15": data_folder + "OP_multiome/opmultiome_preprocessed.h5mu.gz",
-    "opmultiome_mowgli_cosine_30": data_folder + "OP_multiome/opmultiome_preprocessed.h5mu.gz",
-    "opmultiome_mowgli_cosine_50": data_folder + "OP_multiome/opmultiome_preprocessed.h5mu.gz",
-    "opmultiome_mowgli_cosine_100": data_folder + "OP_multiome/opmultiome_preprocessed.h5mu.gz",
-
-    "opcite_mowgli_cosine_15": data_folder + "OPCITE/opcite_preprocessed.h5mu.gz",
-    "opcite_mowgli_cosine_30": data_folder + "OPCITE/opcite_preprocessed.h5mu.gz",
-    "opcite_mowgli_cosine_50": data_folder + "OPCITE/opcite_preprocessed.h5mu.gz",
-    "opcite_mowgli_cosine_100": data_folder + "OPCITE/opcite_preprocessed.h5mu.gz",
-
-    "bmcite_mowgli_cosine_15": data_folder + "BMCITE/bmcite_preprocessed.h5mu.gz",
-    "bmcite_mowgli_cosine_30": data_folder + "BMCITE/bmcite_preprocessed.h5mu.gz",
-    "bmcite_mowgli_cosine_50": data_folder + "BMCITE/bmcite_preprocessed.h5mu.gz",
-    "bmcite_mowgli_cosine_100": data_folder + "BMCITE/bmcite_preprocessed.h5mu.gz",
-}
-
-mowgli_path = {
-    "liu_mowgli_cosine_5": res_folder + "liu_mowgli_cosine_5_0_1_rna_0_01_atac_0_1_adt_0_01_0_001.npy",
-    "liu_mowgli_cosine_15": res_folder + "liu_mowgli_cosine_15_0_1_rna_0_01_atac_0_1_adt_0_01_0_001.npy",
-    "liu_mowgli_cosine_30": res_folder + "liu_mowgli_cosine_30_0_1_rna_0_01_atac_0_1_adt_0_01_0_001.npy",
-    "liu_mowgli_cosine_50": res_folder + "liu_mowgli_cosine_50_0_1_rna_0_01_atac_0_1_adt_0_01_0_001.npy",
-    "liu_mowgli_cosine_100": res_folder + "liu_mowgli_cosine_100_0_1_rna_0_01_atac_0_1_adt_0_01_0_001.npy",
-    
-    "sim1_mowgli_cosine_5": res_folder + "liu_sim_1_mowgli_cosine_5_0_1_rna_0_01_atac_0_1_adt_0_01_0_001.npy",
-    "sim1_mowgli_cosine_15": res_folder + "liu_sim_1_mowgli_cosine_15_0_1_rna_0_01_atac_0_1_adt_0_01_0_001.npy",
-    "sim1_mowgli_cosine_30": res_folder + "liu_sim_1_mowgli_cosine_30_0_1_rna_0_01_atac_0_1_adt_0_01_0_001.npy",
-    "sim1_mowgli_cosine_50": res_folder + "liu_sim_1_mowgli_cosine_50_0_1_rna_0_01_atac_0_1_adt_0_01_0_001.npy",
-    "sim1_mowgli_cosine_100": res_folder + "liu_sim_1_mowgli_cosine_100_0_1_rna_0_01_atac_0_1_adt_0_01_0_001.npy",
-
-    "sim2_mowgli_cosine_5": res_folder + "liu_sim_2_mowgli_cosine_5_0_1_rna_0_01_atac_0_1_adt_0_01_0_001.npy",
-    "sim2_mowgli_cosine_15": res_folder + "liu_sim_2_mowgli_cosine_15_0_1_rna_0_01_atac_0_1_adt_0_01_0_001.npy",
-    "sim2_mowgli_cosine_30": res_folder + "liu_sim_2_mowgli_cosine_30_0_1_rna_0_01_atac_0_1_adt_0_01_0_001.npy",
-    "sim2_mowgli_cosine_50": res_folder + "liu_sim_2_mowgli_cosine_50_0_1_rna_0_01_atac_0_1_adt_0_01_0_001.npy",
-    "sim2_mowgli_cosine_100": res_folder + "liu_sim_2_mowgli_cosine_100_0_1_rna_0_01_atac_0_1_adt_0_01_0_001.npy",
-
-    "sim3_mowgli_cosine_5": res_folder + "liu_sim_3_mowgli_cosine_5_0_1_rna_0_01_atac_0_1_adt_0_01_0_001.npy",
-    "sim3_mowgli_cosine_15": res_folder + "liu_sim_3_mowgli_cosine_15_0_1_rna_0_01_atac_0_1_adt_0_01_0_001.npy",
-    "sim3_mowgli_cosine_30": res_folder + "liu_sim_3_mowgli_cosine_30_0_1_rna_0_01_atac_0_1_adt_0_01_0_001.npy",
-    "sim3_mowgli_cosine_50": res_folder + "liu_sim_3_mowgli_cosine_50_0_1_rna_0_01_atac_0_1_adt_0_01_0_001.npy",
-    "sim3_mowgli_cosine_100": res_folder + "liu_sim_3_mowgli_cosine_100_0_1_rna_0_01_atac_0_1_adt_0_01_0_001.npy",
-
-    "sim4_mowgli_cosine_5": res_folder + "liu_sim_4_mowgli_cosine_5_0_1_rna_0_01_atac_0_1_adt_0_01_0_001.npy",
-    "sim4_mowgli_cosine_15": res_folder + "liu_sim_4_mowgli_cosine_15_0_1_rna_0_01_atac_0_1_adt_0_01_0_001.npy",
-    "sim4_mowgli_cosine_30": res_folder + "liu_sim_4_mowgli_cosine_30_0_1_rna_0_01_atac_0_1_adt_0_01_0_001.npy",
-    "sim4_mowgli_cosine_50": res_folder + "liu_sim_4_mowgli_cosine_50_0_1_rna_0_01_atac_0_1_adt_0_01_0_001.npy",
-    "sim4_mowgli_cosine_100": res_folder + "liu_sim_4_mowgli_cosine_100_0_1_rna_0_01_atac_0_1_adt_0_01_0_001.npy",
-
-    "sim5_mowgli_cosine_5": res_folder + "liu_sim_5_mowgli_cosine_5_0_1_rna_0_01_atac_0_1_adt_0_01_0_001.npy",
-    "sim5_mowgli_cosine_15": res_folder + "liu_sim_5_mowgli_cosine_15_0_1_rna_0_01_atac_0_1_adt_0_01_0_001.npy",
-    "sim5_mowgli_cosine_30": res_folder + "liu_sim_5_mowgli_cosine_30_0_1_rna_0_01_atac_0_1_adt_0_01_0_001.npy",
-    "sim5_mowgli_cosine_50": res_folder + "liu_sim_5_mowgli_cosine_50_0_1_rna_0_01_atac_0_1_adt_0_01_0_001.npy",
-    "sim5_mowgli_cosine_100": res_folder + "liu_sim_5_mowgli_cosine_100_0_1_rna_0_01_atac_0_1_adt_0_01_0_001.npy",
-
-    "sim6_mowgli_cosine_5": res_folder + "liu_sim_6_mowgli_cosine_5_0_1_rna_0_01_atac_0_1_adt_0_01_0_001.npy",
-    "sim6_mowgli_cosine_15": res_folder + "liu_sim_6_mowgli_cosine_15_0_1_rna_0_01_atac_0_1_adt_0_01_0_001.npy",
-    "sim6_mowgli_cosine_30": res_folder + "liu_sim_6_mowgli_cosine_30_0_1_rna_0_01_atac_0_1_adt_0_01_0_001.npy",
-    "sim6_mowgli_cosine_50": res_folder + "liu_sim_6_mowgli_cosine_50_0_1_rna_0_01_atac_0_1_adt_0_01_0_001.npy",
-    "sim6_mowgli_cosine_100": res_folder + "liu_sim_6_mowgli_cosine_100_0_1_rna_0_01_atac_0_1_adt_0_01_0_001.npy",
-
-    "pbmc_mowgli_cosine_15": res_folder + "pbmc_mowgli_cosine_15_0_05_rna_0_01_atac_0_1_adt_0_001_0_001.npy",
-    "pbmc_mowgli_cosine_30": res_folder + "pbmc_mowgli_cosine_30_0_05_rna_0_01_atac_0_1_adt_0_001_0_001.npy",
-    "pbmc_mowgli_cosine_50": res_folder + "pbmc_mowgli_cosine_50_0_05_rna_0_01_atac_0_1_adt_0_001_0_001.npy",
-    "pbmc_mowgli_cosine_100": res_folder + "pbmc_mowgli_cosine_100_0_05_rna_0_01_atac_0_1_adt_0_01_0_001.npy",
-
-    "opmultiome_mowgli_cosine_15": res_folder + "opmultiome_mowgli_cosine_15_0_05_rna_0_01_atac_0_1_adt_0_001_0_001.npy",
-    "opmultiome_mowgli_cosine_30": res_folder + "opmultiome_mowgli_cosine_30_0_05_rna_0_01_atac_0_1_adt_0_001_0_001.npy",
-    "opmultiome_mowgli_cosine_50": res_folder + "opmultiome_mowgli_cosine_50_0_05_rna_0_01_atac_0_1_adt_0_001_0_001.npy",
-    "opmultiome_mowgli_cosine_100": res_folder + "opmultiome_mowgli_cosine_100_0_05_rna_0_01_atac_0_1_adt_0_01_0_001.npy",
-
-    "opcite_mowgli_cosine_15": res_folder + "opcite_mowgli_cosine_15_0_05_0_01_0_001.npy",
-    "opcite_mowgli_cosine_30": res_folder + "opcite_mowgli_cosine_30_0_05_0_01_0_001.npy",
-    "opcite_mowgli_cosine_50": res_folder + "opcite_mowgli_cosine_50_0_05_0_01_0_001.npy",
-    "opcite_mowgli_cosine_100": res_folder + "opcite_mowgli_cosine_100_0_05_rna_0_01_atac_0_1_adt_0_01_0_001.npy",
-
-    "bmcite_mowgli_cosine_15": res_folder + "bmcite_mowgli_cosine_15_0_05_0_01_0_001.npy",
-    "bmcite_mowgli_cosine_30": res_folder + "bmcite_mowgli_cosine_30_0_05_0_01_0_001.npy",
-    "bmcite_mowgli_cosine_50": res_folder + "bmcite_mowgli_cosine_50_0_05_0_01_0_001.npy",
-    "bmcite_mowgli_cosine_100": res_folder + "bmcite_mowgli_cosine_100_0_05_rna_0_01_atac_0_1_adt_0_01_0_001.npy",
-}
-
-# Define the path where to save the results.
-res_path = "/users/csb/huizing/Documents/PhD/Code/mowgli_reproducibility/evaluate/scores_mowgli.pkl"
-
-console = Console()
-
-###################################### JACCARD THING #####################################
+import hydra
+from omegaconf import DictConfig
 
 
-# Define the Jaccard index.
-def jaccard(a, b):
-    inter = len(np.intersect1d(a, b))
-    return inter / (len(a) + len(b) - inter)
+@hydra.main(version_base=None, config_path="../conf", config_name="config")
+def my_app(cfg: DictConfig) -> None:
 
+    ######################################## IMPORTS #########################################
 
-# Function reweighting Scanpy's kNN based on the Jaccard index.
-def jaccard_denoising(adata):
+    # Load libraries.
+    import pickle
 
-    # Iterate over all cells.
-    for i in range(adata.n_obs):
+    import muon as mu
+    import numpy as np
+    import scanpy as sc
+    from mowgli import score
+    from rich.console import Console
 
-        # Get nearest neighbors of cell i.
-        _, idx_i = adata.obsp["distances"][i].nonzero()
+    # Define the path where to save the results.
+    res_path = cfg.evaluate_path + "scores_mowgli.pkl"
 
-        # Iterate over the nearest neighbors.
-        for j in idx_i:
+    console = Console()
 
-            # Get the nearest neighbors of cell j.
-            _, idx_j = adata.obsp["distances"][j].nonzero()
+    ################################# EVALUATING mowgli ########################################
 
-            # Compute the Jaccard index.
-            d = jaccard(idx_i, idx_j)
+    with console.status("[bold green]Evaluating mowgli..."):
 
-            if d < 1/15: # Pruning threshold
-                d = 0
+        # Intialize a dictionary for the scores.
+        scores_dict = {}
+        try:
+            with open(res_path, "rb") as f:
+                scores_dict = pickle.load(f)
+        except Exception as e:
+            print(e)
 
-            # Reweight the kNN.
-            adata.obsp["connectivities"][i, j] = d
-            adata.obsp["connectivities"][j, i] = d
+        # Set the range of nearest neighbors.
+        k_range = list(range(1, 30))
 
-
-################################# EVALUATING mowgli ########################################
-
-with console.status("[bold green]Evaluating mowgli...") as status:
-
-    # Intialize a dictionary for the scores.
-    scores_dict = {}
-    # with open(res_path, "rb") as f:
-        # scores_dict = pickle.load(f)
-
-    # Set the range of nearest neighbors.
-    k_range = list(range(1, 30))
-
-    # Set the range of resulotions.
-    res_range = list(np.arange(0.1, 2, 0.1))
-
-    previous_path = ""
-
-    for xp_name in data_path:
+        # Set the range of resulotions.
+        res_range = list(np.arange(0.1, 2, 0.1))
 
         # Load the original data.
-        console.log(f"Loading data for {xp_name} [bold green]")
-        if previous_path != data_path[xp_name]:
-            mdata = mu.read_h5mu(data_path[xp_name])
-            previous_path = data_path[xp_name]
+        console.log(f"Loading data [bold green]")
+        mdata = mu.read_h5mu(cfg.data_path + cfg.dataset.dataset_path)
         console.log("Data loaded.")
+
+        # Define the experiment name.
+        xp_name = f"{cfg.dataset.save_to_prefix}_mowgli"
+        xp_name = f"{xp_name}_{cfg.latent_dim}_{cfg.eps}"
+        xp_name = f"{xp_name}_rna_{cfg.h_regularization_rna}"
+        xp_name = f"{xp_name}_atac_{cfg.h_regularization_atac}"
+        xp_name = f"{xp_name}_adt_{cfg.h_regularization_adt}"
+        xp_name = f"{xp_name}_{cfg.w_regularization}"
+        xp_name = xp_name.replace(".", "_")
 
         # Initialise scores for this experiment.
         scores_dict[xp_name] = {}
 
         # Log the experiment name.
-        console.log(f"Starting to compute scores for {xp_name} [bold green]")
+        console.log(f"Starting to compute scores [bold green]")
 
         # Load the mowgli embedding.
-        mdata.obsm["X_mowgli"] = np.load(
-            mowgli_path[xp_name], allow_pickle=True
-        ).item()["W"]
+        try:
+            mdata.obsm["X_mowgli"] = np.load(
+                cfg.data_path + f"{xp_name.replace('simulated', 'sim')}.npy",
+                allow_pickle=True,
+            ).item()["W"]
+        except Exception as e:
+            mdata.obsm["X_mowgli"] = np.load(
+                cfg.data_path + f"{xp_name}.npy", allow_pickle=True
+            ).item()["W"]
         mdata.uns = {}
 
         console.log("Loaded the embedding [bold green]")
@@ -269,27 +119,12 @@ with console.status("[bold green]Evaluating mowgli...") as status:
 
         console.log("Computed the ARIs. Phew! [bold green]")
 
-        # Try jaccard smoothing.
-        jaccard_denoising(mdata)
-
-        sc.tl.leiden(mdata)
-        jaccard_aris = []
-        for res in res_range:
-
-            # Log the value of resolution.
-            console.log(f"Computing ARI for resolution={res} [bold green]")
-
-            # Compute the ARI.
-            sc.tl.leiden(mdata, resolution=res)
-            s = score.ARI(mdata.obs["rna:celltype"], mdata.obs["leiden"])
-            jaccard_aris.append(s)
-
-        scores_dict[xp_name]["ARIs after denoising"] = jaccard_aris
-
-        console.log("Computed the ARIs after denoising. Phew! [bold green]")
-
         # Save the results.
         with open(res_path, "wb") as f:
             pickle.dump(scores_dict, f)
 
-    console.log("Saved all of this! [bold green]")
+        console.log("Saved all of this! [bold green]")
+
+
+if __name__ == "__main__":
+    my_app()
