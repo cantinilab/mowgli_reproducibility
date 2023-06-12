@@ -1,0 +1,2 @@
+dataset_path: "OPCITE/opcite_preprocessed.h5mu.gz"
+save_to_prefix: "OPCITE/opcite"

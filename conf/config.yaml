@@ -1,0 +1,23 @@
+defaults:
+  - dataset: liu
+  - _self_
+
+data_path: "/users/csb/huizing/Documents/PhD/Code/mowgli_reproducibility_review/data/"
+evaluate_path: "/users/csb/huizing/Documents/PhD/Code/mowgli_reproducibility_review/evaluate/"
+enrich_path: "/users/csb/huizing/Documents/PhD/Code/mowgli_reproducibility_review/enrich/"
+figure_path: "/users/csb/huizing/Documents/PhD/Code/mowgli_reproducibility_review/visualize/figures/"
+w_path: "/users/csb/huizing/Documents/PhD/Code/Mowgli/local_analysis/from_jz/w/"
+h_path: "/users/csb/huizing/Documents/PhD/Code/Mowgli/local_analysis/from_jz/h/"
+
+# For all methods
+latent_dim: 15
+
+# For Cobolt and Multigrate
+n_epochs: 200
+
+# For mowgli
+eps: 0.05
+w_regularization: 0.001
+h_regularization_rna: 0.01
+h_regularization_adt: 0.01
+h_regularization_atac: 0.1

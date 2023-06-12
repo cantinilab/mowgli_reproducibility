@@ -1,0 +1,2 @@
+dataset_path: "Liu/liu_simulated_5_with_raw.h5mu.gz"
+save_to_prefix: "Liu/liu_simulated_5"

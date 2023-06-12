@@ -1,0 +1,2 @@
+dataset_path: "OP_multiome/opmultiome_preprocessed.h5mu.gz"
+save_to_prefix: "OP_multiome/opmultiome"
