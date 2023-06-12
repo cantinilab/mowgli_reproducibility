@@ -11,7 +11,7 @@ This is the code used to perform the experiments and generate the figures in our
 
 - `enrich` contains the code for the enrichment analysis
 - `evaluate` contains the code for computing the various evaluation metrics
-- `integrate` contains the code used to perform the integration with Mowgli, MOF+, Seurat and integrative NMF
+- `integrate` contains the code used to perform the integration with Mowgli, MOFA+, Seurat, Cobolt, Multigrate and integrative NMF
 - `preprocess` contains the preprocessing code
 - `visualize` contains the visualization code used to produce the figures of the paper
 
