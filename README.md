@@ -17,7 +17,7 @@ This is the code used to perform the experiments and generate the figures in our
 
 ## Our preprint
 
-https://www.biorxiv.org/content/10.1101/2023.02.02.526825v1
+https://www.nature.com/articles/s41467-023-43019-2
 
 ```bibtex
 @article{huizing2023paired,
